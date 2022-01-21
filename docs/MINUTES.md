@@ -6,3 +6,6 @@ Meeting 3: https://docs.google.com/document/d/1CCy3pD6sNIpIMTbqqKMvUEBaCP-2FTPb3
 
 Meeting 4: https://docs.google.com/document/d/1A87zy3TZKkO9CanxUNjsd6IZ0ZSQ9biiBXme_7eTXb4/edit?usp=sharing
 
+Meeting 5: https://docs.google.com/document/d/1nh1m2KU5oe3ultKX0GxPvuhPFu9uNuwaUYbzCvRyyHc/edit?usp=sharing
+
+Meeting 6: https://docs.google.com/document/d/1DE6s7LLYRNPtUNoPVq3M71iQZKq7pRb65HQP9fZY1Ts/edit?usp=sharing

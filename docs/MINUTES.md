@@ -12,4 +12,6 @@ Meeting 6: https://docs.google.com/document/d/1DE6s7LLYRNPtUNoPVq3M71iQZKq7pRb65
 
 Meeting 7: https://docs.google.com/document/d/1url5QDIBYGTljrAiEFi09zi_-_LTk50tgj_NaWRIaZ0/edit?usp=sharing
 
-Meeting 8: https://docs.google.com/document/d/1z_nXqXiCbmdtFVe4DHY9P6sAkL6FdnfgEpYOXCVbIUA/edit?usp=sharing
+Meeting 8: https://docs.google.com/document/d/1IdeEtjCmUeAp7QUb9H6TLYhYcKAaGA9R1Byj5zgZbqs/edit?usp=sharing
+
+Meeting 9: https://docs.google.com/document/d/1z_nXqXiCbmdtFVe4DHY9P6sAkL6FdnfgEpYOXCVbIUA/edit?usp=sharing

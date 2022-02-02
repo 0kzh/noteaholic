@@ -9,3 +9,7 @@ Meeting 4: https://docs.google.com/document/d/1A87zy3TZKkO9CanxUNjsd6IZ0ZSQ9biiB
 Meeting 5: https://docs.google.com/document/d/1nh1m2KU5oe3ultKX0GxPvuhPFu9uNuwaUYbzCvRyyHc/edit?usp=sharing
 
 Meeting 6: https://docs.google.com/document/d/1DE6s7LLYRNPtUNoPVq3M71iQZKq7pRb65HQP9fZY1Ts/edit?usp=sharing
+
+Meeting 7: https://docs.google.com/document/d/1url5QDIBYGTljrAiEFi09zi_-_LTk50tgj_NaWRIaZ0/edit?usp=sharing
+
+Meeting 8: https://docs.google.com/document/d/1z_nXqXiCbmdtFVe4DHY9P6sAkL6FdnfgEpYOXCVbIUA/edit?usp=sharing

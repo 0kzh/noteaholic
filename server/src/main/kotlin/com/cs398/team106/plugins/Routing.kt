@@ -1,19 +1,34 @@
 package com.cs398.team106.plugins
 
-import io.ktor.server.routing.*
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.response.*
-import io.ktor.server.request.*
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import io.ktor.application.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import java.util.*
+
 
 fun Application.configureRouting() {
-
-    // Starting point for a Ktor app:
     routing {
         get("/") {
             call.respondText("Hello World!")
         }
     }
+    // Authentication Routes
     routing {
+        post("/login") {
+            call.respond(hashMapOf("token" to "tokenTemp"))
+//            val user = call.receive<User>()
+//            // Check username and password
+//            // ...
+//            val token = JWT.create()
+//                .withIssuer(issuer)
+//                .withClaim("username", user.username)
+//                .withExpiresAt(Date(System.currentTimeMillis() + 60000))
+//                .sign(Algorithm.HMAC256(secret))
+//            call.respond(hashMapOf("token" to token))
+        }
     }
+
 }

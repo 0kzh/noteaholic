@@ -3,9 +3,6 @@ package navcontroller
 import androidx.compose.runtime.Composable
 
 class NavigationProvider(
-    /**
-     * NavigationHost class
-     */
     val navController: NavController,
     val contents: @Composable NavigationGraphBuilder.() -> Unit
 ) {

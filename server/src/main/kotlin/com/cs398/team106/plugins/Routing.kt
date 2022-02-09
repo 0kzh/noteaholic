@@ -13,6 +13,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 import java.util.*
@@ -27,6 +28,7 @@ fun Application.configureRouting() {
             call.respondText("Hello World!")
         }
     }
+
     // Authentication Routes
     routing {
         post("/signup") {
@@ -44,16 +46,20 @@ fun Application.configureRouting() {
         }
         post("/login") {
             val userLogin = call.receive<Login>()
-            val token = JWT.create()
-                .withIssuer(issuer)
-                .withClaim("email", userLogin.email)
-                .withExpiresAt(Date(System.currentTimeMillis() + 600000))
-                .sign(Algorithm.HMAC256(secret))
-            call.respond(hashMapOf("token" to token))
+            if (userLogin.email.isEmpty() || userLogin.password.isEmpty() || !isUserAuthenticated(userLogin)) {
+                call.respond(HttpStatusCode.Forbidden)
+            } else {
+                val token = JWT.create()
+                    .withIssuer(issuer)
+                    .withClaim("email", userLogin.email)
+                    .withExpiresAt(Date(System.currentTimeMillis() + 600000))
+                    .sign(Algorithm.HMAC256(secret))
+                call.respond(hashMapOf("token" to token))
+            }
         }
+
         authenticate {
             get("/me") {
-                println("In ME")
                 val principal = call.principal<JWTPrincipal>()
                 val username = principal!!.payload.getClaim("email").asString()
                 val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
@@ -63,4 +69,12 @@ fun Application.configureRouting() {
 
     }
 
+}
+
+private fun isUserAuthenticated(userLogin: Login): Boolean {
+    return transaction {
+        val dbUser = Users.select { Users.email eq userLogin.email }.single()
+        val dbPasswordHash = dbUser[Users.password]
+        return@transaction BCrypt.checkpw(userLogin.password, dbPasswordHash)
+    }
 }

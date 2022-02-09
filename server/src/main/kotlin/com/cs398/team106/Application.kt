@@ -1,5 +1,6 @@
 package com.cs398.team106
 
+import com.cs398.team106.plugins.configureAuthentication
 import com.cs398.team106.plugins.configureRouting
 import com.cs398.team106.plugins.configureSerialization
 import io.ktor.application.*
@@ -11,5 +12,6 @@ fun Application.module(testing: Boolean = false) {
     DatabaseInit.connect()
     DatabaseInit.createTablesIfNotExist()
     configureSerialization()
+    configureAuthentication()
     configureRouting()
 }

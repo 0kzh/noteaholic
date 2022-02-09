@@ -143,9 +143,6 @@ cmake-build-*/
 # File-based project format
 *.iws
 
-# IntelliJ
-out/
-
 # mpeltonen/sbt-idea plugin
 .idea_modules/
 
@@ -172,3 +169,4 @@ fabric.properties
 
 # Database conf
 server/src/main/resources/database.conf
+server/src/main/resources/jwt.conf

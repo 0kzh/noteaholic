@@ -24,6 +24,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.mindrot:jbcrypt:0.4")
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")

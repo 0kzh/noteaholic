@@ -15,7 +15,7 @@ object Users : IntIdTable() {
     val lastName = varchar("last_name", nameLength)
     val email = varchar("email", emailLength).uniqueIndex()
     val password = varchar("password", passwordLength)
-    val lastSignInDate = datetime("last_sign_in_date")
+    val lastSignInDate = datetime("last_sign_in_date").nullable()
 }
 
 object Notes : IntIdTable() {

@@ -4,22 +4,27 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
+object DatabaseFieldLimits {
+    const val nameLength = 128
+    const val titleLength = 255
+    const val emailLength = 255
+    const val passwordLength = 60
 
-private const val nameLength = 128
-private const val titleLength = 255
-private const val emailLength = 255
-private const val passwordLength = 512
+    fun isInRange(input: String, maximumLength: Int): Boolean {
+        return input.length <= maximumLength
+    }
+}
 
 object Users : IntIdTable() {
-    val firstName = varchar("first_name", nameLength)
-    val lastName = varchar("last_name", nameLength)
-    val email = varchar("email", emailLength).uniqueIndex()
-    val password = varchar("password", passwordLength)
+    val firstName = varchar("first_name", DatabaseFieldLimits.nameLength)
+    val lastName = varchar("last_name", DatabaseFieldLimits.nameLength)
+    val email = varchar("email", DatabaseFieldLimits.emailLength).uniqueIndex()
+    val password = varchar("password", DatabaseFieldLimits.passwordLength)
     val lastSignInDate = datetime("last_sign_in_date").nullable()
 }
 
 object Notes : IntIdTable() {
-    val title = varchar("title", titleLength)
+    val title = varchar("title", DatabaseFieldLimits.titleLength)
     val plainTextContent = text("plaintext_content")
     val formattedContent = text("formatted_content")
     val createdAt = datetime("created_at")
@@ -34,7 +39,7 @@ object SharedNotes : Table("shared_notes") {
 }
 
 object Titles : IntIdTable() {
-    val text = varchar("title", titleLength)
+    val text = varchar("title", DatabaseFieldLimits.titleLength)
 }
 
 object CanvasObjects : IntIdTable("canvas_objects") {

@@ -31,3 +31,6 @@ data class User(
         return email.isNotBlank() && password.isNotBlank() && firstName.isNotBlank() && lastName.isNotBlank()
     }
 }
+
+@Serializable
+data class TokenResponse(val token: String)

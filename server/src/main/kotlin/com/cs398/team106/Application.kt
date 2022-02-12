@@ -1,11 +1,17 @@
 package com.cs398.team106
 
-import io.ktor.server.engine.*
+import com.cs398.team106.plugins.configureAuthentication
+import com.cs398.team106.plugins.configureRouting
+import com.cs398.team106.plugins.configureSerialization
+import io.ktor.application.*
 import io.ktor.server.netty.*
-import com.cs398.team106.plugins.*
 
-fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
-        configureRouting()
-    }.start(wait = true)
+fun main(args: Array<String>): Unit = EngineMain.main(args)
+
+fun Application.module(testing: Boolean = false) {
+    DatabaseInit.connect()
+    DatabaseInit.createTablesIfNotExist()
+    configureSerialization()
+    configureAuthentication()
+    configureRouting()
 }

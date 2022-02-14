@@ -1,5 +1,8 @@
 package com.cs398.team106
 
+import org.jetbrains.exposed.dao.IntEntity
+import org.jetbrains.exposed.dao.IntEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
@@ -23,6 +26,20 @@ object Users : IntIdTable() {
     val lastSignInDate = datetime("last_sign_in_date").nullable()
 }
 
+class DBUser(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<DBUser>(Users)
+
+    var firstName by Users.firstName
+    var lastName by Users.lastName
+    var email by Users.email
+    var password by Users.password
+    var lastSignInDate by Users.lastSignInDate
+
+    fun toModel(): UserDTOOut {
+        return UserDTOOut(id.value, firstName, lastName, email, lastSignInDate.toString())
+    }
+}
+
 object Notes : IntIdTable() {
     val title = varchar("title", DatabaseFieldLimits.titleLength)
     val plainTextContent = text("plaintext_content")
@@ -30,7 +47,21 @@ object Notes : IntIdTable() {
     val createdAt = datetime("created_at")
     val modifiedAt = datetime("modified_at")
     val owner = integer("owner").references(Users.id)
+}
 
+class DBNotes(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<DBUser>(Users)
+
+    var title by Notes.title
+    var plainText by Notes.plainTextContent
+    var formattedContent by Notes.formattedContent
+    var createdAt by Notes.createdAt
+    var modifiedAt by Notes.modifiedAt
+    var owner by Notes.owner
+
+    fun toModel(): NotesDTOOut {
+        return NotesDTOOut(id.value, title, plainText, formattedContent, createdAt.toString(), modifiedAt.toString(), owner)
+    }
 }
 
 object SharedNotes : Table("shared_notes") {

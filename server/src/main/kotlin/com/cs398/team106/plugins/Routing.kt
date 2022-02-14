@@ -39,6 +39,27 @@ fun Application.configureRouting() {
 
     }
 
+    // Note Routes
+//    routing {
+//        post("/create_note") {
+//            UserAuthentication.signUp(call)
+//        }
+//
+//        post("/login") {
+//            UserAuthentication.login(issuer, secret, call)
+//        }
+//
+//        authenticate {
+//            get("/me") {
+//                val principal = call.principal<JWTPrincipal>()
+//                val username = principal!!.payload.getClaim("email").asString()
+//                val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
+//                call.respondText("Hello, $username! Token is expired at $expiresAt ms.")
+//            }
+//        }
+//
+//    }
+
 }
 
 

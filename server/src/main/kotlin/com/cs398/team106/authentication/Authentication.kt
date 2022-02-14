@@ -11,15 +11,23 @@ import io.ktor.response.*
 import org.mindrot.jbcrypt.BCrypt
 import java.util.*
 import kotlin.time.Duration.Companion.hours
+import kotlinx.serialization.SerializationException
 
 
 object UserAuthentication {
     private val jwtTTL = 1.hours.inWholeMilliseconds
 
     suspend fun signUp(call: ApplicationCall) {
-        val userSignup = call.receive<User>()
+        val userSignup: User;
+        try {
+            userSignup = call.receive<User>()
+        } catch (e: SerializationException) {
+            call.respond(HttpStatusCode.BadRequest)
+            return
+        }
         if (!userSignup.isValid() || !isUserDataInRange(userSignup)) {
             call.respond(HttpStatusCode.BadRequest)
+            return
         } else {
             if (UserRepository.getUserByEmail(userSignup.email) != null) {
                 call.respond(HttpStatusCode.Conflict)

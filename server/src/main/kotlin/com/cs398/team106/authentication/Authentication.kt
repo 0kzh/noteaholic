@@ -14,7 +14,6 @@ import kotlin.time.Duration.Companion.hours
 
 
 object UserAuthentication {
-    private const val numberOfSaltGenerationRounds = 12
     private val jwtTTL = 1.hours.inWholeMilliseconds
 
     suspend fun signUp(call: ApplicationCall) {
@@ -26,8 +25,12 @@ object UserAuthentication {
                 call.respond(HttpStatusCode.Conflict)
                 return
             }
-            val hashedPassword = BCrypt.hashpw(userSignup.password, BCrypt.gensalt(numberOfSaltGenerationRounds))
-            UserRepository.createNewUser(userSignup.firstName, userSignup.lastName, userSignup.email, hashedPassword)
+            UserRepository.createNewUser(
+                userSignup.firstName,
+                userSignup.lastName,
+                userSignup.email,
+                userSignup.password
+            )
 
             call.respond(HttpStatusCode.Created)
         }

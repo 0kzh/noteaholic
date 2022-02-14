@@ -3,20 +3,17 @@ package com.cs398.team106.authentication
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.cs398.team106.*
+import com.cs398.team106.repository.UserRepository
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.mindrot.jbcrypt.BCrypt
 import java.util.*
 import kotlin.time.Duration.Companion.hours
 
 
 object UserAuthentication {
-    private const val numberOfSaltGenerationRounds = 12
     private val jwtTTL = 1.hours.inWholeMilliseconds
 
     suspend fun signUp(call: ApplicationCall) {
@@ -24,23 +21,17 @@ object UserAuthentication {
         if (!userSignup.isValid() || !isUserDataInRange(userSignup)) {
             call.respond(HttpStatusCode.BadRequest)
         } else {
-            var userExists = false
-            transaction {
-                userExists = getUser(userSignup.email) != null
-            }
-            if (userExists) {
+            if (UserRepository.getUserByEmail(userSignup.email) != null) {
                 call.respond(HttpStatusCode.Conflict)
                 return
             }
-            val hashedPassword = BCrypt.hashpw(userSignup.password, BCrypt.gensalt(numberOfSaltGenerationRounds))
-            transaction {
-                Users.insert {
-                    it[lastName] = userSignup.firstName
-                    it[firstName] = userSignup.lastName
-                    it[email] = userSignup.email
-                    it[password] = hashedPassword
-                }
-            }
+            UserRepository.createNewUser(
+                userSignup.firstName,
+                userSignup.lastName,
+                userSignup.email,
+                userSignup.password
+            )
+
             call.respond(HttpStatusCode.Created)
         }
     }
@@ -67,17 +58,12 @@ object UserAuthentication {
     }
 
     private fun isUserAuthenticated(userLogin: Login): Boolean {
-        return transaction {
-            val dbUser = getUser(userLogin.email)
-            return@transaction if (dbUser != null) {
-                val dbPasswordHash = dbUser[Users.password]
-                BCrypt.checkpw(userLogin.password, dbPasswordHash)
-            } else {
-                false
-            }
+        val dbUser = UserRepository.getUserByEmail(userLogin.email)
+        return if (dbUser != null) {
+            val dbPasswordHash = dbUser[Users.password]
+            BCrypt.checkpw(userLogin.password, dbPasswordHash)
+        } else {
+            false
         }
     }
-
-    private fun getUser(email: String) =
-        Users.select { Users.email eq email }.singleOrNull()
 }

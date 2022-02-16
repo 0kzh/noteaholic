@@ -4,6 +4,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import controllers.EditorController
 import navcontroller.NavController
 import navcontroller.NavigationHost
 import navcontroller.composable
@@ -16,7 +17,7 @@ import screens.login.LoginScreen
 @Preview
 fun App() {
     val screens = Screen.values().toList()
-    val navController by rememberNavController(Screen.LoginScreen.name)
+    val navController by rememberNavController(Screen.EditorScreen.name)
     val currentScreen by remember {
         navController.currentScreen
     }
@@ -53,7 +54,7 @@ fun Router(
         }
 
         composable(Screen.EditorScreen.name) {
-            EditorScreen(navController)
+            EditorScreen(navController, EditorController())
         }
 
         composable(Screen.CanvasScreen.name) {

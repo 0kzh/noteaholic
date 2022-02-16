@@ -46,21 +46,15 @@ fun Application.configureRouting() {
             post("/note") {
                 NoteOperations.createNote(call)
             }
-        }
 
-        authenticate {
             get("/note/{id}") {
                 NoteOperations.getNote(call)
             }
-        }
 
-        authenticate {
             patch("/note/{id}") {
                 NoteOperations.updateNote(call)
             }
-        }
 
-        authenticate {
             delete("/note/{id}") {
                 NoteOperations.deleteNote(call)
             }

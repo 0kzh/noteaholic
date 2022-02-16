@@ -38,11 +38,25 @@ class EditorController {
                 }
                 MarkdownElementTypes.EMPH -> {
                     val newText = text.trim('*').trim('_')
-                    AnnotatedString("\u200B\u200b${newText}\u200b\u200B", SpanStyle(fontStyle = FontStyle.Italic))
+                    // *text*
+                    if (text.startsWith("*") && text.endsWith("*")) {
+                        AnnotatedString("\u200b${newText}\u200b", SpanStyle(fontStyle = FontStyle.Italic))
+                    }
+                    // _text_
+                    else {
+                        AnnotatedString("\u200b${newText}\u200b", SpanStyle(fontStyle = FontStyle.Italic))
+                    }
                 }
                 MarkdownElementTypes.STRONG -> {
                     val newText = text.trim('_').trim('*')
-                    AnnotatedString("\u200B\u200b${newText}\u200b\u200B", SpanStyle(fontWeight = FontWeight.Bold))
+                    // **text**
+                    if (text.startsWith("**") && text.endsWith("**")) {
+                        AnnotatedString("\u200b\u200b${newText}\u200b\u200b", SpanStyle(fontWeight = FontWeight.Bold))
+                    }
+                    // __text__
+                    else {
+                        AnnotatedString("\u200b\u200b${newText}\u200b\u200b", SpanStyle(fontWeight = FontWeight.Bold))
+                    }
                 }
                 MarkdownTokenTypes.EOL -> {
                     AnnotatedString(text)

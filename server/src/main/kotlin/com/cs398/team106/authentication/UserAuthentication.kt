@@ -19,75 +19,62 @@ object UserAuthentication {
     private const val userIdClaim = "userId"
 
     suspend fun signUp(call: ApplicationCall) {
-        val userSignup: User;
-        try {
-            userSignup = call.receive<User>()
-        } catch (e: SerializationException) {
-            call.respond(HttpStatusCode.BadRequest)
-            return
-        }
-
-        if (!userSignup.isValid()) {
-            call.respond(
-                HttpStatusCode.BadRequest,
-                ErrorResponse(
-                    RESPONSE_ERRORS.ERR_EMPTY,
-                    "Email, Password, First Name and Last Name must not be empty "
-                )
-            )
-        } else if (!isUserDataValid(userSignup)) {
-            call.respond(
-                HttpStatusCode.BadRequest,
-                ErrorResponse(RESPONSE_ERRORS.ERR_LENGTH, "Length constraint violated")
-            )
-        } else {
-            if (UserRepository.getUserByEmail(userSignup.email) != null) {
+        call.receiveOrBadRequest<User>()?.let { userSignup ->
+            if (!userSignup.isValid()) {
                 call.respond(
-                    HttpStatusCode.Conflict,
-                    ErrorResponse(RESPONSE_ERRORS.ERR_EXISTS, "User already registered")
+                    HttpStatusCode.BadRequest,
+                    ErrorResponse(
+                        RESPONSE_ERRORS.ERR_EMPTY, "Email, Password, First Name and Last Name must not be empty"
+                    )
                 )
-                return
-            }
-            val newUser = UserRepository.createNewUser(
-                userSignup.firstName,
-                userSignup.lastName,
-                userSignup.email,
-                userSignup.password
-            )
+            } else if (!isUserDataValid(userSignup)) {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    ErrorResponse(RESPONSE_ERRORS.ERR_LENGTH, "Length constraint violated")
+                )
+            } else {
+                if (UserRepository.getUserByEmail(userSignup.email) != null) {
+                    call.respond(
+                        HttpStatusCode.Conflict,
+                        ErrorResponse(RESPONSE_ERRORS.ERR_EXISTS, "User already registered")
+                    )
+                    return
+                }
+                val newUser = UserRepository.createNewUser(
+                    userSignup.firstName,
+                    userSignup.lastName,
+                    userSignup.email,
+                    userSignup.password
+                )
 
-            call.respond(HttpStatusCode.Created, newUser.toModel())
+                call.respond(HttpStatusCode.Created, newUser.toModel())
+            }
         }
     }
 
     suspend fun login(issuer: String, secret: String, call: ApplicationCall) {
-        val userLogin: Login;
-        try {
-            userLogin = call.receive()
-        } catch (e: SerializationException) {
-            call.respond(HttpStatusCode.BadRequest)
-            return
+        call.receiveOrBadRequest<Login>()?.let { userLogin ->
+            if (userLogin.email.isEmpty() || userLogin.password.isEmpty()) {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    ErrorResponse(RESPONSE_ERRORS.ERR_EMPTY, "Email and Password must not be empty")
+                )
+                return
+            }
+            val dbUser = UserRepository.getUserByEmail(userLogin.email)
+            if (!isUserAuthenticated(dbUser, userLogin)) {
+                call.respond(HttpStatusCode.Forbidden)
+                return
+            }
+            UserRepository.login(dbUser!!)
+            val token = JWT.create()
+                .withIssuer(issuer)
+                .withClaim(emailClaim, userLogin.email)
+                .withClaim(userIdClaim, dbUser.id.value)
+                .withExpiresAt(Date(System.currentTimeMillis() + jwtTTL))
+                .sign(Algorithm.HMAC256(secret))
+            call.respond(TokenResponse(token))
         }
-
-        if (userLogin.email.isEmpty() || userLogin.password.isEmpty()) {
-            call.respond(
-                HttpStatusCode.BadRequest,
-                ErrorResponse(RESPONSE_ERRORS.ERR_EMPTY, "Email and Password must not be empty")
-            )
-            return
-        }
-        val dbUser = UserRepository.getUserByEmail(userLogin.email)
-        if (!isUserAuthenticated(dbUser, userLogin)) {
-            call.respond(HttpStatusCode.Forbidden)
-            return
-        }
-        UserRepository.login(dbUser!!)
-        val token = JWT.create()
-            .withIssuer(issuer)
-            .withClaim(emailClaim, userLogin.email)
-            .withClaim(userIdClaim, dbUser.id.value)
-            .withExpiresAt(Date(System.currentTimeMillis() + jwtTTL))
-            .sign(Algorithm.HMAC256(secret))
-        call.respond(TokenResponse(token))
     }
 
     private fun isUserDataValid(user: User): Boolean {
@@ -121,5 +108,14 @@ object UserAuthentication {
                         ")+"
                 ).toRegex()
         return regex.matches(email)
+    }
+}
+
+private suspend inline fun <reified T : Any> ApplicationCall.receiveOrBadRequest(): T? {
+    return try {
+        receive()
+    } catch (e: SerializationException) {
+        respond(HttpStatusCode.BadRequest)
+        null
     }
 }

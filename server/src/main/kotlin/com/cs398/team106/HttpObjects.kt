@@ -6,6 +6,8 @@ object RESPONSE_ERRORS {
     const val ERR_EXISTS = "ERR_EXISTS"
     const val ERR_LENGTH = "ERR_LENGTH"
     const val ERR_EMPTY = "ERR_EMPTY"
+    const val ERR_NOT_FOUND = "ERR_NOT_FOUND"
+    const val ERR_MALFORMED = "ERR_MALFORMED"
 }
 
 @Serializable
@@ -29,16 +31,23 @@ data class Login(
 }
 
 @Serializable
-data class Note(
+data class CreateNoteData(
     val title: String,
     val plainTextContent: String,
     val formattedContent: String,
-    val ownerID: Int,
 ) {
     fun isValid(): Boolean {
         return title.isNotBlank()
     }
 }
+
+@Serializable
+data class UpdateNoteData(
+    val title: String? = null,
+    val plainTextContent: String? = null,
+    val formattedContent: String? = null,
+    val ownerID: Int? = null,
+) {}
 
 @Serializable
 data class User(

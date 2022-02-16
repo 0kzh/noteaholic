@@ -3,6 +3,8 @@ package controllers
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
@@ -34,8 +36,13 @@ class EditorController {
                     val newText = if (text.startsWith("### ")) text.replace("### ", "") else text
                     AnnotatedString(newText + "\u200b\u200b\u200b\u200b", SpanStyle(fontSize = 31.sp))
                 }
-                MarkdownElementTypes.PARAGRAPH -> {
-                    AnnotatedString(text)
+                MarkdownElementTypes.EMPH -> {
+                    val newText = text.trim('*').trim('_')
+                    AnnotatedString("\u200B\u200b${newText}\u200b\u200B", SpanStyle(fontStyle = FontStyle.Italic))
+                }
+                MarkdownElementTypes.STRONG -> {
+                    val newText = text.trim('_').trim('*')
+                    AnnotatedString("\u200B\u200b${newText}\u200b\u200B", SpanStyle(fontWeight = FontWeight.Bold))
                 }
                 MarkdownTokenTypes.EOL -> {
                     AnnotatedString(text)

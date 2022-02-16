@@ -17,6 +17,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.jetbrains:markdown:0.3.1")
     implementation(compose.desktop.currentOs)
 }
 

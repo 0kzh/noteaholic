@@ -1,6 +1,7 @@
 package com.cs398.team106.plugins
 
 import com.cs398.team106.authentication.UserAuthentication
+import com.cs398.team106.notes.NoteOperations
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
@@ -40,26 +41,25 @@ fun Application.configureRouting() {
     }
 
     // Note Routes
-//    routing {
-//        post("/create_note") {
-//            UserAuthentication.signUp(call)
-//        }
-//
-//        post("/login") {
-//            UserAuthentication.login(issuer, secret, call)
-//        }
-//
-//        authenticate {
-//            get("/me") {
-//                val principal = call.principal<JWTPrincipal>()
-//                val username = principal!!.payload.getClaim("email").asString()
-//                val expiresAt = principal.expiresAt?.time?.minus(System.currentTimeMillis())
-//                call.respondText("Hello, $username! Token is expired at $expiresAt ms.")
-//            }
-//        }
-//
-//    }
+    routing {
+        authenticate {
+            post("/note") {
+                NoteOperations.createNote(call)
+            }
 
+            get("/note/{id}") {
+                NoteOperations.getNote(call)
+            }
+
+            patch("/note/{id}") {
+                NoteOperations.updateNote(call)
+            }
+
+            delete("/note/{id}") {
+                NoteOperations.deleteNote(call)
+            }
+        }
+    }
 }
 
 

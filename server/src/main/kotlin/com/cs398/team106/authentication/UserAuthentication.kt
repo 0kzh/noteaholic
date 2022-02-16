@@ -3,12 +3,11 @@ package com.cs398.team106.authentication
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.cs398.team106.*
+import com.cs398.team106.applicationcall.receiveOrBadRequest
 import com.cs398.team106.repository.UserRepository
 import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.request.*
 import io.ktor.response.*
-import kotlinx.serialization.SerializationException
 import org.mindrot.jbcrypt.BCrypt
 import java.util.*
 import kotlin.time.Duration.Companion.hours
@@ -16,7 +15,7 @@ import kotlin.time.Duration.Companion.hours
 object UserAuthentication {
     private val jwtTTL = 1.hours.inWholeMilliseconds
     private const val emailClaim = "email"
-    private const val userIdClaim = "userId"
+    const val userIdClaim = "userId"
 
     suspend fun signUp(call: ApplicationCall) {
         call.receiveOrBadRequest<User>()?.let { userSignup ->
@@ -108,14 +107,5 @@ object UserAuthentication {
                         ")+"
                 ).toRegex()
         return regex.matches(email)
-    }
-}
-
-private suspend inline fun <reified T : Any> ApplicationCall.receiveOrBadRequest(): T? {
-    return try {
-        receive()
-    } catch (e: SerializationException) {
-        respond(HttpStatusCode.BadRequest)
-        null
     }
 }

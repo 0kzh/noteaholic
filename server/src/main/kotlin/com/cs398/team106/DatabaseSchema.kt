@@ -49,18 +49,18 @@ object Notes : IntIdTable() {
     val owner = integer("owner").references(Users.id)
 }
 
-class DBNotes(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<DBUser>(Users)
+class DBNote(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<DBNote>(Notes)
 
     var title by Notes.title
-    var plainText by Notes.plainTextContent
+    var plainTextContent by Notes.plainTextContent
     var formattedContent by Notes.formattedContent
     var createdAt by Notes.createdAt
     var modifiedAt by Notes.modifiedAt
     var owner by Notes.owner
 
     fun toModel(): NotesDTOOut {
-        return NotesDTOOut(id.value, title, plainText, formattedContent, createdAt.toString(), modifiedAt.toString(), owner)
+        return NotesDTOOut(id.value, title, plainTextContent, formattedContent, createdAt.toString(), modifiedAt.toString(), owner)
     }
 }
 

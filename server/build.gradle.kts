@@ -33,6 +33,7 @@ dependencies {
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("com.impossibl.pgjdbc-ng:pgjdbc-ng:$pgjdbcVersion")
+    implementation("org.xerial:sqlite-jdbc:3.30.1")
     implementation("io.ktor:ktor-auth:$ktorVersion")
     implementation("io.ktor:ktor-auth-jwt:$ktorVersion")
     implementation("io.ktor:ktor-serialization:$ktorVersion")

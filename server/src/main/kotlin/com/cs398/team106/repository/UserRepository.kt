@@ -28,6 +28,7 @@ object UserRepository {
                 this.lastName = lastName
                 this.email = email
                 this.password = hashedPassword
+                this.lastSignInDate = Clock.System.now().toLocalDateTime(TimeZone.UTC)
             }
         }
     }

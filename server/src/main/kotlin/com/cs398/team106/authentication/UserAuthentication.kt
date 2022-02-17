@@ -13,8 +13,8 @@ import java.util.*
 import kotlin.time.Duration.Companion.hours
 
 object UserAuthentication {
-    private val jwtTTL = 1.hours.inWholeMilliseconds
-    private const val emailClaim = "email"
+    val jwtTTL = 1.hours.inWholeMilliseconds
+    const val emailClaim = "email"
     const val userIdClaim = "userId"
 
     suspend fun signUp(call: ApplicationCall) {
@@ -25,6 +25,11 @@ object UserAuthentication {
                     ErrorResponse(
                         RESPONSE_ERRORS.ERR_EMPTY, "Email, Password, First Name and Last Name must not be empty"
                     )
+                )
+            } else if (!validateEmail(userSignup.email)) {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    ErrorResponse(RESPONSE_ERRORS.ERR_MALFORMED, "Invalid email")
                 )
             } else if (!isUserDataValid(userSignup)) {
                 call.respond(
@@ -77,9 +82,6 @@ object UserAuthentication {
     }
 
     private fun isUserDataValid(user: User): Boolean {
-        if (!validateEmail(user.email)) {
-            return false
-        }
         return DatabaseFieldLimits.isInRange(user.firstName, DatabaseFieldLimits.nameLength) &&
                 DatabaseFieldLimits.isInRange(user.lastName, DatabaseFieldLimits.nameLength) &&
                 DatabaseFieldLimits.isInRange(user.password, DatabaseFieldLimits.passwordLength) &&

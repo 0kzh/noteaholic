@@ -9,10 +9,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.sql.DriverManager
 
 object DatabaseInit {
-    fun connect(testing: Boolean = true) {
+    fun connect(testing: Boolean = false) {
         val conf = ConfigFactory.load("application")
         if (testing) {
-            val keepAliveConnection = DriverManager.getConnection(conf.getString("database.connectionString"))
+            DriverManager.getConnection(conf.getString("database.connectionString"))
             Database.connect(
                 conf.getString("database.connectionString"),
                 driver = conf.getString("database.driver")

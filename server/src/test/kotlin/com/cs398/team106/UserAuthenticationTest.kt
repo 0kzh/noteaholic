@@ -1,9 +1,5 @@
 package com.cs398.team106
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import com.cs398.team106.authentication.UserAuthentication
-import com.cs398.team106.repository.NoteRepository
 import com.cs398.team106.repository.UserRepository
 import com.typesafe.config.ConfigFactory
 import io.ktor.config.*
@@ -29,7 +25,7 @@ class UserAuthenticationTest {
     }
 
     private val testEnv = createTestEnvironment {
-        config = HoconApplicationConfig(ConfigFactory.load("application.conf"))
+        config = HoconApplicationConfig(ConfigFactory.load("application"))
     }
 
     @Before

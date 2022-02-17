@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.cs398.team106.authentication.UserAuthentication
 import com.cs398.team106.repository.NoteRepository
 import com.cs398.team106.repository.UserRepository
+import com.cs398.team106.TestUtil
 import com.typesafe.config.ConfigFactory
 import io.ktor.config.*
 import io.ktor.http.*
@@ -30,7 +31,7 @@ class NoteOperationsTest {
     }
 
     private val testEnv = createTestEnvironment {
-        config = HoconApplicationConfig(ConfigFactory.load("application.conf"))
+        config = HoconApplicationConfig(ConfigFactory.load("application"))
     }
 
     @Before
@@ -49,12 +50,7 @@ class NoteOperationsTest {
                 )
             )
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
-            val userToken = JWT.create()
-                .withIssuer("http://0.0.0.0:8080/")
-                .withClaim(UserAuthentication.emailClaim, "email@test.com")
-                .withClaim(UserAuthentication.userIdClaim, 1)
-                .withExpiresAt(Date(System.currentTimeMillis() + UserAuthentication.jwtTTL))
-                .sign(Algorithm.HMAC256("secret"))
+            val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote("title", "plain", "formatted", 1)
 
             with(handleRequest(HttpMethod.Post, "/note") {
@@ -84,12 +80,7 @@ class NoteOperationsTest {
                 )
             )
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
-            val userToken = JWT.create()
-                .withIssuer("http://0.0.0.0:8080/")
-                .withClaim(UserAuthentication.emailClaim, "email@test.com")
-                .withClaim(UserAuthentication.userIdClaim, 1)
-                .withExpiresAt(Date(System.currentTimeMillis() + UserAuthentication.jwtTTL))
-                .sign(Algorithm.HMAC256("secret"))
+            val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote("title", "plain", "formatted", 1)
             with(handleRequest(HttpMethod.Get, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")

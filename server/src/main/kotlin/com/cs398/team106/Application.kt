@@ -9,7 +9,7 @@ import io.ktor.server.netty.*
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 fun Application.module() {
-    DatabaseInit.connect(environment.config.property("ktor.deployment.environment").getString() == "test")
+    DatabaseInit.connect(environment.config.property("ktor.isTest").getString().toBooleanStrict())
     DatabaseInit.createTablesIfNotExist()
     configureSerialization()
     configureAuthentication()

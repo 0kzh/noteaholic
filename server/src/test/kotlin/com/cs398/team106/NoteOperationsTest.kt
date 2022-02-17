@@ -20,6 +20,7 @@ import org.junit.Test
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class NoteOperationsTest {
     companion object {
@@ -63,7 +64,7 @@ class NoteOperationsTest {
                 if (actualResponse != null) {
                     assertTrue(actualResponse.keys.contains("id"))
                 } else {
-                    throw Error("Null response received")
+                    fail("Null response received")
                 }
             }
         }
@@ -90,7 +91,7 @@ class NoteOperationsTest {
                 if (actualResponse != null) {
                     assertTrue(actualResponse.keys.contains("id"))
                 } else {
-                    throw Error("Null response received")
+                    fail("Null response received")
                 }
             }
         }

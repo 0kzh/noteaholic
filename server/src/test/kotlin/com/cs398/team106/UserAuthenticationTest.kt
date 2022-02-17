@@ -14,6 +14,7 @@ import org.junit.BeforeClass
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class UserAuthenticationTest {
     companion object {
@@ -65,7 +66,7 @@ class UserAuthenticationTest {
                 if (actualResponse != null) {
                     assertTrue(actualResponse.entries.containsAll(expectedJson.entries))
                 } else {
-                    throw Error("Null response received")
+                    fail("Null response received")
                 }
             }
         }
@@ -232,7 +233,7 @@ class UserAuthenticationTest {
                 if (actualResponse != null) {
                     assertTrue(actualResponse.keys.contains("token"))
                 } else {
-                    throw Error("Null response received")
+                    fail("Null response received")
                 }
             }
         }

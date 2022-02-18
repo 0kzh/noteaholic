@@ -27,3 +27,5 @@ Meeting 13: https://docs.google.com/document/d/1ZX7R0wX70mAHmbZLzFvphUGcljTxZL8j
 Meeting 14: https://docs.google.com/document/d/1plUgXGeInPH765JD5-rXE8Lc9a8YlyJNBkeEwxFOyOg/edit?usp=sharing
 
 Meeting 15: https://docs.google.com/document/d/1htQ4rqy2SdlIvvW834ptmA8WTyburndBBpQ-T3keuWs/edit?usp=sharing
+
+Sprint 1 Retro: https://docs.google.com/document/d/1AsKhkPEzmpLUzVcBJnED9m4jFh5nZlYgFpFw1O6OLMk/edit

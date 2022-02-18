@@ -48,17 +48,15 @@ fun App() {
     }
 
     MaterialTheme {
-//        Button(onClick = {
-//            text = "Hello, Desktop!"
-//        }) {
-//            Text(text)
-//        }
         Router(navController = navController)
     }
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
+    Window(
+        title = ResString.appName,
+        onCloseRequest = ::exitApplication
+    ) {
         App()
     }
 }

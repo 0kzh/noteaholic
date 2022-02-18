@@ -1,16 +1,15 @@
 package screens.login
 
 import Screen
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.SpanStyle
@@ -21,6 +20,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import controllers.Authentication
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import navcontroller.NavController
 
@@ -32,12 +32,13 @@ fun SignUpScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
+        val scope = rememberCoroutineScope()
         var firstName by remember { mutableStateOf("") }
         var lastName by remember { mutableStateOf("") }
         var email by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var underlined by remember { mutableStateOf(false) }
+        var showSpinner by remember { mutableStateOf(false) }
         val annotatedText = buildAnnotatedString {
             withStyle(
                 style = SpanStyle(
@@ -55,35 +56,54 @@ fun SignUpScreen(navController: NavController) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             OutlinedTextField(
                 value = firstName,
+                singleLine = true,
                 label = { Text(ResString.firstName) },
                 onValueChange = { firstName = it },
             )
 
             OutlinedTextField(
                 value = lastName,
+                singleLine = true,
                 label = { Text(ResString.lastName) },
                 onValueChange = { lastName = it },
             )
             OutlinedTextField(
                 value = email,
+                singleLine = true,
                 label = { Text(ResString.email) },
                 onValueChange = { email = it },
             )
             OutlinedTextField(
                 value = password,
+                singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 label = { Text(ResString.password) },
                 onValueChange = { password = it },
             )
 
             Button(
+                modifier = Modifier.animateContentSize(),
                 onClick = {
-                    runBlocking {
-                        Authentication.signup(firstName,lastName,email, password)
+                    showSpinner = !showSpinner
+                    scope.launch {
+                        val res = Authentication.signup(firstName, lastName, email, password)
+                        if (res) {
+                            Authentication.login(email, password)
+                            navController.navigate(Screen.CanvasScreen.name)
+                        } else {
+                            showSpinner = false
+                        }
                     }
-                    navController.navigate(Screen.CanvasScreen.name)
                 }) {
                 Text(ResString.signup)
+                if (showSpinner) {
+                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
+                        strokeWidth = 2.dp
+                    )
+                }
             }
         }
 

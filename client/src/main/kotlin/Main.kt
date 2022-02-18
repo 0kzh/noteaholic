@@ -1,7 +1,9 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -16,7 +18,7 @@ import navcontroller.rememberNavController
 import screens.canvas.CanvasScreen
 import screens.editor.EditorScreen
 import screens.login.LoginScreen
-import java.util.*
+import screens.login.SignUpScreen
 
 val interFontFamily = FontFamily(
     Font(
@@ -40,7 +42,7 @@ val interFontFamily = FontFamily(
 @Preview
 fun App() {
     val screens = Screen.values().toList()
-    val navController by rememberNavController(Screen.CanvasScreen.name)
+    val navController by rememberNavController(Screen.LoginScreen.name)
     val currentScreen by remember {
         navController.currentScreen
     }
@@ -65,6 +67,7 @@ enum class Screen() {
     EditorScreen(),
     LoginScreen(),
     CanvasScreen(),
+    SignUpScreen()
 }
 
 @Composable
@@ -82,6 +85,10 @@ fun Router(
 
         composable(Screen.CanvasScreen.name) {
             CanvasScreen(navController)
+        }
+
+        composable(Screen.SignUpScreen.name) {
+            SignUpScreen(navController)
         }
     }.build()
 }

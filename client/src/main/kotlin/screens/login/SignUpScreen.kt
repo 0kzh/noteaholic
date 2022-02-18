@@ -1,17 +1,16 @@
 package screens.login
 
-import ResString
 import Screen
-import androidx.compose.animation.animateContentSize
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.SpanStyle
@@ -21,103 +20,77 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import components.OutlinedTextFieldWithError
 import controllers.Authentication
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import navcontroller.NavController
 
 @OptIn(ExperimentalComposeUiApi::class)
-@Preview
 @Composable
-fun LoginScreen(
-    navController: NavController
-) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var underlined by remember { mutableStateOf(false) }
-    var showSpinner by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
-    val scope = rememberCoroutineScope()
-
+fun SignUpScreen(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+
+        var firstName by remember { mutableStateOf("") }
+        var lastName by remember { mutableStateOf("") }
+        var email by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
+        var underlined by remember { mutableStateOf(false) }
         val annotatedText = buildAnnotatedString {
             withStyle(
                 style = SpanStyle(
                     color = MaterialTheme.colors.primary
                 )
             ) {
-                append(ResString.createOne)
+                append(ResString.login)
             }
         }
-
         Text(
-            text = ResString.login,
+            text = ResString.signup,
             style = MaterialTheme.typography.h4
         )
         Spacer(Modifier.height(16.dp))
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            OutlinedTextFieldWithError(
-                singleLine = true,
-                readOnly = showSpinner,
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            OutlinedTextField(
+                value = firstName,
+                label = { Text(ResString.firstName) },
+                onValueChange = { firstName = it },
+            )
+
+            OutlinedTextField(
+                value = lastName,
+                label = { Text(ResString.lastName) },
+                onValueChange = { lastName = it },
+            )
+            OutlinedTextField(
                 value = email,
                 label = { Text(ResString.email) },
                 onValueChange = { email = it },
             )
-            OutlinedTextFieldWithError(
-                singleLine = true,
-                readOnly = showSpinner,
+            OutlinedTextField(
                 value = password,
                 visualTransformation = PasswordVisualTransformation(),
                 label = { Text(ResString.password) },
                 onValueChange = { password = it },
             )
-            if (errorMessage.isNotBlank()) {
-                Text(errorMessage, style = MaterialTheme.typography.caption, color = MaterialTheme.colors.error)
-            }
 
             Button(
-                enabled = !showSpinner,
-                modifier = Modifier.animateContentSize(),
                 onClick = {
-                    showSpinner = !showSpinner
-                    errorMessage = Authentication.validate(email, password)
-                    if (errorMessage.isNotBlank()) {
-                        showSpinner = false
-                        return@Button
+                    runBlocking {
+                        Authentication.signup(firstName,lastName,email, password)
                     }
-                    scope.launch {
-                        val res = Authentication.login(email = email, password = password)
-                        if (res) {
-                            navController.navigate(Screen.CanvasScreen.name)
-                        } else {
-                            showSpinner = false
-                        }
-                    }
+                    navController.navigate(Screen.CanvasScreen.name)
                 }) {
-                Text(ResString.login)
-                if (showSpinner) {
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    CircularProgressIndicator(
-                        color = Color.White,
-                        modifier = Modifier.size(ButtonDefaults.IconSize),
-                        strokeWidth = 2.dp
-                    )
-                }
+                Text(ResString.signup)
             }
         }
-
 
         Spacer(Modifier.height(16.dp))
         Row {
             Text(
-                ResString.noAccount + " " /* space at the end is needed to make it look like 1 sentence */,
+                ResString.haveAccount + " " /* space at the end is needed to make it look like 1 sentence */,
                 style = MaterialTheme.typography.body1
             )
             ClickableText(
@@ -130,7 +103,7 @@ fun LoginScreen(
                         TextDecoration.None
                     }
                 ),
-                onClick = { navController.navigate(Screen.SignUpScreen.name) },
+                onClick = { navController.navigate(Screen.LoginScreen.name) },
                 modifier = Modifier.wrapContentSize(Alignment.Center)
                     .onPointerEvent(PointerEventType.Enter) { underlined = true }
                     .onPointerEvent(PointerEventType.Exit) { underlined = false }

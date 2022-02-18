@@ -3,12 +3,14 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.31"
-    id("org.jetbrains.compose") version "1.0.0"
+    kotlin("jvm") version "1.6.10"
+    id("org.jetbrains.compose") version "1.1.0-alpha04"
+    kotlin("plugin.serialization") version "1.6.10"
 }
 
 group = "com.cs398.team106"
 version = "1.0"
+val ktor_version = "1.6.7"
 
 repositories {
     google()
@@ -19,6 +21,9 @@ repositories {
 dependencies {
     implementation("org.jetbrains:markdown:0.3.1")
     implementation(compose.desktop.currentOs)
+    implementation("io.ktor:ktor-client-core:$ktor_version")
+    implementation("io.ktor:ktor-client-jetty:$ktor_version")
+    implementation("io.ktor:ktor-client-serialization:$ktor_version")
 }
 
 tasks.withType<KotlinCompile> {

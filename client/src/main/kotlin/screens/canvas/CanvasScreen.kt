@@ -1,28 +1,27 @@
 package screens.canvas
 
+import Screen
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.graphics.Color
-import navcontroller.NavController
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import components.Border
 import components.border
+import navcontroller.NavController
 import kotlin.math.roundToInt
 
 data class NoteData(val position: IntOffset = IntOffset.Zero, val text: String = "")
@@ -33,6 +32,7 @@ fun Note(
 ) {
     var positionX by remember { mutableStateOf(note.position.x) }
     var positionY by remember { mutableStateOf(note.position.y) }
+    @OptIn(ExperimentalFoundationApi::class)
     Box(Modifier.offset { IntOffset(positionX + translateX, positionY + translateY) }
         .background(Color(0xFFFCE183)).size(100.dp * scale).pointerInput(Unit) {
             detectDragGestures { change, dragAmount ->
@@ -40,12 +40,9 @@ fun Note(
                 positionX += dragAmount.x.roundToInt()
                 positionY += dragAmount.y.roundToInt()
             }
-            detectTapGestures(
-                onDoubleTap = {
-                    navController.navigate(Screen.EditorScreen.name)
-                }
-            )
-        }, contentAlignment = Alignment.Center
+        }.combinedClickable(onClick = {}, onDoubleClick = {
+            navController.navigate(Screen.EditorScreen.name)
+        }), contentAlignment = Alignment.Center
     ) {
         Text(
             text = "${note.text}", style = MaterialTheme.typography.h6

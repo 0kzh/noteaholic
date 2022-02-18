@@ -1,4 +1,5 @@
 object ResString {
+    const val appName = "Noteaholic"
     const val noAccount = "No account?"
     const val haveAccount = "Have an account?"
     const val login = "Login"

@@ -24,9 +24,6 @@ object Authentication {
 
         val stringBody: String = httpResponse.receive()
 
-        println(httpResponse.status)
-        println(stringBody)
-
         if (httpResponse.status == HttpStatusCode.OK) {
             val res = Json.decodeFromString<Token>(stringBody)
             PrivateJSONToken.saveToAppData(res.token)
@@ -35,15 +32,15 @@ object Authentication {
         return false
     }
 
-    suspend fun signup(firstName: String, lastName: String, email: String, password: String) {
+    suspend fun signup(firstName: String, lastName: String, email: String, password: String): Boolean {
         val httpResponse: HttpResponse = client.post(nHttpClient.URL + "/signup") {
             contentType(ContentType.Application.Json)
             body = hashMapOf("lastName" to lastName, "firstName" to firstName, "email" to email, "password" to password)
         }
-        val stringBody: String = httpResponse.receive()
-        val responseCode = httpResponse.status
-        println(stringBody)
-        println(responseCode)
+        if (httpResponse.status == HttpStatusCode.Created) {
+            return true
+        }
+        return false
     }
 
     fun validate(email: String, password: String): String {

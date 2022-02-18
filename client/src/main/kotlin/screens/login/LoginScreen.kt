@@ -26,7 +26,7 @@ fun LoginScreen(
             }
         ) {
             Text(
-                text = "Go to Home"
+                text = "Go to Canvas"
             )
         }
     }

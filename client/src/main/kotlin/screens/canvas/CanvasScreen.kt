@@ -68,9 +68,9 @@ fun Navbar(name: String) {
         horizontalArrangement = Arrangement.SpaceAround
     ) {
 //        Box(modifier = Modifier.size(0.dp))
-        Zoom()
+//        Zoom()
         Text(text = name, style = MaterialTheme.typography.h6)
-        Zoom()
+//        Zoom()
     }
 }
 
@@ -99,21 +99,21 @@ fun CanvasBackground(navController: NavController) {
         NoteData(position = IntOffset(500, 500), text = "Hello"),
         NoteData(position = IntOffset(100, 800), text = "Hello"),
         NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(200, 1200), text = "Hello"),
-        NoteData(position = IntOffset(400, 300), text = "Hello")
+        NoteData(position = IntOffset(300, 1100), text = "Hello"),
+        NoteData(position = IntOffset(500, 700), text = "Hello"),
+        NoteData(position = IntOffset(700, 400), text = "Hello"),
+        NoteData(position = IntOffset(900, 100), text = "Hello"),
+//        NoteData(position = IntOffset(400, 700), text = "Hello"),
+//        NoteData(position = IntOffset(400, 600), text = "Hello"),
+//        NoteData(position = IntOffset(500, 500), text = "Hello"),
+//        NoteData(position = IntOffset(500, 400), text = "Hello"),
+//        NoteData(position = IntOffset(500, 300), text = "Hello"),
+//        NoteData(position = IntOffset(600, 200), text = "Hello"),
+//        NoteData(position = IntOffset(600, 100), text = "Hello"),
+//        NoteData(position = IntOffset(600, 450), text = "Hello"),
+//        NoteData(position = IntOffset(700, 550), text = "Hello"),
+//        NoteData(position = IntOffset(700, 1000), text = "Hello"),
+//        NoteData(position = IntOffset(700, 900), text = "Hello")
     )
 
     Canvas(
@@ -122,11 +122,11 @@ fun CanvasBackground(navController: NavController) {
                 state = rememberScrollableState { delta ->
                     // Delta is negative when scrolling up
                     if (delta > 0) {
-                        if (scale < 2.5f) {
+                        if (scale < 2.0f) {
                             onScaleChange(Math.min(scale + delta * SCROLL_SENSITIVITY, 2.5f))
                         }
                     } else {
-                        if (scale > 0.5) {
+                        if (scale > 0.8) {
                             onScaleChange(Math.max(scale + delta * SCROLL_SENSITIVITY, 0.5f))
                         }
                     }

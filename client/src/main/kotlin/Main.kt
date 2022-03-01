@@ -10,7 +10,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import controllers.Authentication
 import controllers.EditorController
+import kotlinx.coroutines.runBlocking
 import navcontroller.NavController
 import navcontroller.NavigationHost
 import navcontroller.composable
@@ -40,9 +42,9 @@ val interFontFamily = FontFamily(
 
 @Composable
 @Preview
-fun App() {
+fun App(authenticated: Boolean) {
     val screens = Screen.values().toList()
-    val navController by rememberNavController(Screen.LoginScreen.name)
+    val navController by rememberNavController( if (authenticated) Screen.CanvasScreen.name else Screen.LoginScreen.name )
     val currentScreen by remember {
         navController.currentScreen
     }
@@ -53,11 +55,18 @@ fun App() {
 }
 
 fun main() = application {
+    PrivateJSONToken.loadJWTFromAppData()
+    val jwt = PrivateJSONToken.token
+    val isJWTValid = jwt.isNotBlank() &&
+            runBlocking {
+                Authentication.isJWTValid(jwt)
+            }
+
     Window(
         title = ResString.appName,
         onCloseRequest = ::exitApplication
     ) {
-        App()
+        App(isJWTValid)
     }
 }
 

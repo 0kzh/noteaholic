@@ -19,7 +19,7 @@ fun BaseAuthPage(
     linkActionNavigateTo: (Int) -> Unit,
     button: @Composable () -> Unit,
     children: @Composable () -> Unit,
-    elementSpacing: Dp = 8.dp
+    elementSpacing: Dp = 0.dp
 ) {
 
     Column(

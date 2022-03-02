@@ -5,14 +5,12 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import nHttpClient
 import nHttpClient.client
-
-@Serializable
-data class Token(val token: String)
+import TokenResponse
+import ErrorResponse
 
 object Authentication {
     // Regex used from K-9 mail (https://k9mail.app/) - standard industry email validation regex
@@ -28,7 +26,7 @@ object Authentication {
 
     private data class PasswordTokenized(val digits: Int, val upperCase: Int, val lowerCase: Int, val special: Int)
 
-    suspend fun login(email: String, password: String): Boolean {
+    suspend fun login(email: String, password: String, setError: (error: String) -> Unit = {}): Boolean {
 
         val httpResponse: HttpResponse = client.post(nHttpClient.URL + "/login") {
             contentType(ContentType.Application.Json)
@@ -38,22 +36,31 @@ object Authentication {
         val stringBody: String = httpResponse.receive()
 
         if (httpResponse.status == HttpStatusCode.OK) {
-            val res = Json.decodeFromString<Token>(stringBody)
+            val res = Json.decodeFromString<TokenResponse>(stringBody)
             PrivateJSONToken.saveToAppData(res.token)
             return true
+        } else if (httpResponse.status == HttpStatusCode.Forbidden) {
+            setError("Invalid Username or Password")
+            return false
+        } else {
+            val res = Json.decodeFromString<ErrorResponse>(stringBody)
+            setError(res.errorMessage)
         }
         return false
     }
 
-    suspend fun signup(firstName: String, lastName: String, email: String, password: String): Boolean {
+    suspend fun signup(firstName: String, lastName: String, email: String, password: String, setError: (error: String) -> Unit): Boolean {
         val httpResponse: HttpResponse = client.post(nHttpClient.URL + "/signup") {
             contentType(ContentType.Application.Json)
             body = hashMapOf("lastName" to lastName, "firstName" to firstName, "email" to email, "password" to password)
         }
-        if (httpResponse.status == HttpStatusCode.Created) {
-            return true
+        return if (httpResponse.status == HttpStatusCode.Created) {
+            true
+        } else {
+            val res = Json.decodeFromString<ErrorResponse>(httpResponse.receive())
+            setError(res.errorMessage)
+            false
         }
-        return false
     }
 
     fun validateEmail(email: String): String? {

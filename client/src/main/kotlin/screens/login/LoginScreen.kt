@@ -18,7 +18,6 @@ fun LoginScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
     val errorMessage = remember { mutableStateOf("") }
     val showSpinner = remember { mutableStateOf(false) }
 
@@ -31,12 +30,11 @@ fun LoginScreen(navController: NavController) {
         button = {
             ButtonWithLoading(ResString.login, showSpinner) {
                 emailError = Authentication.validateEmail(email)
-                passwordError = Authentication.validatePassword(password)
-                if (emailError != null || passwordError != null) {
+                if (emailError != null) {
                     showSpinner.value = false
                     return@ButtonWithLoading
                 }
-                val res = Authentication.login(email = email, password = password)
+                val res = Authentication.login(email = email, password = password) { errorMessage.value = it }
                 if (res) {
                     navController.navigate(Screen.CanvasScreen.name)
                 }
@@ -55,7 +53,6 @@ fun LoginScreen(navController: NavController) {
                 singleLine = true,
                 readOnly = showSpinner.value,
                 value = password,
-                errorText = passwordError,
                 visualTransformation = PasswordVisualTransformation(),
                 label = { Text(ResString.password) },
                 onValueChange = { password = it },

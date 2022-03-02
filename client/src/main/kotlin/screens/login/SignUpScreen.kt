@@ -54,7 +54,7 @@ fun SignUpScreen(navController: NavController) {
                         return@ButtonWithLoading
                     }
 
-                    val res = Authentication.signup(firstName, lastName, email, password)
+                    val res = Authentication.signup(firstName, lastName, email, password) { errorMessage.value = it }
                     if (res) {
                         Authentication.login(email, password)
                         navController.navigate(Screen.CanvasScreen.name)

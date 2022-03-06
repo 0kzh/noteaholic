@@ -1,12 +1,15 @@
 import java.util.prefs.Preferences
 
+private const val JWT = "JWT"
+
 object PrivateJSONToken {
     private val userPreferences = Preferences.userRoot()
+    var token = ""
     fun saveToAppData(token: String) {
-        userPreferences.put("JWT", token)
+        userPreferences.put(JWT, token)
     }
 
-    fun loadJWTFromAppData(): String? {
-        return userPreferences.get("JWT", null)
+    fun loadJWTFromAppData() {
+        token = userPreferences.get(JWT, "")
     }
 }

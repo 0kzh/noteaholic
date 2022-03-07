@@ -8,6 +8,7 @@ object RESPONSE_ERRORS {
     const val ERR_EMPTY = "ERR_EMPTY"
     const val ERR_NOT_FOUND = "ERR_NOT_FOUND"
     const val ERR_MALFORMED = "ERR_MALFORMED"
+    const val ERR_PASSWORD = "ERR_PASSWORD"
 }
 
 @Serializable

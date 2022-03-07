@@ -19,7 +19,8 @@ import kotlin.test.fail
 class UserAuthenticationTest {
     companion object {
         @BeforeClass
-        @JvmStatic fun setup() {
+        @JvmStatic
+        fun setup() {
             DatabaseInit.connect(true)
             DatabaseInit.resetTables()
         }
@@ -41,7 +42,7 @@ class UserAuthenticationTest {
             val jsonToSend = JsonObject(
                 mapOf(
                     "email" to JsonPrimitive("email@test.com"),
-                    "password" to JsonPrimitive("password"),
+                    "password" to JsonPrimitive("password123ABC!"),
                     "firstName" to JsonPrimitive("fn"),
                     "lastName" to JsonPrimitive("ln")
                 )
@@ -77,7 +78,7 @@ class UserAuthenticationTest {
         withApplication(testEnv) {
             val jsonToSend = JsonObject(
                 mapOf(
-                    "password" to JsonPrimitive("password"),
+                    "password" to JsonPrimitive("password123ABC!"),
                     "firstName" to JsonPrimitive("fn"),
                     "lastName" to JsonPrimitive("ln")
                 )
@@ -107,7 +108,7 @@ class UserAuthenticationTest {
             val jsonToSend = JsonObject(
                 mapOf(
                     "email" to JsonPrimitive(""),
-                    "password" to JsonPrimitive("password"),
+                    "password" to JsonPrimitive("password123ABC!"),
                     "firstName" to JsonPrimitive("fn"),
                     "lastName" to JsonPrimitive("ln")
                 )
@@ -137,7 +138,7 @@ class UserAuthenticationTest {
             val jsonToSend = JsonObject(
                 mapOf(
                     "email" to JsonPrimitive("fakeemail@"),
-                    "password" to JsonPrimitive("password"),
+                    "password" to JsonPrimitive("passwordABC123!"),
                     "firstName" to JsonPrimitive("fn"),
                     "lastName" to JsonPrimitive("ln")
                 )
@@ -167,10 +168,12 @@ class UserAuthenticationTest {
             val jsonToSend = JsonObject(
                 mapOf(
                     "email" to JsonPrimitive("test@test.com"),
-                    "password" to JsonPrimitive("password"),
-                    "firstName" to JsonPrimitive("long-string-long-string-long-string-long-string" +
-                            "-long-string-long-string-long-string-long-string-long-string-long-string-long-" +
-                            "string-long-string-long-string-long-string-long-string-long-string-"),
+                    "password" to JsonPrimitive("passwordABC123!"),
+                    "firstName" to JsonPrimitive(
+                        "long-string-long-string-long-string-long-string" +
+                                "-long-string-long-string-long-string-long-string-long-string-long-string-long-" +
+                                "string-long-string-long-string-long-string-long-string-long-string-"
+                    ),
                     "lastName" to JsonPrimitive("ln")
                 )
             )
@@ -199,7 +202,7 @@ class UserAuthenticationTest {
             val jsonToSend = JsonObject(
                 mapOf(
                     "email" to JsonPrimitive("email@test.com"),
-                    "password" to JsonPrimitive("password"),
+                    "password" to JsonPrimitive("passwordABC123!"),
                     "firstName" to JsonPrimitive("fn"),
                     "lastName" to JsonPrimitive("ln")
                 )
@@ -213,6 +216,37 @@ class UserAuthenticationTest {
             }
         }
     }
+
+    @Test
+    fun testSignupBadPassword() {
+        withApplication(testEnv) {
+            val jsonToSend = JsonObject(
+                mapOf(
+                    "email" to JsonPrimitive("email@test.com"),
+                    "password" to JsonPrimitive("password22!"),
+                    "firstName" to JsonPrimitive("fn"),
+                    "lastName" to JsonPrimitive("ln")
+                )
+            )
+
+            val expectedJson = JsonObject(
+                mapOf(
+                    "error" to JsonPrimitive("ERR_PASSWORD"),
+                    "errorMessage" to JsonPrimitive("At least 1 uppercase character required")
+                )
+            )
+
+            with(handleRequest(HttpMethod.Post, "/signup") {
+                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                setBody(jsonToSend.toString())
+            }) {
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                val actualResponse: JsonObject? = response.content?.let { Json.decodeFromString(it) }
+                assertEquals(actualResponse, expectedJson)
+            }
+        }
+    }
+
 
     @Test
     fun testSignupLogin() {

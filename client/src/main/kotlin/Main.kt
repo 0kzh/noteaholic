@@ -21,6 +21,7 @@ import screens.canvas.CanvasScreen
 import screens.editor.EditorScreen
 import screens.login.LoginScreen
 import screens.login.SignUpScreen
+import java.awt.Desktop
 
 val interFontFamily = FontFamily(
     Font(
@@ -44,7 +45,7 @@ val interFontFamily = FontFamily(
 @Preview
 fun App(authenticated: Boolean) {
     val screens = Screen.values().toList()
-    val navController by rememberNavController( if (authenticated) Screen.CanvasScreen.name else Screen.LoginScreen.name )
+    val navController by rememberNavController(if (authenticated) Screen.CanvasScreen.name else Screen.LoginScreen.name)
     val currentScreen by remember {
         navController.currentScreen
     }
@@ -61,6 +62,14 @@ fun main() = application {
             runBlocking {
                 Authentication.isJWTValid(jwt)
             }
+
+    try {
+        Desktop.getDesktop().setOpenURIHandler { event ->
+            println("Got Open URI: " + event.uri)
+        }
+    } catch (e: UnsupportedOperationException) {
+        println("setOpenURIHandler is unsupported")
+    }
 
     Window(
         title = ResString.appName,

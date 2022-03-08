@@ -27,7 +27,7 @@ fun ConnectionError() {
         )
         Spacer(Modifier.height(16.dp))
         Text(
-            "Could Not Communicate With The Noteaholic Servers",
+            "Could not communicate with the Noteaholic servers",
             style = MaterialTheme.typography.h6,
             textAlign = TextAlign.Center
         )

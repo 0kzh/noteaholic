@@ -133,7 +133,7 @@ class NoteOperationsTest {
             with(handleRequest(HttpMethod.Get, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
             }) {
-                assertEquals(HttpStatusCode.NotFound, response.status())
+                assertEquals(HttpStatusCode.BadRequest, response.status())
             }
         }
     }
@@ -202,7 +202,7 @@ class NoteOperationsTest {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
                 setBody(jsonUpdateNote.toString())
             }) {
-                assertEquals(HttpStatusCode.NotFound, response.status())
+                assertEquals(HttpStatusCode.BadRequest, response.status())
             }
         }
     }
@@ -244,7 +244,7 @@ class NoteOperationsTest {
             with(handleRequest(HttpMethod.Delete, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
             }) {
-                assertEquals(HttpStatusCode.NotFound, response.status())
+                assertEquals(HttpStatusCode.BadRequest, response.status())
             }
         }
     }

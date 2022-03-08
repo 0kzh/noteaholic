@@ -1,5 +1,6 @@
 package com.cs398.team106
 
+import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -64,9 +65,24 @@ class DBNote(id: EntityID<Int>) : IntEntity(id) {
     }
 }
 
-object SharedNotes : Table("shared_notes") {
+object SharedNotes : IntIdTable("shared_notes") {
     val noteId = integer("note_id").references(Notes.id)
     val userId = integer("user_id").references(Users.id)
+
+    init {
+        uniqueIndex("shared_note_unique_index", noteId, userId)
+    }
+}
+
+class DBSharedNote(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<DBSharedNote>(SharedNotes)
+
+    var noteId by SharedNotes.noteId
+    var userId by SharedNotes.userId
+
+    fun toModel(): SharedNotesDTOOut {
+        return SharedNotesDTOOut(id.value, noteId.toString(), userId.toString())
+    }
 }
 
 object Titles : IntIdTable() {

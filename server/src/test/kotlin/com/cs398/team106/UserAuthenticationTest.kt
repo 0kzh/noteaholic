@@ -218,7 +218,7 @@ class UserAuthenticationTest {
     }
 
     @Test
-    fun testSignupBadPassword() {
+    fun testSignupBadPasswordUppercase() {
         withApplication(testEnv) {
             val jsonToSend = JsonObject(
                 mapOf(
@@ -233,6 +233,37 @@ class UserAuthenticationTest {
                 mapOf(
                     "error" to JsonPrimitive("ERR_PASSWORD"),
                     "errorMessage" to JsonPrimitive("At least 1 uppercase character required")
+                )
+            )
+
+            with(handleRequest(HttpMethod.Post, "/signup") {
+                addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                setBody(jsonToSend.toString())
+            }) {
+                assertEquals(HttpStatusCode.BadRequest, response.status())
+                val actualResponse: JsonObject? = response.content?.let { Json.decodeFromString(it) }
+                assertEquals(actualResponse, expectedJson)
+            }
+        }
+    }
+
+
+    @Test
+    fun testSignupBadPasswordDigits() {
+        withApplication(testEnv) {
+            val jsonToSend = JsonObject(
+                mapOf(
+                    "email" to JsonPrimitive("email@test.com"),
+                    "password" to JsonPrimitive("password"),
+                    "firstName" to JsonPrimitive("fn"),
+                    "lastName" to JsonPrimitive("ln")
+                )
+            )
+
+            val expectedJson = JsonObject(
+                mapOf(
+                    "error" to JsonPrimitive("ERR_PASSWORD"),
+                    "errorMessage" to JsonPrimitive("At least 2 digits required")
                 )
             )
 

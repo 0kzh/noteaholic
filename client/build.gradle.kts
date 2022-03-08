@@ -52,7 +52,6 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "client"
             packageVersion = "1.0.0"
-            appResourcesRootDir.set(project.layout.projectDirectory.dir("D:\\cs398\\client\\src\\main\\resources"))
             macOS {
                 bundleID = group.toString()
                 infoPlist {

@@ -107,7 +107,7 @@ private fun logURIDetails(uri: URI) {
                 userInfo => ${uri.userInfo}
             """.trimIndent()
 
-    File("cs398URIDetails.txt").writeText(eventDetails)
+    File("/Users/advait/Downloads/cs398URIDetails.txt").writeText(eventDetails)
 }
 
 enum class Screen() {

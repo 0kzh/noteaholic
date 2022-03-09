@@ -8,6 +8,7 @@ object RESPONSE_ERRORS {
     const val ERR_EMPTY = "ERR_EMPTY"
     const val ERR_NOT_FOUND = "ERR_NOT_FOUND"
     const val ERR_MALFORMED = "ERR_MALFORMED"
+    const val ERR_ACCESS = "ERR_ACCESS"
     const val ERR_PASSWORD = "ERR_PASSWORD"
 }
 
@@ -39,6 +40,33 @@ data class CreateNoteData(
 ) {
     fun isValid(): Boolean {
         return title.isNotBlank()
+    }
+}
+
+// Note: array of emails helps avoid N+1 issue
+// and makes it easier for client (to call a single request)
+@Serializable
+data class CreateSharedNoteData(
+    val noteID: Int,
+    val userEmails: Array<String>,
+) {
+    // We override methods due to array type (we want to compare content)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CreateSharedNoteData
+
+        if (noteID != other.noteID) return false
+        if (!userEmails.contentEquals(other.userEmails)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = noteID
+        result = 31 * result + userEmails.contentHashCode()
+        return result
     }
 }
 
@@ -81,6 +109,13 @@ data class NotesDTOOut(
     val createdAt: String,
     val modifiedAt: String,
     val owner: Int,
+)
+
+@Serializable
+data class SharedNotesDTOOut(
+    val id: Int,
+    val noteID: Int,
+    val userID: Int,
 )
 
 @Serializable

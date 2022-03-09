@@ -1,9 +1,7 @@
 package screens.editor
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -14,16 +12,18 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import components.OutlinedTextFieldWithError
+import controllers.Authentication
 import controllers.EditorController
+import controllers.NoteRequests
+import kotlinx.coroutines.launch
 import navcontroller.NavController
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun EditorScreen(
     navController: NavController,
@@ -34,12 +34,16 @@ fun EditorScreen(
     var currentTitle by remember { mutableStateOf("Untitled") }
     var edittingTitle by remember { mutableStateOf(currentTitle) }
     val focusRequester = remember { FocusRequester() }
+    var emails by remember { mutableStateOf("") }
 
     LaunchedEffect(isEditingTitle) {
         if (isEditingTitle) {
             focusRequester.requestFocus()
         }
     }
+
+    val alertDialog = remember { mutableStateOf(false)  }
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -52,6 +56,14 @@ fun EditorScreen(
                     Icon(
                         Icons.Filled.ArrowBack,
                         contentDescription = "Navigate Back"
+                    )
+                }
+            },
+            actions = {
+                IconButton(onClick = { alertDialog.value = true }) {
+                    Icon(
+                        Icons.Filled.Share,
+                        contentDescription = "Share"
                     )
                 }
             },
@@ -106,6 +118,45 @@ fun EditorScreen(
             Text("Created by: Leon Fattakhov")
             Text("Created at: Jan 26, 2022 11:34")
             Text("Tags: ")
+        }
+
+        if (alertDialog.value) {
+
+            AlertDialog(
+                onDismissRequest = {},
+                title = {
+                    Text(text = "Share Note")
+                },
+                text = {
+                    OutlinedTextFieldWithError(
+                        singleLine = true,
+                        readOnly = false,
+                        value = emails,
+                        label = { Text("Enter comma-separated emails for collaborators (must be users in Noteaholic)") },
+                        onValueChange = { emails = it },
+                    )
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+                            alertDialog.value = false
+                        }) {
+                        Text("Dismiss")
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            alertDialog.value = false
+                            scope.launch {
+                                val res = NoteRequests.addCollaborators(10,  emails.split(","))
+                                println(res)
+                            }
+                        }) {
+                        Text("Confirm")
+                    }
+                }
+            )
         }
 
 

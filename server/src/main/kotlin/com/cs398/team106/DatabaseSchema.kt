@@ -1,11 +1,9 @@
 package com.cs398.team106
 
-import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object DatabaseFieldLimits {
@@ -81,7 +79,7 @@ class DBSharedNote(id: EntityID<Int>) : IntEntity(id) {
     var userId by SharedNotes.userId
 
     fun toModel(): SharedNotesDTOOut {
-        return SharedNotesDTOOut(id.value, noteId.toString(), userId.toString())
+        return SharedNotesDTOOut(id.value, noteId, userId)
     }
 }
 

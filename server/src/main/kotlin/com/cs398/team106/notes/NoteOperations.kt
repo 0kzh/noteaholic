@@ -14,9 +14,13 @@ import io.ktor.response.*
 
 
 object NoteOperations {
-    suspend fun createNote(call: ApplicationCall) {
+    fun getJWTUserID(call: ApplicationCall): Int {
         val principal = call.principal<JWTPrincipal>()
-        val ownerID = principal!!.payload.getClaim(UserAuthentication.userIdClaim).asInt()
+        return principal!!.payload.getClaim(UserAuthentication.userIdClaim).asInt()
+    }
+
+    suspend fun createNote(call: ApplicationCall) {
+        val ownerID = getJWTUserID(call)
         call.receiveOrBadRequest<CreateNoteData>()?.let { createNoteData ->
             if (!createNoteData.isValid()) {
                 call.respond(HttpStatusCode.BadRequest, ErrorResponse(
@@ -36,8 +40,7 @@ object NoteOperations {
     }
 
     suspend fun getNote(call: ApplicationCall) {
-        val principal = call.principal<JWTPrincipal>()
-        val userAuthID = principal!!.payload.getClaim(UserAuthentication.userIdClaim).asInt()
+        val userAuthID = getJWTUserID(call)
         val intID = call.parameters["id"]?.toIntOrNull()
         if (intID == null) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(
@@ -63,12 +66,11 @@ object NoteOperations {
     }
 
     suspend fun addSharedNotes(call: ApplicationCall) {
-        val principal = call.principal<JWTPrincipal>()
-        val userAuthID = principal!!.payload.getClaim(UserAuthentication.userIdClaim).asInt()
+        val userAuthID = getJWTUserID(call)
         call.receiveOrBadRequest<CreateSharedNoteData>()?.let { createSharedNoteData ->
             val accessLevel = NoteRepository.getNoteAccessLevel(createSharedNoteData.noteID, userAuthID)
             if (accessLevel != NOTE_ACCESS_LEVEL.WRITE) {
-                call.respond(HttpStatusCode.Conflict, ErrorResponse(
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse(
                     RESPONSE_ERRORS.ERR_ACCESS,
                     "Cannot add collaborators for a note you do not own!"
                 ))
@@ -78,14 +80,14 @@ object NoteOperations {
             for (userEmail in createSharedNoteData.userEmails) {
                 val user = UserRepository.getUserByEmail(userEmail)
                 if (user == null) {
-                    call.respond(HttpStatusCode.Conflict, ErrorResponse(
+                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(
                         RESPONSE_ERRORS.ERR_MALFORMED,
                         "Invalid email: $userEmail"
                     ))
                     return
                 }
                 if (user.id.value == userAuthID) {
-                    call.respond(HttpStatusCode.Conflict, ErrorResponse(
+                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(
                         RESPONSE_ERRORS.ERR_MALFORMED,
                         "Cannot add owner of note as collaborator!"
                     ))
@@ -98,7 +100,7 @@ object NoteOperations {
                 createSharedNoteData.noteID,
                 allUserIDs)
             if (sharedNotes == null) {
-                call.respond(HttpStatusCode.Conflict, ErrorResponse(
+                call.respond(HttpStatusCode.BadRequest, ErrorResponse(
                     RESPONSE_ERRORS.ERR_MALFORMED,
                     "Could not create shared notes (invalid IDs)!"
                 ))
@@ -117,8 +119,7 @@ object NoteOperations {
             return
         }
 
-        val principal = call.principal<JWTPrincipal>()
-        val userAuthID = principal!!.payload.getClaim(UserAuthentication.userIdClaim).asInt()
+        val userAuthID = getJWTUserID(call)
         val accessLevel = NoteRepository.getNoteAccessLevel(intID, userAuthID)
         if (accessLevel != NOTE_ACCESS_LEVEL.WRITE) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(
@@ -147,8 +148,7 @@ object NoteOperations {
             ))
             return
         }
-        val principal = call.principal<JWTPrincipal>()
-        val userAuthID = principal!!.payload.getClaim(UserAuthentication.userIdClaim).asInt()
+        val userAuthID = getJWTUserID(call)
         val accessLevel = NoteRepository.getNoteAccessLevel(intID, userAuthID)
         if (accessLevel != NOTE_ACCESS_LEVEL.WRITE) {
             call.respond(HttpStatusCode.BadRequest, ErrorResponse(

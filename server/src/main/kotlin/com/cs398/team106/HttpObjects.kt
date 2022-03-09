@@ -42,10 +42,8 @@ data class CreateNoteData(
     }
 }
 
-// CHANGE TO ARRAY OF EMAILS
-// Avoid N+1 issue
-// [true, false, false]
-// {"a": "success", "b": "failure"}
+// Note: array of emails helps avoid N+1 issue
+// and makes it easier for client (to call a single request)
 @Serializable
 data class CreateSharedNoteData(
     val noteID: Int,
@@ -115,8 +113,8 @@ data class NotesDTOOut(
 @Serializable
 data class SharedNotesDTOOut(
     val id: Int,
-    val noteID: String,
-    val userID: String,
+    val noteID: Int,
+    val userID: Int,
 )
 
 @Serializable

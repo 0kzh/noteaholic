@@ -72,8 +72,8 @@ fun getResourceAsText(path: String): String? =
     object {}.javaClass.getResource(path)?.readText()
 
 fun main() = application {
-    val result = getResourceAsText("/config/config.json") ?: "http://localhost:8080"
-    nHttpClient.URL = Json.decodeFromString<Config>(result).url
+    val result = getResourceAsText("/config/config.json")
+    nHttpClient.URL = if (result != null) Json.decodeFromString<Config>(result).url else "http://localhost:8080"
 
     PrivateJSONToken.loadJWTFromAppData()
     val jwt = PrivateJSONToken.token

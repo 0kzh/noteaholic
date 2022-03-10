@@ -53,31 +53,31 @@ fun Note(
 
     if (gesturesEnabled) {
         @OptIn(ExperimentalFoundationApi::class) (Box(Modifier.offset {
-                IntOffset(positionX + translateX, positionY + translateY)
-            }.background(Color(DEFAULT_COLOR)).size(size).pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
-                    change.consumeAllChanges()
-                    positionX += dragAmount.x.roundToInt()
-                    positionY += dragAmount.y.roundToInt()
-                    setCanvasState(CanvasState.FOCUS_NOTE)
-                }
-            }.combinedClickable(onClick = {}, onDoubleClick = {
-                navController.navigate(Screen.EditorScreen.name)
-            }).padding(24.dp), contentAlignment = Alignment.Center
+            IntOffset(positionX + translateX, positionY + translateY)
+        }.background(Color(DEFAULT_COLOR)).size(size).pointerInput(Unit) {
+            detectDragGestures { change, dragAmount ->
+                change.consumeAllChanges()
+                positionX += dragAmount.x.roundToInt()
+                positionY += dragAmount.y.roundToInt()
+                setCanvasState(CanvasState.FOCUS_NOTE)
+            }
+        }.combinedClickable(onClick = {}, onDoubleClick = {
+            navController.navigate(Screen.EditorScreen.name)
+        }).padding(24.dp), contentAlignment = Alignment.TopStart
         ) {
             Text(
-                text = "${note.title}", style = MaterialTheme.typography.h4
+                text = "${note.title}", style = MaterialTheme.typography.h3
             )
         })
     } else {
         @OptIn(ExperimentalFoundationApi::class) (Box(
             Modifier.offset {
-                    IntOffset(positionX + translateX, positionY + translateY)
-                }.background(Color(DEFAULT_COLOR)).size(DEFAULT_NOTE_SIZE * scale.value),
-            contentAlignment = Alignment.Center
+                IntOffset(positionX + translateX, positionY + translateY)
+            }.background(Color(DEFAULT_COLOR)).size(DEFAULT_NOTE_SIZE * scale.value).padding(24.dp),
+            contentAlignment = Alignment.TopStart
         ) {
             Text(
-                text = "${note.title}", style = MaterialTheme.typography.h4
+                text = "${note.title}", style = MaterialTheme.typography.h3
             )
         })
     }

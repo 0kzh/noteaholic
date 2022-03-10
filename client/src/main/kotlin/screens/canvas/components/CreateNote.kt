@@ -124,9 +124,9 @@ fun UncreatedNote(createNote: (String, IntOffset) -> Unit
         BasicTextField(
             title.value,
             { title.value = it },
+            textStyle = MaterialTheme.typography.h3,
             singleLine = true,
             maxLines = 1,
-            textStyle = MaterialTheme.typography.h6,
             modifier = Modifier.onKeyEvent {
                 when (it.type) {
                     KeyEventType.KeyDown -> {

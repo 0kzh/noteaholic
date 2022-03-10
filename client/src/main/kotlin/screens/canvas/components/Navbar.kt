@@ -25,7 +25,9 @@ fun Zoom(
 }
 
 @Composable
-fun Navbar(name: String) {
+fun Navbar() {
+    val screenName = LocalCanvasContext.current.screenName
+
     Row(
         modifier = Modifier.fillMaxWidth().height(60.dp).background(Color.White)
             .border(bottom = Border(1.dp, Color.Gray.copy(alpha = 0.5f))),
@@ -34,7 +36,7 @@ fun Navbar(name: String) {
     ) {
 //        Box(modifier = Modifier.size(0.dp))
 //        Zoom()
-        Text(text = name, style = MaterialTheme.typography.h6)
+        Text(text = screenName.value, style = MaterialTheme.typography.h4)
 //        Zoom()
     }
 }

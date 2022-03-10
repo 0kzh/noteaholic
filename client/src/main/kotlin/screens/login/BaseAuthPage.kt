@@ -19,7 +19,7 @@ fun BaseAuthPage(
     linkActionNavigateTo: (Int) -> Unit,
     button: @Composable () -> Unit,
     children: @Composable () -> Unit,
-    elementSpacing: Dp = 0.dp
+    elementSpacing: Dp = 8.dp
 ) {
 
     Column(
@@ -29,11 +29,11 @@ fun BaseAuthPage(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.h4
+            style = MaterialTheme.typography.h2
         )
         Spacer(Modifier.height(elementSpacing * 2))
         Column(
-            verticalArrangement = Arrangement.spacedBy(elementSpacing),
+            verticalArrangement = Arrangement.spacedBy(0.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             children()

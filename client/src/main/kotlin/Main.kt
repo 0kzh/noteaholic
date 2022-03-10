@@ -2,11 +2,14 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Typography
 import androidx.compose.runtime.*
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import components.ConnectionError
@@ -36,24 +39,6 @@ import kotlin.time.Duration.Companion.seconds
 
 @Serializable
 data class Config(val url: String)
-
-val interFontFamily = FontFamily(
-    Font(
-        resource = "inter_bold.ttf",
-        weight = FontWeight.Bold,
-        style = FontStyle.Normal
-    ),
-    Font(
-        resource = "inter_medium.ttf",
-        weight = FontWeight.W500,
-        style = FontStyle.Normal
-    ),
-    Font(
-        resource = "inter_regular.ttf",
-        weight = FontWeight.W400,
-        style = FontStyle.Normal
-    ),
-)
 
 @Composable
 @Preview
@@ -97,10 +82,6 @@ fun main() = application {
         logURIDetails(URI.create("https://docs.oracle.com/javase/7/docs/api/java/net/URI.html"))
     }
 
-
-
-
-
     scope.launch {
         connectivityChecker.collect { value ->
             canConnect = value
@@ -111,7 +92,7 @@ fun main() = application {
         title = ResString.appName,
         onCloseRequest = ::exitApplication
     ) {
-        MaterialTheme {
+        MaterialTheme(typography = CustomTypography) {
             if (canConnect) {
                 App(isJWTValid)
             } else {

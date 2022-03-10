@@ -33,10 +33,9 @@ val SCROLL_SENSITIVITY = 0.0005f
 fun CanvasScreen(
     navController: NavController
 ) {
-    var screenName by remember { mutableStateOf("School Notes") }
     CanvasStateProvider() {
         CanvasBackground(navController = navController)
-        Navbar(name = screenName)
+        Navbar()
 
         Box(
             modifier = Modifier.fillMaxSize().offset { IntOffset(0, -50) },

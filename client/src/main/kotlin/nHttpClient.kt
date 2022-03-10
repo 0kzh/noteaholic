@@ -7,7 +7,7 @@ import io.ktor.client.statement.*
 import java.net.ConnectException
 
 object nHttpClient {
-    val URL = "http://localhost:8080"
+    lateinit var URL: String;
     val client = HttpClient(Jetty) {
         expectSuccess = false
         install(JsonFeature) {

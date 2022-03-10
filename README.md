@@ -4,6 +4,8 @@
 - Borders.kt - https://gist.github.com/gildor/ff7f56da7216ae9e4da77368a4beb87a
 - K9 Email Validation Regex - https://github.com/k9mail/k-9
 - Kotlin resources retrieval - https://stackoverflow.com/questions/42739807/how-to-read-a-text-file-from-resources-in-kotlin
+- Canvas focusing in Jetpack Compose - https://medium.com/google-developer-experts/focus-in-jetpack-compose-6584252257fe
+- Order of focus modifiers - https://stackoverflow.com/questions/70015530/unable-to-focus-anything-other-than-textfield
 
 - Dependencies/libraries used:
   - JetBrains Exposed SQL Framework (https://github.com/JetBrains/Exposed)

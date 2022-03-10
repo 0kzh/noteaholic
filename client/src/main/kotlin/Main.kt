@@ -1,5 +1,6 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.font.FontFamily
@@ -28,6 +29,9 @@ import screens.canvas.CanvasScreen
 import screens.editor.EditorScreen
 import screens.login.LoginScreen
 import screens.login.SignUpScreen
+import java.awt.Desktop
+import java.io.File
+import java.net.URI
 import kotlin.time.Duration.Companion.seconds
 
 @Serializable
@@ -83,6 +87,17 @@ fun main() = application {
                 canConnect = nHttpClient.canConnectToServer()
                 canConnect && Authentication.isJWTValid(jwt)
             }
+    val isSupported = Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_URI)
+    if (isSupported) {
+        Desktop.getDesktop().setOpenURIHandler { event ->
+            println("Got Open URI: " + event.uri)
+            logURIDetails(event.uri)
+        }
+    } else {
+        logURIDetails(URI.create("https://docs.oracle.com/javase/7/docs/api/java/net/URI.html"))
+    }
+
+
 
 
 
@@ -114,6 +129,32 @@ private fun connectionMonitor(): Flow<Boolean> {
         }
     }
     return connectivityChecker
+}
+
+private fun logURIDetails(uri: URI) {
+    val eventDetails = """
+                Got URI => $uri
+                
+                
+                authority => ${uri.authority}
+                fragment => ${uri.fragment}
+                host => ${uri.host}
+                path => ${uri.path}
+                port => ${uri.port}
+                query => ${uri.query}
+                rawAuthority => ${uri.rawAuthority}
+                rawFragment => ${uri.rawFragment}
+                rawPath => ${uri.rawPath}
+                rawQuery => ${uri.rawQuery}
+                rawSchemeSpecificPart => ${uri.rawSchemeSpecificPart}
+                rawUserInfo => ${uri.rawUserInfo}
+                scheme => ${uri.scheme}
+                schemeSpecificPart => ${uri.schemeSpecificPart}
+                userInfo => ${uri.userInfo}
+            """.trimIndent()
+
+    // TODO: remove this (hardcoded to user path)
+    File("/Users/advait/Downloads/cs398URIDetails.txt").writeText(eventDetails)
 }
 
 enum class Screen() {

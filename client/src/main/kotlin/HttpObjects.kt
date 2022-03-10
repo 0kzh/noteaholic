@@ -73,6 +73,8 @@ data class UserDTOOut(
 data class NotesDTOOut(
     val id: Int,
     val title: String,
+    val positionX: Int,
+    val positionY: Int,
     val plainTextContent: String,
     val formattedContent: String,
     val createdAt: String,

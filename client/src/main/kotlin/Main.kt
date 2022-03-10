@@ -27,6 +27,7 @@ import navcontroller.NavController
 import navcontroller.NavigationHost
 import navcontroller.composable
 import navcontroller.rememberNavController
+import screens.canvas.CanvasContextProvider
 import screens.canvas.CanvasScreen
 import screens.editor.EditorScreen
 import screens.login.LoginScreen
@@ -49,7 +50,7 @@ fun App(authenticated: Boolean, sharedNoteId: Int?) {
         navController.currentScreen
     }
 
-    Router(navController = navController)
+    CanvasContextProvider(content = { Router(navController = navController) }, currentScreen = currentScreen)
 }
 
 // https://stackoverflow.com/questions/42739807/how-to-read-a-text-file-from-resources-in-kotlin

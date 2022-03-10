@@ -43,11 +43,13 @@ fun Note(
     val setCanvasState = LocalCanvasContext.current.setCanvasState
 
     val size = DEFAULT_NOTE_SIZE * scale.value
+
+    // TODO: Modify note position directly instead
     val translateX = translate.value.x.roundToInt()
     val translateY = translate.value.y.roundToInt()
 
-    var positionX by remember { mutableStateOf(note.position.x) }
-    var positionY by remember { mutableStateOf(note.position.y) }
+    var positionX by remember { mutableStateOf(note.positionX) }
+    var positionY by remember { mutableStateOf(note.positionY) }
 
     val gesturesEnabled = canvasState.value != CanvasState.NEW_NOTE
 

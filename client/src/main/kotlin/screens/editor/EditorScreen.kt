@@ -17,7 +17,6 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import components.OutlinedTextFieldWithError
-import controllers.Authentication
 import controllers.EditorController
 import controllers.NoteRequests
 import kotlinx.coroutines.launch
@@ -34,7 +33,7 @@ fun EditorScreen(
     var currentTitle by remember { mutableStateOf("Untitled") }
     var edittingTitle by remember { mutableStateOf(currentTitle) }
     val focusRequester = remember { FocusRequester() }
-    var emails by remember { mutableStateOf("") }
+    val emails = remember { mutableStateOf("") }
 
     LaunchedEffect(isEditingTitle) {
         if (isEditingTitle) {
@@ -42,8 +41,7 @@ fun EditorScreen(
         }
     }
 
-    val alertDialog = remember { mutableStateOf(false)  }
-    val scope = rememberCoroutineScope()
+    val alertDialog = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -63,7 +61,8 @@ fun EditorScreen(
                 IconButton(onClick = { alertDialog.value = true }) {
                     Icon(
                         Icons.Filled.Share,
-                        contentDescription = "Share"
+                        contentDescription = "Share",
+                        tint = Color.Black
                     )
                 }
             },
@@ -121,42 +120,7 @@ fun EditorScreen(
         }
 
         if (alertDialog.value) {
-
-            AlertDialog(
-                onDismissRequest = {},
-                title = {
-                    Text(text = "Share Note")
-                },
-                text = {
-                    OutlinedTextFieldWithError(
-                        singleLine = true,
-                        readOnly = false,
-                        value = emails,
-                        label = { Text("Enter comma-separated emails for collaborators (must be users in Noteaholic)") },
-                        onValueChange = { emails = it },
-                    )
-                },
-                dismissButton = {
-                    Button(
-                        onClick = {
-                            alertDialog.value = false
-                        }) {
-                        Text("Dismiss")
-                    }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            alertDialog.value = false
-                            scope.launch {
-                                val res = NoteRequests.addCollaborators(10,  emails.split(","))
-                                println(res)
-                            }
-                        }) {
-                        Text("Confirm")
-                    }
-                }
-            )
+            ShareNoteDialog(emails, alertDialog)
         }
 
 
@@ -169,6 +133,56 @@ fun EditorScreen(
             visualTransformation = ColorsTransformation(editorController)
         )
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ShareNoteDialog(
+    emails: MutableState<String>,
+    alertDialog: MutableState<Boolean>,
+) {
+    val scope = rememberCoroutineScope()
+    AlertDialog(
+        onDismissRequest = {},
+        shape = MaterialTheme.shapes.large,
+        title = {
+            Text(text = "Share Note", style = MaterialTheme.typography.h6)
+        },
+        text = {
+            Column {
+                Text(
+                    "Enter comma-separated emails for collaborators (must be users in Noteaholic)",
+                    Modifier.padding(bottom = 8.dp)
+                )
+                OutlinedTextFieldWithError(
+                    readOnly = false,
+                    value = emails.value,
+                    label = { Text("Emails") },
+                    onValueChange = { emails.value = it },
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    alertDialog.value = false
+                }) {
+                Text("CANCEL")
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    alertDialog.value = false
+                    scope.launch {
+                        val res = NoteRequests.addCollaborators(10, emails.value.split(","))
+                        println(res)
+                    }
+                }) {
+                Text("SHARE NOTE")
+            }
+        }
+    )
 }
 
 class ColorsTransformation(private val editorController: EditorController) : VisualTransformation {

@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "com.cs398.team106"
-version = "0.0.1"
+version = "0.0.4"
 application {
     mainClass.set("com.cs398.team106.ApplicationKt")
 }
@@ -40,4 +40,19 @@ dependencies {
     implementation("io.ktor:ktor-serialization:$ktorVersion")
     testImplementation("io.ktor:ktor-server-tests:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
+}
+
+// Citation: Based on https://stackoverflow.com/questions/41794914/how-to-create-a-fat-jar-with-gradle-kotlin-script
+// We want to include dependencies
+val fatJar = task("fatJar", type = Jar::class) {
+    baseName = "${project.name}-fat"
+    manifest {
+        attributes["Implementation-Title"] = "Noteaholic Application"
+        attributes["Implementation-Version"] = version
+        attributes["Main-Class"] = "com.cs398.team106.ApplicationKt"
+    }
+    from(configurations.runtimeClasspath.get().map({ if (it.isDirectory) it else zipTree(it) }))
+    with(tasks.jar.get() as CopySpec)
+
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }

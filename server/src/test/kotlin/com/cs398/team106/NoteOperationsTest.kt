@@ -45,6 +45,8 @@ class NoteOperationsTest {
             val jsonCreateNote = JsonObject(
                 mapOf(
                     "title" to JsonPrimitive("title"),
+                    "positionX" to JsonPrimitive(2),
+                    "positionY" to JsonPrimitive(3),
                     "plainTextContent" to JsonPrimitive("plaintext"),
                     "formattedContent" to JsonPrimitive("formatted")
                 )
@@ -54,6 +56,8 @@ class NoteOperationsTest {
                     "id" to JsonPrimitive(1),
                     "owner" to JsonPrimitive(1),
                     "title" to JsonPrimitive("title"),
+                    "positionX" to JsonPrimitive(2),
+                    "positionY" to JsonPrimitive(3),
                     "plainTextContent" to JsonPrimitive("plaintext"),
                     "formattedContent" to JsonPrimitive("formatted")
                 )
@@ -83,6 +87,8 @@ class NoteOperationsTest {
             val jsonCreateNote = JsonObject(
                 mapOf(
                     "title" to JsonPrimitive(""),
+                    "positionX" to JsonPrimitive(2),
+                    "positionY" to JsonPrimitive(3),
                     "plainTextContent" to JsonPrimitive("plaintext"),
                     "formattedContent" to JsonPrimitive("formatted")
                 )
@@ -113,7 +119,9 @@ class NoteOperationsTest {
         withApplication(testEnv) {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
-            NoteRepository.createNote("title", "plain", "formatted", 1)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                1)
             with(handleRequest(HttpMethod.Get, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
             }) {
@@ -134,7 +142,9 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
-            NoteRepository.createNote("title", "plain", "formatted", 2)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                2)
             with(handleRequest(HttpMethod.Get, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
             }) {
@@ -149,7 +159,9 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
-            NoteRepository.createNote("title", "plain", "formatted", 2)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                2)
             NoteRepository.addSharedNotes(1, mutableListOf(1))
             with(handleRequest(HttpMethod.Get, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
@@ -210,7 +222,9 @@ class NoteOperationsTest {
         withApplication(testEnv) {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
-            NoteRepository.createNote("title", "plain", "formatted", 1)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                1)
             with(handleRequest(HttpMethod.Patch, "/note/1") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
@@ -237,7 +251,9 @@ class NoteOperationsTest {
         withApplication(testEnv) {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
-            NoteRepository.createNote("title", "plain", "formatted", 2)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                2)
 
             val userToken = TestUtil.getJWT("email@test.com", 1)
             with(handleRequest(HttpMethod.Patch, "/note/1") {
@@ -260,7 +276,9 @@ class NoteOperationsTest {
         withApplication(testEnv) {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
-            NoteRepository.createNote("title", "plain", "formatted", 2)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                2)
             NoteRepository.addSharedNotes(1, mutableListOf(1))
 
             val userToken = TestUtil.getJWT("email@test.com", 1)
@@ -312,7 +330,9 @@ class NoteOperationsTest {
         withApplication(testEnv) {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
-            NoteRepository.createNote("title", "plain", "formatted", 1)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                1)
             with(handleRequest(HttpMethod.Delete, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
             }) {
@@ -329,7 +349,9 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
-            NoteRepository.createNote("title", "plain", "formatted", 2)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                2)
             with(handleRequest(HttpMethod.Delete, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
             }) {
@@ -344,7 +366,9 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
-            NoteRepository.createNote("title", "plain", "formatted", 2)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                2)
             NoteRepository.addSharedNotes(1, mutableListOf(1))
             with(handleRequest(HttpMethod.Delete, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
@@ -415,7 +439,9 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
-            NoteRepository.createNote("title", "plain", "formatted", 1)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                1)
             with(handleRequest(HttpMethod.Post, "/note/add_collaborator") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
@@ -472,7 +498,9 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
-            NoteRepository.createNote("title", "plain", "formatted", 1)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                1)
             // Here, we create the duplicate collaborator row, but we do not expect errors from this
             NoteRepository.addSharedNotes(1, mutableListOf(2))
             with(handleRequest(HttpMethod.Post, "/note/add_collaborator") {
@@ -513,7 +541,9 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
-            NoteRepository.createNote("title", "plain", "formatted", 1)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                1)
             with(handleRequest(HttpMethod.Post, "/note/add_collaborator") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
@@ -541,7 +571,9 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
-            NoteRepository.createNote("title", "plain", "formatted", 1)
+            NoteRepository.createNote(
+                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                1)
             with(handleRequest(HttpMethod.Post, "/note/add_collaborator") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")

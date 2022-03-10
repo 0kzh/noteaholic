@@ -11,5 +11,4 @@ object nHttpClient {
             serializer = KotlinxSerializer()
         }
     }
-    var authToken = ""
 }

@@ -107,6 +107,7 @@ private fun logURIDetails(uri: URI) {
                 userInfo => ${uri.userInfo}
             """.trimIndent()
 
+    // TODO: remove this (hardcoded to user path)
     File("/Users/advait/Downloads/cs398URIDetails.txt").writeText(eventDetails)
 }
 

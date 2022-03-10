@@ -49,14 +49,25 @@ fun CreateNote(
         println("CREATING NOTE: ${title} ${position}")
 
         // Publish uncreated note
-        val list: MutableList<NoteData> = notes.value.toMutableList()
-        list.add(NoteData(position = position, title = title, text = ""))
-        notes.value = list.toTypedArray()
+        val newList = notes.value.toMutableList()
+        val newNote = NoteData(
+            id = -1,
+            title = title,
+            positionX = position.x,
+            positionY = position.y,
+            plainTextContent = "",
+            formattedContent = "",
+            createdAt = "",
+            modifiedAt = "",
+            owner = -1
+        )
+        newList.add(newNote)
+        notes.value = newList
 
         // Make the request to create note
         scope.launch {
-            println("DATA: ${title} ${position}")
             val res = NoteRequests.createNote(title, position)
+            // TODO: Update note id, owner here
             println("Request res: ${res}")
         }
 
@@ -103,7 +114,8 @@ fun UncreatedNote(createNote: (String, IntOffset) -> Unit
     val didLoseFocus = remember { mutableStateOf(false) }
 
     val size = DEFAULT_NOTE_SIZE * scale.value
-    val position = uncreatedNote.value?.position ?: IntOffset.Zero
+    val positionX = uncreatedNote.value?.positionX ?: 0
+    val positionY = uncreatedNote.value?.positionY ?: 0
     val translateX = translate.value.x.roundToInt()
     val translateY = translate.value.y.roundToInt()
 
@@ -116,8 +128,8 @@ fun UncreatedNote(createNote: (String, IntOffset) -> Unit
     @OptIn(ExperimentalFoundationApi::class) (Box(
         Modifier.offset {
             IntOffset(
-                position.x + translateX,
-                position.y + translateY
+                positionX + translateX,
+                positionY + translateY
             )
         }.background(Color(DEFAULT_COLOR)).size(size).padding(24.dp)
     ) {
@@ -145,7 +157,7 @@ fun UncreatedNote(createNote: (String, IntOffset) -> Unit
                     if (!didLoseFocus.value) {
                         didLoseFocus.value = true
                     } else {
-                        createNote(title.value, position)
+                        createNote(title.value, IntOffset(positionX, positionY))
                     }
                 }
             }.focusRequester(focusRequester),

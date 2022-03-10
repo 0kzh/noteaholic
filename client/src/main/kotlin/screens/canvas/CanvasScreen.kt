@@ -33,18 +33,14 @@ val SCROLL_SENSITIVITY = 0.0005f
 fun CanvasScreen(
     navController: NavController
 ) {
-    CanvasStateProvider() {
-        CanvasBackground(navController = navController)
-        Navbar()
+    CanvasBackground(navController = navController)
+    Navbar()
 
-        Box(
-            modifier = Modifier.fillMaxSize().offset { IntOffset(0, -50) },
-            Alignment.BottomCenter,
-            // create box with 24px rounded corners and a slight drop shadow
-        ) {
-            Toolbar()
-        }
-
+    Box(
+        modifier = Modifier.fillMaxSize().offset { IntOffset(0, -50) },
+        Alignment.BottomCenter,
+    ) {
+        Toolbar()
     }
 }
 
@@ -54,8 +50,8 @@ fun CanvasBackground(navController: NavController) {
     val notes = LocalCanvasContext.current.notes
 
     Canvas(
-        modifier = Modifier.fillMaxSize().background(Color.White)
-            .createNote().scale().translate().updateCursor().keyboardShortcuts(),
+        modifier = Modifier.fillMaxSize().background(Color.White).createNote().scale().translate().updateCursor()
+            .keyboardShortcuts(),
     ) {
         val canvasWidth = size.width
         val canvasHeight = size.height
@@ -73,6 +69,7 @@ fun CanvasBackground(navController: NavController) {
             }
         }
     }
+    println("NOTESS ${notes}")
     for (note in notes.value) {
         Note(
             note = note, navController = navController
@@ -88,20 +85,18 @@ fun Modifier.scale(): Modifier = composed {
     val scale = LocalCanvasContext.current.scale
     val setCanvasState = LocalCanvasContext.current.setCanvasState
 
-    this.scrollable(
-        orientation = Orientation.Vertical,
-        state = rememberScrollableState { delta ->
-            // Delta is negative when scrolling up
-            if (delta > 0 && scale.value < 2.0f) {
-                scale.value = Math.min(scale.value + delta * SCROLL_SENSITIVITY, 2.0f)
-            }
-            if (delta < 0 && scale.value > 0.8) {
-                scale.value = Math.max(scale.value + delta * SCROLL_SENSITIVITY, 0.8f)
-            }
-            setCanvasState(CanvasState.FOCUS_CANVAS)
+    this.scrollable(orientation = Orientation.Vertical, state = rememberScrollableState { delta ->
+        // Delta is negative when scrolling up
+        if (delta > 0 && scale.value < 2.0f) {
+            scale.value = Math.min(scale.value + delta * SCROLL_SENSITIVITY, 2.0f)
+        }
+        if (delta < 0 && scale.value > 0.8) {
+            scale.value = Math.max(scale.value + delta * SCROLL_SENSITIVITY, 0.8f)
+        }
+        setCanvasState(CanvasState.FOCUS_CANVAS)
 
-            delta
-        })
+        delta
+    })
 }
 
 /**
@@ -143,12 +138,10 @@ fun Modifier.updateCursor(): Modifier = composed {
  * Creates a note when the user clicks on canvas
  */
 fun Modifier.createNote(): Modifier = composed {
-    val notes = LocalCanvasContext.current.notes
     val scale = LocalCanvasContext.current.scale
     val cursor = LocalCanvasContext.current.cursor
     val translate = LocalCanvasContext.current.translate
     val canvasState = LocalCanvasContext.current.canvasState
-    val setCanvasState = LocalCanvasContext.current.setCanvasState
     val uncreatedNote = LocalCanvasContext.current.uncreatedNote
 
     val previewNoteSizePx = LocalDensity.current.run { (DEFAULT_NOTE_SIZE * scale.value).toPx() }
@@ -164,7 +157,17 @@ fun Modifier.createNote(): Modifier = composed {
                 val previewNotePosition = IntOffset(x = positionX.roundToInt(), y = positionY.roundToInt())
 
                 canvasState.value = CanvasState.CREATING_NOTE
-                uncreatedNote.value = NoteData(position = previewNotePosition, text = "")
+                uncreatedNote.value = NoteData(
+                    id = -1,
+                    title = "",
+                    positionX = previewNotePosition.x,
+                    positionY = previewNotePosition.y,
+                    plainTextContent = "",
+                    formattedContent = "",
+                    createdAt = "",
+                    modifiedAt = "",
+                    owner = -1
+                )
             }
         }
     }

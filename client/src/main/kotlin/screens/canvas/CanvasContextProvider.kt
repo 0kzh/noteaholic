@@ -1,15 +1,18 @@
 package screens.canvas
 
+import NotesDTOOut
+import Screen
 import androidx.compose.runtime.*
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
+import controllers.NoteRequests
 
 enum class CanvasState {
     FOCUS_NOTE, FOCUS_CANVAS, NEW_NOTE, CREATING_NOTE, NEW_TEXT
 }
 
-data class NoteData(val position: IntOffset = IntOffset.Zero, val title: String = "", val text: String = "")
+typealias NoteData = NotesDTOOut
 
 data class CanvasContext(
     val screenName: MutableState<String>,
@@ -21,7 +24,7 @@ data class CanvasContext(
     val canvasState: MutableState<CanvasState>,
     val setCanvasState: (CanvasState) -> Unit,
 
-    val notes: MutableState<Array<NoteData>>,
+    val notes: MutableState<List<NoteData>>,
     val uncreatedNote: MutableState<NoteData?>,
 
     val focusRequester: FocusRequester
@@ -29,18 +32,8 @@ data class CanvasContext(
 
 val LocalCanvasContext = compositionLocalOf<CanvasContext> { error("No canvas state found!") }
 
-val DEFAULT_NOTES = arrayOf<NoteData>(
-    NoteData(position = IntOffset(500, 500), title = "Hello", text = ""),
-    NoteData(position = IntOffset(100, 800), title = "Hello", text = ""),
-    NoteData(position = IntOffset(200, 1200), title = "Hello", text = ""),
-    NoteData(position = IntOffset(300, 1100), title = "Hello", text = ""),
-    NoteData(position = IntOffset(500, 700), title = "Hello", text = ""),
-    NoteData(position = IntOffset(700, 400), title = "Hello", text = ""),
-    NoteData(position = IntOffset(900, 100), title = "Hello", text = ""),
-)
-
 @Composable
-fun CanvasStateProvider(content: @Composable() () -> Unit) {
+fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: String) {
     val screenName = remember { mutableStateOf("School Notes") }
 
     val scale = remember { mutableStateOf(1f) }
@@ -51,11 +44,22 @@ fun CanvasStateProvider(content: @Composable() () -> Unit) {
     val setCanvasState =
         { newState: CanvasState -> if (canvasState.value != newState) canvasState.value = newState }
 
-    val notes = remember { mutableStateOf(DEFAULT_NOTES) }
-    val focusRequester = remember { FocusRequester() }
+    val notes = remember { mutableStateOf<List<NoteData>>(listOf()) }
+
+    val didFetchNotes = remember { mutableStateOf(false) }
+
+    LaunchedEffect(currentScreen) {
+        // Fetch notes once more after logging in
+        if (!didFetchNotes.value && currentScreen == Screen.CanvasScreen.name) {
+            val res = NoteRequests.fetchNotes()
+            res?.let { notes.value = it }
+            didFetchNotes.value = true
+        }
+    }
 
     val uncreatedNote = remember { mutableStateOf<NoteData?>(null) }
 
+    val focusRequester = remember { FocusRequester() }
     CompositionLocalProvider(
         LocalCanvasContext provides CanvasContext(
             screenName,

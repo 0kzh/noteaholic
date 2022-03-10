@@ -7,6 +7,7 @@ object PrivateJSONToken {
     var token = ""
     fun saveToAppData(token: String) {
         userPreferences.put(JWT, token)
+        this.token = token
     }
 
     fun loadJWTFromAppData() {

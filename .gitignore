@@ -170,3 +170,4 @@ fabric.properties
 # Database conf
 server/src/main/resources/database.conf
 server/src/main/resources/jwt.conf
+client/src/main/resources/config/

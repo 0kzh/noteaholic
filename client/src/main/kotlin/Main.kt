@@ -18,6 +18,9 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import navcontroller.NavController
 import navcontroller.NavigationHost
 import navcontroller.composable
@@ -30,6 +33,9 @@ import java.awt.Desktop
 import java.io.File
 import java.net.URI
 import kotlin.time.Duration.Companion.seconds
+
+@Serializable
+data class Config(val url: String)
 
 val interFontFamily = FontFamily(
     Font(
@@ -61,7 +67,14 @@ fun App(authenticated: Boolean) {
     Router(navController = navController)
 }
 
+// https://stackoverflow.com/questions/42739807/how-to-read-a-text-file-from-resources-in-kotlin
+fun getResourceAsText(path: String): String? =
+    object {}.javaClass.getResource(path)?.readText()
+
 fun main() = application {
+    val result = getResourceAsText("/config/config.json") ?: "http://localhost:8080"
+    nHttpClient.URL = Json.decodeFromString<Config>(result).url
+
     PrivateJSONToken.loadJWTFromAppData()
     val jwt = PrivateJSONToken.token
 

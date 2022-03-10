@@ -17,6 +17,8 @@ object UserAuthentication {
     const val emailClaim = "email"
     const val userIdClaim = "userId"
 
+    private data class PasswordTokenized(val digits: Int, val upperCase: Int, val lowerCase: Int, val special: Int)
+
     suspend fun signUp(call: ApplicationCall) {
         call.receiveOrBadRequest<User>()?.let { userSignup ->
             if (!userSignup.isValid()) {
@@ -37,7 +39,15 @@ object UserAuthentication {
                     ErrorResponse(RESPONSE_ERRORS.ERR_LENGTH, "Length constraint violated")
                 )
             } else {
-                if (UserRepository.getUserByEmail(userSignup.email) != null) {
+                val passwordError = validatePassword(userSignup.password)
+                if (passwordError != null) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        ErrorResponse(RESPONSE_ERRORS.ERR_PASSWORD, passwordError)
+                    )
+                    return
+
+                } else if (UserRepository.getUserByEmail(userSignup.email) != null) {
                     call.respond(
                         HttpStatusCode.Conflict,
                         ErrorResponse(RESPONSE_ERRORS.ERR_EXISTS, "User already registered")
@@ -94,6 +104,45 @@ object UserAuthentication {
             BCrypt.checkpw(userLoginRequest.password, dbPasswordHash)
         } else {
             false
+        }
+    }
+
+    private fun tokenizePassword(password: String): PasswordTokenized {
+        var digitCount = 0
+        var lowerCaseCount = 0
+        var upperCaseCount = 0
+        var specialCount = 0
+
+        for (character in password) {
+            if (character.isDigit()) {
+                digitCount++
+            } else if (character.isUpperCase()) {
+                upperCaseCount++
+            } else if (character.isLowerCase()) {
+                lowerCaseCount++
+            } else if (!character.isLetterOrDigit()) {
+                specialCount++
+            }
+        }
+        return PasswordTokenized(digitCount, upperCaseCount, lowerCaseCount, specialCount)
+    }
+
+    private fun validatePassword(password: String): String? {
+        if (password.isEmpty()) {
+            return "Password is required"
+        } else {
+            val passwordTokenized = tokenizePassword(password)
+            return if (passwordTokenized.digits < 2)
+                "At least 2 digits required"
+            else if (passwordTokenized.special < 1)
+                "At least 1 special character required"
+            else if (passwordTokenized.lowerCase < 1)
+                "At least 1 lowercase character required"
+            else if (passwordTokenized.upperCase < 1)
+                "At least 1 uppercase character required"
+            else if (password.length < 8)
+                "At least 8 characters required"
+            else null
         }
     }
 

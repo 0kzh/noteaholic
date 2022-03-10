@@ -47,6 +47,10 @@ fun Application.configureRouting() {
                 NoteOperations.createNote(call)
             }
 
+            post("/note/add_collaborator") {
+                NoteOperations.addSharedNotes(call)
+            }
+
             get("/note/{id}") {
                 NoteOperations.getNote(call)
             }

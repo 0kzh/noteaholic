@@ -4,7 +4,6 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object DatabaseFieldLimits {
@@ -64,9 +63,24 @@ class DBNote(id: EntityID<Int>) : IntEntity(id) {
     }
 }
 
-object SharedNotes : Table("shared_notes") {
+object SharedNotes : IntIdTable("shared_notes") {
     val noteId = integer("note_id").references(Notes.id)
     val userId = integer("user_id").references(Users.id)
+
+    init {
+        uniqueIndex("shared_note_unique_index", noteId, userId)
+    }
+}
+
+class DBSharedNote(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<DBSharedNote>(SharedNotes)
+
+    var noteId by SharedNotes.noteId
+    var userId by SharedNotes.userId
+
+    fun toModel(): SharedNotesDTOOut {
+        return SharedNotesDTOOut(id.value, noteId, userId)
+    }
 }
 
 object Titles : IntIdTable() {

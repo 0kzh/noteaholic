@@ -41,6 +41,8 @@ class DBUser(id: EntityID<Int>) : IntEntity(id) {
 
 object Notes : IntIdTable() {
     val title = varchar("title", DatabaseFieldLimits.titleLength)
+    val positionX = integer("position_x")
+    val positionY = integer("position_y")
     val plainTextContent = text("plaintext_content")
     val formattedContent = text("formatted_content")
     val createdAt = datetime("created_at")
@@ -52,6 +54,8 @@ class DBNote(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<DBNote>(Notes)
 
     var title by Notes.title
+    var positionX by Notes.positionX
+    var positionY by Notes.positionY
     var plainTextContent by Notes.plainTextContent
     var formattedContent by Notes.formattedContent
     var createdAt by Notes.createdAt
@@ -59,7 +63,7 @@ class DBNote(id: EntityID<Int>) : IntEntity(id) {
     var owner by Notes.owner
 
     fun toModel(): NotesDTOOut {
-        return NotesDTOOut(id.value, title, plainTextContent, formattedContent, createdAt.toString(), modifiedAt.toString(), owner)
+        return NotesDTOOut(id.value, title, positionX, positionY, plainTextContent, formattedContent, createdAt.toString(), modifiedAt.toString(), owner)
     }
 }
 

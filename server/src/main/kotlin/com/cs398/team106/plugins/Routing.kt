@@ -55,6 +55,10 @@ fun Application.configureRouting() {
                 NoteOperations.getNote(call)
             }
 
+            get("/notes") {
+                NoteOperations.getNotes(call)
+            }
+
             patch("/note/{id}") {
                 NoteOperations.updateNote(call)
             }

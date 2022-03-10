@@ -20,6 +20,8 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
+import controllers.NoteRequests
+import kotlinx.coroutines.launch
 import navcontroller.NavController
 import screens.canvas.components.*
 import kotlin.math.roundToInt
@@ -49,8 +51,8 @@ fun CanvasScreen(
 
 @Composable
 fun CanvasBackground(navController: NavController) {
-    val scale = LocalCanvasState.current.scale
-    val notes = LocalCanvasState.current.notes
+    val scale = LocalCanvasContext.current.scale
+    val notes = LocalCanvasContext.current.notes
 
     Canvas(
         modifier = Modifier.fillMaxSize().background(Color.White)
@@ -77,17 +79,15 @@ fun CanvasBackground(navController: NavController) {
             note = note, navController = navController
         )
     }
-    PreviewNote()
-
-
+    CreateNote()
 }
 
 /**
  * Scales all canvas contents
  */
 fun Modifier.scale(): Modifier = composed {
-    val scale = LocalCanvasState.current.scale
-    val setToolbarState = LocalCanvasState.current.setToolbarState
+    val scale = LocalCanvasContext.current.scale
+    val setCanvasState = LocalCanvasContext.current.setCanvasState
 
     this.scrollable(
         orientation = Orientation.Vertical,
@@ -99,7 +99,7 @@ fun Modifier.scale(): Modifier = composed {
             if (delta < 0 && scale.value > 0.8) {
                 scale.value = Math.max(scale.value + delta * SCROLL_SENSITIVITY, 0.8f)
             }
-            setToolbarState(ToolbarState.FOCUS_CANVAS)
+            setCanvasState(CanvasState.FOCUS_CANVAS)
 
             delta
         })
@@ -109,8 +109,8 @@ fun Modifier.scale(): Modifier = composed {
  * Translates all canvas contents
  */
 fun Modifier.translate(): Modifier = composed {
-    val translate = LocalCanvasState.current.translate
-    val setToolbarState = LocalCanvasState.current.setToolbarState
+    val translate = LocalCanvasContext.current.translate
+    val setCanvasState = LocalCanvasContext.current.setCanvasState
 
     this.pointerInput(Unit) {
         detectDragGestures { change, dragAmount ->
@@ -122,7 +122,7 @@ fun Modifier.translate(): Modifier = composed {
 
             println("Translate")
 
-            setToolbarState(ToolbarState.FOCUS_CANVAS)
+            setCanvasState(CanvasState.FOCUS_CANVAS)
         }
     }
 }
@@ -132,7 +132,7 @@ fun Modifier.translate(): Modifier = composed {
  */
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.updateCursor(): Modifier = composed {
-    val cursor = LocalCanvasState.current.cursor
+    val cursor = LocalCanvasContext.current.cursor
 
     this.onPointerEvent(PointerEventType.Move) {
         val position = it.changes.first().position
@@ -144,34 +144,28 @@ fun Modifier.updateCursor(): Modifier = composed {
  * Creates a note when the user clicks on canvas
  */
 fun Modifier.createNote(): Modifier = composed {
-    val notes = LocalCanvasState.current.notes
-    val scale = LocalCanvasState.current.scale
-    val cursor = LocalCanvasState.current.cursor
-    val translate = LocalCanvasState.current.translate
-    val toolbarState = LocalCanvasState.current.toolbarState
-    val setToolbarState = LocalCanvasState.current.setToolbarState
+    val notes = LocalCanvasContext.current.notes
+    val scale = LocalCanvasContext.current.scale
+    val cursor = LocalCanvasContext.current.cursor
+    val translate = LocalCanvasContext.current.translate
+    val canvasState = LocalCanvasContext.current.canvasState
+    val setCanvasState = LocalCanvasContext.current.setCanvasState
+    val uncreatedNote = LocalCanvasContext.current.uncreatedNote
 
     val previewNoteSizePx = LocalDensity.current.run { (DEFAULT_NOTE_SIZE * scale.value).toPx() }
 
-    println("Translate: ${translate.value}")
     this.pointerInput(Unit) {
         detectTapGestures { _ ->
-            println("ToolbarState: ${toolbarState}")
-            if (toolbarState.value == ToolbarState.NEW_NOTE) {
+            if (canvasState.value == CanvasState.NEW_NOTE) {
 
                 // Similar code to in PreviewNote()
                 // Apply translations to the note's position relative to the canvas
                 val positionX = cursor.value.x - translate.value.x - previewNoteSizePx / 2
                 val positionY = cursor.value.y - translate.value.y - previewNoteSizePx / 2
                 val previewNotePosition = IntOffset(x = positionX.roundToInt(), y = positionY.roundToInt())
-                println("Cursor: ${cursor.value.x} ${cursor.value.y}")
-                println("New position: ${previewNotePosition}")
 
-                val list: MutableList<NoteData> = notes.value.toMutableList()
-                list.add(NoteData(position = previewNotePosition, text = "Hello"))
-                notes.value = list.toTypedArray()
-
-                setToolbarState(ToolbarState.FOCUS_CANVAS)
+                canvasState.value = CanvasState.CREATING_NOTE
+                uncreatedNote.value = NoteData(position = previewNotePosition, text = "")
             }
         }
     }
@@ -182,16 +176,18 @@ fun Modifier.createNote(): Modifier = composed {
  */
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.keyboardShortcuts(): Modifier = composed {
-    val setToolbarState = LocalCanvasState.current.setToolbarState
+    val canvasState = LocalCanvasContext.current.canvasState
+    val setCanvasState = LocalCanvasContext.current.setCanvasState
+    val focusRequester = LocalCanvasContext.current.focusRequester
 
-    // Don't ask what's going on with this FocusRequester logic
-    //  source: https://medium.com/google-developer-experts/focus-in-jetpack-compose-6584252257fe
-    val requester = FocusRequester()
-
-    LaunchedEffect(Unit) {
-        requester.requestFocus()
+    // Resume focus onto Canvas when possible for keyboard shortcuts to work
+    LaunchedEffect(canvasState.value) {
+        println("canvas state: ${canvasState}")
+        if (canvasState.value != CanvasState.CREATING_NOTE) {
+            println("canvas requested focus")
+            focusRequester.requestFocus()
+        }
     }
-
 
     // Order matters here for onPreviewKeyEvent -> focusRequester() -> focusable()
     //  source: https://stackoverflow.com/questions/70015530/unable-to-focus-anything-other-than-textfield
@@ -200,14 +196,14 @@ fun Modifier.keyboardShortcuts(): Modifier = composed {
             KeyDown -> {
                 when (it.key) {
                     Key.N -> {
-                        setToolbarState(ToolbarState.NEW_NOTE)
+                        setCanvasState(CanvasState.NEW_NOTE)
                     }
                     Key.T -> {
-                        setToolbarState(ToolbarState.NEW_TEXT)
+                        setCanvasState(CanvasState.NEW_TEXT)
                     }
                 }
             }
         }
         false
-    }.focusRequester(requester).focusable()
+    }.focusRequester(focusRequester).focusable()
 }

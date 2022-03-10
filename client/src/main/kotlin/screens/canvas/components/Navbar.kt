@@ -14,12 +14,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import components.Border
 import components.border
-import screens.canvas.LocalCanvasState
+import screens.canvas.LocalCanvasContext
 
 @Composable
 fun Zoom(
 ) {
-    val scale = LocalCanvasState.current.scale
+    val scale = LocalCanvasContext.current.scale
     Text(text = "Zoom", style = MaterialTheme.typography.h6)
 
 }

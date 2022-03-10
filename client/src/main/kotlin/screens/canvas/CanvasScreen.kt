@@ -1,22 +1,23 @@
 package screens.canvas
 
 import Screen
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.*
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import components.Border
@@ -25,6 +26,10 @@ import navcontroller.NavController
 import kotlin.math.roundToInt
 
 data class NoteData(val position: IntOffset = IntOffset.Zero, val text: String = "")
+
+enum class ToolbarState {
+    CURSOR, HAND, NEW_NOTE, NEW_TEXT
+}
 
 @Composable
 fun Note(
@@ -77,6 +82,66 @@ fun Navbar(name: String) {
 @Composable
 fun Toolbar(
 ) {
+    val (selected, setSelected) = remember { mutableStateOf(ToolbarState.CURSOR) }
+    var selectedColor = Color(0xFFFCE183)
+
+    Box(
+        modifier = Modifier
+            .width(300.dp)
+            .height(60.dp)
+            .shadow(
+                elevation = 16.dp,
+                shape = RoundedCornerShape(24.dp)
+            )
+        // border stroke 1px #CFCFCF
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().height(60.dp).background(Color.White),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround,
+        ) {
+            IconButton(
+                modifier = Modifier.clip(RoundedCornerShape(24.dp))
+                    .background(
+                        if (selected == ToolbarState.CURSOR) selectedColor else Color.Transparent
+                    ),
+                onClick = { setSelected(ToolbarState.CURSOR) }
+            ) {
+                Image(painterResource("icons/cursor.svg"), "cursor icon", modifier = Modifier.size(24.dp))
+            }
+            IconButton(
+                modifier = Modifier.clip(RoundedCornerShape(24.dp))
+                    .background(
+                        if (selected == ToolbarState.HAND) selectedColor else Color.Transparent
+                    ),
+                onClick = { setSelected(ToolbarState.HAND) }
+            ) {
+                Image(painterResource("icons/hand.svg"), "hand icon", modifier = Modifier.size(24.dp))
+            }
+            IconButton(
+                modifier = Modifier.clip(RoundedCornerShape(24.dp))
+                    .background(
+                        if (selected == ToolbarState.NEW_NOTE) selectedColor else Color.Transparent
+                    ),
+                onClick = { setSelected(ToolbarState.NEW_NOTE) }
+            ) {
+                Image(
+                    painterResource("icons/new_note.svg"),
+                    "new note icon",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            IconButton(
+                modifier = Modifier.clip(RoundedCornerShape(24.dp))
+                    .background(
+                        if (selected == ToolbarState.NEW_TEXT) selectedColor else Color.Transparent
+                    ),
+                onClick = { setSelected(ToolbarState.NEW_TEXT) }
+            ) {
+                Image(painterResource("icons/text.svg"), "new text", modifier = Modifier.size(24.dp))
+            }
+        }
+    }
 
 }
 
@@ -178,8 +243,15 @@ fun CanvasScreen(
     var screenName by remember { mutableStateOf("School Notes") }
     CanvasStateProvider() {
         CanvasBackground(navController = navController)
-        Toolbar()
         Navbar(name = screenName)
+
+        Box(
+            modifier = Modifier.fillMaxSize().offset { IntOffset(0, -50) },
+            Alignment.BottomCenter,
+            // create box with 24px rounded corners and a slight drop shadow
+        ) {
+            Toolbar()
+        }
 
     }
 }

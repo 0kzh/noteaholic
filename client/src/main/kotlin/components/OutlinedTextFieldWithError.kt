@@ -1,7 +1,10 @@
 package components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -58,11 +61,14 @@ fun OutlinedTextFieldWithError(
             shape,
             colors
         )
-        Row(Modifier.padding(16.dp, 0.dp)) {
+        Column(Modifier.padding(16.dp, 0.dp)) {
             Spacer(Modifier.height(2.dp))
-            if (isError) {
-                Text(text = errorText!!, color = MaterialTheme.colors.error, style = MaterialTheme.typography.caption)
-            }
+            Text(
+                text = if (isError) {
+                    errorText!!
+                } else "",
+                color = MaterialTheme.colors.error, style = MaterialTheme.typography.caption
+            )
         }
     }
 }

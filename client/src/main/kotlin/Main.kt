@@ -1,6 +1,5 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.font.FontFamily
@@ -57,7 +56,8 @@ val interFontFamily = FontFamily(
 
 @Composable
 @Preview
-fun App(authenticated: Boolean) {
+fun App(authenticated: Boolean, sharedNoteId: Int?) {
+    println("Got SharedNoteId in App $sharedNoteId")
     val screens = Screen.values().toList()
     val navController by rememberNavController(if (authenticated) Screen.CanvasScreen.name else Screen.LoginScreen.name)
     val currentScreen by remember {
@@ -71,7 +71,11 @@ fun App(authenticated: Boolean) {
 fun getResourceAsText(path: String): String? =
     object {}.javaClass.getResource(path)?.readText()
 
-fun main() = application {
+fun getNoteIdFromURI(uri: URI): Int? =
+    uri.query.split('&')
+        .associate { it.split('=').let { splitData -> Pair(splitData[0], splitData[1]) } }["noteId"]?.toInt()
+
+fun main(args: Array<String>) = application {
     val result = getResourceAsText("/config/config.json") ?: "http://localhost:8080"
     nHttpClient.URL = Json.decodeFromString<Config>(result).url
 
@@ -79,6 +83,7 @@ fun main() = application {
     val jwt = PrivateJSONToken.token
 
     var canConnect by remember { mutableStateOf(false) }
+    var sharedNoteId by remember { mutableStateOf<Int?>(null) }
     val connectivityChecker = connectionMonitor()
     val scope = rememberCoroutineScope()
 
@@ -92,14 +97,11 @@ fun main() = application {
         Desktop.getDesktop().setOpenURIHandler { event ->
             println("Got Open URI: " + event.uri)
             logURIDetails(event.uri)
+            sharedNoteId = getNoteIdFromURI(event.uri)
         }
-    } else {
-        logURIDetails(URI.create("https://docs.oracle.com/javase/7/docs/api/java/net/URI.html"))
+    } else if (args.size == 1) {
+        sharedNoteId = getNoteIdFromURI(URI(args[0]))
     }
-
-
-
-
 
     scope.launch {
         connectivityChecker.collect { value ->
@@ -113,7 +115,7 @@ fun main() = application {
     ) {
         MaterialTheme {
             if (canConnect) {
-                App(isJWTValid)
+                App(isJWTValid, sharedNoteId)
             } else {
                 ConnectionError()
             }

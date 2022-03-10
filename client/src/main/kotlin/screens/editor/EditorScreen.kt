@@ -87,7 +87,6 @@ fun EditorScreen(
                         maxLines = 1,
                         textStyle = MaterialTheme.typography.h6,
                         modifier = Modifier.focusRequester(focusRequester)
-
                     )
                     IconButton(onClick = {
                         currentTitle = edittingTitle

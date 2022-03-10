@@ -149,6 +149,7 @@ fun EditorScreen(
                         onClick = {
                             alertDialog.value = false
                             scope.launch {
+                                // TODO: change from hardcoded ID once we have saving/loading notes
                                 val res = NoteRequests.addCollaborators(10,  emails.split(","))
                                 println(res)
                             }

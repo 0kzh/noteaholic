@@ -22,13 +22,13 @@ fun ConnectionError() {
         Spacer(Modifier.height(32.dp))
         Text(
             "Connection Error",
-            style = MaterialTheme.typography.h3,
+            style = MaterialTheme.typography.h2,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(16.dp))
         Text(
             "Could not communicate with the Noteaholic servers",
-            style = MaterialTheme.typography.h6,
+            style = MaterialTheme.typography.h5,
             textAlign = TextAlign.Center
         )
     }

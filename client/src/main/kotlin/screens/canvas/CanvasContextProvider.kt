@@ -12,6 +12,8 @@ enum class CanvasState {
 data class NoteData(val position: IntOffset = IntOffset.Zero, val title: String = "", val text: String = "")
 
 data class CanvasContext(
+    val screenName: MutableState<String>,
+
     val scale: MutableState<Float>,
     val cursor: MutableState<Offset>,
     val translate: MutableState<Offset>,
@@ -39,9 +41,12 @@ val DEFAULT_NOTES = arrayOf<NoteData>(
 
 @Composable
 fun CanvasStateProvider(content: @Composable() () -> Unit) {
+    val screenName = remember { mutableStateOf("School Notes") }
+
     val scale = remember { mutableStateOf(1f) }
     val cursor = remember { mutableStateOf(Offset.Zero) }
     val translate = remember { mutableStateOf(Offset.Zero) }
+
     val canvasState = remember { mutableStateOf(CanvasState.FOCUS_NOTE) }
     val setCanvasState =
         { newState: CanvasState -> if (canvasState.value != newState) canvasState.value = newState }
@@ -49,15 +54,11 @@ fun CanvasStateProvider(content: @Composable() () -> Unit) {
     val notes = remember { mutableStateOf(DEFAULT_NOTES) }
     val focusRequester = remember { FocusRequester() }
 
-
-    LaunchedEffect(Unit) {
-
-    }
-
     val uncreatedNote = remember { mutableStateOf<NoteData?>(null) }
 
     CompositionLocalProvider(
         LocalCanvasContext provides CanvasContext(
+            screenName,
             scale,
             cursor,
             translate,

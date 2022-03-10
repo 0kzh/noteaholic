@@ -46,7 +46,7 @@ fun EditorScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        TopAppBar(
+       TopAppBar(
             backgroundColor = Color.White,
             elevation = 0.dp,
             navigationIcon = {
@@ -131,10 +131,21 @@ fun EditorScreen(
             onValueChange = { text = it },
             maxLines = Int.MAX_VALUE,
             textStyle = MaterialTheme.typography.body1,
-            visualTransformation = ColorsTransformation(editorController)
+            visualTransformation = MarkdownTransform(editorController)
         )
+
+        Button(
+            onClick = {
+                navController.navigateBack()
+            }
+        ) {
+            Text(
+                text = "Close note"
+            )
+        }
     }
 }
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -186,21 +197,17 @@ fun ShareNoteDialog(
     )
 }
 
-class ColorsTransformation(private val editorController: EditorController) : VisualTransformation {
+class MarkdownTransform(private val editorController: EditorController) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         return TransformedText(
-            buildAnnotatedStringWithColors(text.toString(), editorController),
+            buildAnnotatedStringWithFormatting(text.toString(), editorController),
             offsetMapping = OffsetMapping.Identity
         )
     }
 }
 
-fun buildAnnotatedStringWithColors(text: String, editorController: EditorController): AnnotatedString {
-    return editorController.parseMarkdown(text)
-
-//    val builder = AnnotatedString.Builder()
-//    builder.append(text)
-//    // turn text into annotated string
-//
-//    return builder.toAnnotatedString()
+fun buildAnnotatedStringWithFormatting(text: String, editorController: EditorController): AnnotatedString {
+    val ret = editorController.parseMarkdown(text)
+    println("ret '$ret' text: '$text'")
+    return ret
 }

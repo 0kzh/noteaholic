@@ -30,6 +30,21 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
 }
 
+val macExtraPlistKeys: String
+    get() = """
+      <key>CFBundleURLTypes</key>
+      <array>
+        <dict>
+          <key>CFBundleURLName</key>
+          <string>Example deep link</string>
+          <key>CFBundleURLSchemes</key>
+          <array>
+            <string>noteaholic</string>
+          </array>
+        </dict>
+      </array>
+    """
+
 compose.desktop {
     application {
         mainClass = "MainKt"
@@ -37,6 +52,12 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "client"
             packageVersion = "1.0.0"
+            macOS {
+                bundleID = group.toString()
+                infoPlist {
+                    extraKeysRawXml = macExtraPlistKeys
+                }
+            }
         }
     }
 }

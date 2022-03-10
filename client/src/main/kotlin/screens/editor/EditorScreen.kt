@@ -68,7 +68,7 @@ fun EditorScreen(
             },
             title = {
                 if (!isEditingTitle) {
-                    Text(text = currentTitle, style = MaterialTheme.typography.h6)
+                    Text(text = currentTitle, style = MaterialTheme.typography.h4)
                     IconButton(
                         onClick = {
                             isEditingTitle = !isEditingTitle
@@ -85,9 +85,8 @@ fun EditorScreen(
                         { edittingTitle = it },
                         singleLine = true,
                         maxLines = 1,
-                        textStyle = MaterialTheme.typography.h6,
+                        textStyle = MaterialTheme.typography.h4,
                         modifier = Modifier.focusRequester(focusRequester)
-
                     )
                     IconButton(onClick = {
                         currentTitle = edittingTitle
@@ -130,7 +129,7 @@ fun EditorScreen(
             value = text,
             onValueChange = { text = it },
             maxLines = Int.MAX_VALUE,
-            textStyle = MaterialTheme.typography.body1,
+            textStyle = MaterialTheme.typography.h6,
             visualTransformation = MarkdownTransform(editorController)
         )
 
@@ -158,13 +157,13 @@ fun ShareNoteDialog(
         onDismissRequest = {},
         shape = MaterialTheme.shapes.large,
         title = {
-            Text(text = "Share Note", style = MaterialTheme.typography.h6)
+            Text(text = "Share Note", style = MaterialTheme.typography.h4)
         },
         text = {
             Column {
                 Text(
                     "Enter comma-separated emails for collaborators (must be users in Noteaholic)",
-                    Modifier.padding(bottom = 8.dp)
+                    Modifier.padding(bottom = 8.dp), style = MaterialTheme.typography.h6
                 )
                 OutlinedTextFieldWithError(
                     readOnly = false,
@@ -179,7 +178,7 @@ fun ShareNoteDialog(
                 onClick = {
                     alertDialog.value = false
                 }) {
-                Text("CANCEL")
+                Text("CANCEL", style = MaterialTheme.typography.h6)
             }
         },
         confirmButton = {
@@ -191,7 +190,7 @@ fun ShareNoteDialog(
                         println(res)
                     }
                 }) {
-                Text("SHARE NOTE")
+                Text("SHARE NOTE", style = MaterialTheme.typography.h6)
             }
         }
     )

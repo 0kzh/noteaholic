@@ -1,5 +1,6 @@
 import io.ktor.client.*
 import io.ktor.client.engine.jetty.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
@@ -8,7 +9,7 @@ import java.net.ConnectException
 
 object nHttpClient {
     lateinit var URL: String;
-    val client = HttpClient(Jetty) {
+    val client = HttpClient(CIO) {
         expectSuccess = false
         install(JsonFeature) {
             serializer = KotlinxSerializer()

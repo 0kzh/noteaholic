@@ -35,6 +35,8 @@ data class Login(
 @Serializable
 data class CreateNoteData(
     val title: String,
+    val positionX: Int,
+    val positionY: Int,
     val plainTextContent: String,
     val formattedContent: String,
 ) {
@@ -73,6 +75,8 @@ data class CreateSharedNoteData(
 @Serializable
 data class UpdateNoteData(
     val title: String? = null,
+    val positionX: Int? = null,
+    val positionY: Int? = null,
     val plainTextContent: String? = null,
     val formattedContent: String? = null,
     val ownerID: Int? = null,
@@ -104,6 +108,8 @@ data class UserDTOOut(
 data class NotesDTOOut(
     val id: Int,
     val title: String,
+    val positionX: Int,
+    val positionY: Int,
     val plainTextContent: String,
     val formattedContent: String,
     val createdAt: String,

@@ -1,11 +1,14 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Typography
 import androidx.compose.runtime.*
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import components.ConnectionError
@@ -36,24 +39,6 @@ import kotlin.time.Duration.Companion.seconds
 @Serializable
 data class Config(val url: String)
 
-val interFontFamily = FontFamily(
-    Font(
-        resource = "inter_bold.ttf",
-        weight = FontWeight.Bold,
-        style = FontStyle.Normal
-    ),
-    Font(
-        resource = "inter_medium.ttf",
-        weight = FontWeight.W500,
-        style = FontStyle.Normal
-    ),
-    Font(
-        resource = "inter_regular.ttf",
-        weight = FontWeight.W400,
-        style = FontStyle.Normal
-    ),
-)
-
 @Composable
 @Preview
 fun App(authenticated: Boolean, sharedNoteId: Int?) {
@@ -76,8 +61,8 @@ fun getNoteIdFromURI(uri: URI): Int? =
         .associate { it.split('=').let { splitData -> Pair(splitData[0], splitData[1]) } }["noteId"]?.toInt()
 
 fun main(args: Array<String>) = application {
-    val result = getResourceAsText("/config/config.json") ?: "http://localhost:8080"
-    nHttpClient.URL = Json.decodeFromString<Config>(result).url
+    val result = getResourceAsText("/config/config.json")
+    nHttpClient.URL = if (result != null) Json.decodeFromString<Config>(result).url else "http://localhost:8080"
 
     PrivateJSONToken.loadJWTFromAppData()
     val jwt = PrivateJSONToken.token
@@ -96,7 +81,6 @@ fun main(args: Array<String>) = application {
     if (isSupported) {
         Desktop.getDesktop().setOpenURIHandler { event ->
             println("Got Open URI: " + event.uri)
-            logURIDetails(event.uri)
             sharedNoteId = getNoteIdFromURI(event.uri)
         }
     } else if (args.size == 1) {
@@ -113,7 +97,7 @@ fun main(args: Array<String>) = application {
         title = ResString.appName,
         onCloseRequest = ::exitApplication
     ) {
-        MaterialTheme {
+        MaterialTheme(typography = CustomTypography) {
             if (canConnect) {
                 App(isJWTValid, sharedNoteId)
             } else {
@@ -131,32 +115,6 @@ private fun connectionMonitor(): Flow<Boolean> {
         }
     }
     return connectivityChecker
-}
-
-private fun logURIDetails(uri: URI) {
-    val eventDetails = """
-                Got URI => $uri
-                
-                
-                authority => ${uri.authority}
-                fragment => ${uri.fragment}
-                host => ${uri.host}
-                path => ${uri.path}
-                port => ${uri.port}
-                query => ${uri.query}
-                rawAuthority => ${uri.rawAuthority}
-                rawFragment => ${uri.rawFragment}
-                rawPath => ${uri.rawPath}
-                rawQuery => ${uri.rawQuery}
-                rawSchemeSpecificPart => ${uri.rawSchemeSpecificPart}
-                rawUserInfo => ${uri.rawUserInfo}
-                scheme => ${uri.scheme}
-                schemeSpecificPart => ${uri.schemeSpecificPart}
-                userInfo => ${uri.userInfo}
-            """.trimIndent()
-
-    // TODO: remove this (hardcoded to user path)
-    File("/Users/advait/Downloads/cs398URIDetails.txt").writeText(eventDetails)
 }
 
 enum class Screen() {

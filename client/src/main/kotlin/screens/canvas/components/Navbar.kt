@@ -14,18 +14,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import components.Border
 import components.border
-import screens.canvas.LocalCanvasState
+import screens.canvas.LocalCanvasContext
 
 @Composable
 fun Zoom(
 ) {
-    val scale = LocalCanvasState.current.scale
+    val scale = LocalCanvasContext.current.scale
     Text(text = "Zoom", style = MaterialTheme.typography.h6)
 
 }
 
 @Composable
-fun Navbar(name: String) {
+fun Navbar() {
+    val screenName = LocalCanvasContext.current.screenName
+
     Row(
         modifier = Modifier.fillMaxWidth().height(60.dp).background(Color.White)
             .border(bottom = Border(1.dp, Color.Gray.copy(alpha = 0.5f))),
@@ -34,7 +36,7 @@ fun Navbar(name: String) {
     ) {
 //        Box(modifier = Modifier.size(0.dp))
 //        Zoom()
-        Text(text = name, style = MaterialTheme.typography.h6)
+        Text(text = screenName.value, style = MaterialTheme.typography.h4)
 //        Zoom()
     }
 }

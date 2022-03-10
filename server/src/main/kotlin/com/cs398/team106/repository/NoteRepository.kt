@@ -1,12 +1,9 @@
 package com.cs398.team106.repository
 
-import com.cs398.team106.DBNote
-import com.cs398.team106.DBSharedNote
-import com.cs398.team106.DBUser
+import com.cs398.team106.*
 import com.cs398.team106.Notes.formattedContent
 import com.cs398.team106.Notes.plainTextContent
 import com.cs398.team106.Notes.title
-import com.cs398.team106.SharedNotes
 import io.ktor.utils.io.concurrent.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -28,10 +25,23 @@ object NoteRepository {
         }
     }
 
-    fun createNote(title: String, plainTextContent: String, formattedContent: String, ownerID: Int): DBNote {
+    fun getNotes(userID: Int): List<DBNote> {
+        return transaction {
+            return@transaction DBNote.find {
+                Notes.owner eq userID
+            }.toList()
+        }
+    }
+
+    fun createNote(
+        data: CreateNoteData, ownerID: Int
+    ): DBNote {
+        val (title, positionX, positionY, plainTextContent, formattedContent) = data
         return transaction {
             return@transaction DBNote.new {
                 this.title = title
+                this.positionX = positionX
+                this.positionY = positionY
                 this.plainTextContent = plainTextContent
                 this.formattedContent = formattedContent
                 this.createdAt = Clock.System.now().toLocalDateTime(TimeZone.UTC)
@@ -47,7 +57,8 @@ object NoteRepository {
             if (dbNote.owner == userID) {
                 return@transaction NOTE_ACCESS_LEVEL.WRITE
             } else {
-                val sharedNotes = DBSharedNote.find{(SharedNotes.noteId eq noteID) and (SharedNotes.userId eq userID)}
+                val sharedNotes =
+                    DBSharedNote.find { (SharedNotes.noteId eq noteID) and (SharedNotes.userId eq userID) }
                 if (sharedNotes.count() != 0L) {
                     return@transaction NOTE_ACCESS_LEVEL.READ
                 } else {
@@ -84,10 +95,16 @@ object NoteRepository {
         }
     }
 
-    fun updateNote(id: Int, title: String?, plainTextContent: String?, formattedContent: String?, ownerID: Int?): DBNote? {
+    fun updateNote(
+        id: Int,
+        data: UpdateNoteData,
+    ): DBNote? {
+        val (title, positionX, positionY, plainTextContent, formattedContent, ownerID) = data
         return transaction {
             val note = DBNote.findById(id) ?: return@transaction null
             title?.let { note.title = it }
+            positionX?.let { note.positionX = it }
+            positionY?.let { note.positionY = it }
             plainTextContent?.let { note.plainTextContent = it }
             formattedContent?.let { note.formattedContent = it }
             ownerID?.let { note.owner = it }

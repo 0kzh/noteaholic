@@ -23,15 +23,15 @@ object NoteOperations {
         val ownerID = getJWTUserID(call)
         call.receiveOrBadRequest<CreateNoteData>()?.let { createNoteData ->
             if (!createNoteData.isValid()) {
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse(
-                    RESPONSE_ERRORS.ERR_MALFORMED, "Title is required"
-                ))
+                call.respond(
+                    HttpStatusCode.BadRequest, ErrorResponse(
+                        RESPONSE_ERRORS.ERR_MALFORMED, "Title is required"
+                    )
+                )
                 return
             }
             val createdNote = NoteRepository.createNote(
-                createNoteData.title,
-                createNoteData.plainTextContent,
-                createNoteData.formattedContent,
+                createNoteData,
                 ownerID
             )
 
@@ -43,26 +43,38 @@ object NoteOperations {
         val userAuthID = getJWTUserID(call)
         val intID = call.parameters["id"]?.toIntOrNull()
         if (intID == null) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(
-                RESPONSE_ERRORS.ERR_MALFORMED, "Please provide note ID (integer)"
-            ))
+            call.respond(
+                HttpStatusCode.BadRequest, ErrorResponse(
+                    RESPONSE_ERRORS.ERR_MALFORMED, "Please provide note ID (integer)"
+                )
+            )
             return
         }
         val accessLevel = NoteRepository.getNoteAccessLevel(intID, userAuthID)
         if (accessLevel != NOTE_ACCESS_LEVEL.WRITE && accessLevel != NOTE_ACCESS_LEVEL.READ) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(
-                RESPONSE_ERRORS.ERR_ACCESS, "Cannot retrieve note, please check your access"
-            ))
+            call.respond(
+                HttpStatusCode.BadRequest, ErrorResponse(
+                    RESPONSE_ERRORS.ERR_ACCESS, "Cannot retrieve note, please check your access"
+                )
+            )
             return
         }
         val retrievedNote = NoteRepository.getNote(intID)
         if (retrievedNote == null) {
-            call.respond(HttpStatusCode.NotFound, ErrorResponse(
-                RESPONSE_ERRORS.ERR_NOT_FOUND, "Could not find note to retrieve"
-            ))
+            call.respond(
+                HttpStatusCode.NotFound, ErrorResponse(
+                    RESPONSE_ERRORS.ERR_NOT_FOUND, "Could not find note to retrieve"
+                )
+            )
             return
         }
         call.respond(HttpStatusCode.OK, retrievedNote.toModel())
+    }
+
+    suspend fun getNotes(call: ApplicationCall) {
+        val userAuthID = getJWTUserID(call)
+        val retrievedNotes = NoteRepository.getNotes(userAuthID)
+        call.respond(HttpStatusCode.OK, retrievedNotes.map { it.toModel() })
     }
 
     suspend fun addSharedNotes(call: ApplicationCall) {
@@ -70,70 +82,87 @@ object NoteOperations {
         call.receiveOrBadRequest<CreateSharedNoteData>()?.let { createSharedNoteData ->
             val accessLevel = NoteRepository.getNoteAccessLevel(createSharedNoteData.noteID, userAuthID)
             if (accessLevel != NOTE_ACCESS_LEVEL.WRITE) {
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse(
-                    RESPONSE_ERRORS.ERR_ACCESS,
-                    "Cannot add collaborators for a note you do not own!"
-                ))
+                call.respond(
+                    HttpStatusCode.BadRequest, ErrorResponse(
+                        RESPONSE_ERRORS.ERR_ACCESS,
+                        "Cannot add collaborators for a note you do not own!"
+                    )
+                )
                 return
             }
             val allUsers = mutableListOf<DBUser>()
             for (userEmail in createSharedNoteData.userEmails) {
                 val user = UserRepository.getUserByEmail(userEmail)
                 if (user == null) {
-                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(
-                        RESPONSE_ERRORS.ERR_MALFORMED,
-                        "Invalid email: $userEmail"
-                    ))
+                    call.respond(
+                        HttpStatusCode.BadRequest, ErrorResponse(
+                            RESPONSE_ERRORS.ERR_MALFORMED,
+                            "Invalid email: $userEmail"
+                        )
+                    )
                     return
                 }
                 if (user.id.value == userAuthID) {
-                    call.respond(HttpStatusCode.BadRequest, ErrorResponse(
-                        RESPONSE_ERRORS.ERR_MALFORMED,
-                        "Cannot add owner of note as collaborator!"
-                    ))
+                    call.respond(
+                        HttpStatusCode.BadRequest, ErrorResponse(
+                            RESPONSE_ERRORS.ERR_MALFORMED,
+                            "Cannot add owner of note as collaborator!"
+                        )
+                    )
                     return
                 }
                 allUsers.add(user)
             }
-            val allUserIDs = allUsers.map{it.id.value}
+            val allUserIDs = allUsers.map { it.id.value }
             val sharedNotes = NoteRepository.addSharedNotes(
                 createSharedNoteData.noteID,
-                allUserIDs)
+                allUserIDs
+            )
             if (sharedNotes == null) {
-                call.respond(HttpStatusCode.BadRequest, ErrorResponse(
-                    RESPONSE_ERRORS.ERR_MALFORMED,
-                    "Could not create shared notes (invalid IDs)!"
-                ))
+                call.respond(
+                    HttpStatusCode.BadRequest, ErrorResponse(
+                        RESPONSE_ERRORS.ERR_MALFORMED,
+                        "Could not create shared notes (invalid IDs)!"
+                    )
+                )
                 return
             }
-            call.respond(HttpStatusCode.OK, sharedNotes.map{it.toModel()})
+            call.respond(HttpStatusCode.OK, sharedNotes.map { it.toModel() })
         }
     }
 
     suspend fun updateNote(call: ApplicationCall) {
         val intID = call.parameters["id"]?.toIntOrNull()
         if (intID == null) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(
-                RESPONSE_ERRORS.ERR_MALFORMED, "Please provide note ID (integer)"
-            ))
+            call.respond(
+                HttpStatusCode.BadRequest, ErrorResponse(
+                    RESPONSE_ERRORS.ERR_MALFORMED, "Please provide note ID (integer)"
+                )
+            )
             return
         }
 
         val userAuthID = getJWTUserID(call)
         val accessLevel = NoteRepository.getNoteAccessLevel(intID, userAuthID)
         if (accessLevel != NOTE_ACCESS_LEVEL.WRITE) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(
-                RESPONSE_ERRORS.ERR_ACCESS, "Cannot update note, please check your access"
-            ))
+            call.respond(
+                HttpStatusCode.BadRequest, ErrorResponse(
+                    RESPONSE_ERRORS.ERR_ACCESS, "Cannot update note, please check your access"
+                )
+            )
             return
         }
         call.receiveOrBadRequest<UpdateNoteData>()?.let { updateNoteData ->
-            val updatedNote = NoteRepository.updateNote(intID, updateNoteData.title, updateNoteData.plainTextContent,
-                updateNoteData.formattedContent, updateNoteData.ownerID)
+            val updatedNote = NoteRepository.updateNote(
+                intID,
+                updateNoteData
+            )
             if (updatedNote == null) {
-                call.respond(HttpStatusCode.NotFound, ErrorResponse(
-                    RESPONSE_ERRORS.ERR_NOT_FOUND, "Could not find note to update"
-                ))
+                call.respond(
+                    HttpStatusCode.NotFound, ErrorResponse(
+                        RESPONSE_ERRORS.ERR_NOT_FOUND, "Could not find note to update"
+                    )
+                )
                 return
             }
             call.respond(HttpStatusCode.OK, updatedNote.toModel())
@@ -143,24 +172,30 @@ object NoteOperations {
     suspend fun deleteNote(call: ApplicationCall) {
         val intID = call.parameters["id"]?.toIntOrNull()
         if (intID == null) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(
-                RESPONSE_ERRORS.ERR_MALFORMED, "Please provide note ID (integer)"
-            ))
+            call.respond(
+                HttpStatusCode.BadRequest, ErrorResponse(
+                    RESPONSE_ERRORS.ERR_MALFORMED, "Please provide note ID (integer)"
+                )
+            )
             return
         }
         val userAuthID = getJWTUserID(call)
         val accessLevel = NoteRepository.getNoteAccessLevel(intID, userAuthID)
         if (accessLevel != NOTE_ACCESS_LEVEL.WRITE) {
-            call.respond(HttpStatusCode.BadRequest, ErrorResponse(
-                RESPONSE_ERRORS.ERR_ACCESS, "Cannot delete note, please check your access"
-            ))
+            call.respond(
+                HttpStatusCode.BadRequest, ErrorResponse(
+                    RESPONSE_ERRORS.ERR_ACCESS, "Cannot delete note, please check your access"
+                )
+            )
             return
         }
         val deleteSuccess = NoteRepository.deleteNote(intID)
         if (!deleteSuccess) {
-            call.respond(HttpStatusCode.NotFound, ErrorResponse(
-                RESPONSE_ERRORS.ERR_NOT_FOUND, "Could not find note to delete"
-            ))
+            call.respond(
+                HttpStatusCode.NotFound, ErrorResponse(
+                    RESPONSE_ERRORS.ERR_NOT_FOUND, "Could not find note to delete"
+                )
+            )
             return
         }
         call.respond(HttpStatusCode.OK)

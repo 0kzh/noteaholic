@@ -21,8 +21,8 @@ val SELECTED_COLOR = Color(0xFFFCE183)
 @Composable
 fun Toolbar(
 ) {
-    val toolbarState = LocalCanvasState.current.toolbarState
-    val setToolbarState = LocalCanvasState.current.setToolbarState
+    val canvasState = LocalCanvasContext.current.canvasState
+    val setCanvasState = LocalCanvasContext.current.setCanvasState
 
     Box(
         modifier = Modifier.width(300.dp).height(60.dp).shadow(
@@ -36,25 +36,25 @@ fun Toolbar(
             horizontalArrangement = Arrangement.SpaceAround,
         ) {
             IconButton(modifier = Modifier.clip(RoundedCornerShape(24.dp)).background(
-                if (toolbarState.value == ToolbarState.FOCUS_NOTE) SELECTED_COLOR else Color.Transparent
-            ), onClick = { setToolbarState(ToolbarState.FOCUS_NOTE) }) {
+                if (canvasState.value == CanvasState.FOCUS_NOTE) SELECTED_COLOR else Color.Transparent
+            ), onClick = { setCanvasState(CanvasState.FOCUS_NOTE) }) {
                 Image(painterResource("icons/cursor.svg"), "cursor icon", modifier = Modifier.size(24.dp))
             }
             IconButton(modifier = Modifier.clip(RoundedCornerShape(24.dp)).background(
-                if (toolbarState.value == ToolbarState.FOCUS_CANVAS) SELECTED_COLOR else Color.Transparent
-            ), onClick = { setToolbarState(ToolbarState.FOCUS_CANVAS) }) {
+                if (canvasState.value == CanvasState.FOCUS_CANVAS) SELECTED_COLOR else Color.Transparent
+            ), onClick = { setCanvasState(CanvasState.FOCUS_CANVAS) }) {
                 Image(painterResource("icons/hand.svg"), "hand icon", modifier = Modifier.size(24.dp))
             }
             IconButton(modifier = Modifier.clip(RoundedCornerShape(24.dp)).background(
-                if (toolbarState.value == ToolbarState.NEW_NOTE) SELECTED_COLOR else Color.Transparent
-            ), onClick = { setToolbarState(ToolbarState.NEW_NOTE) }) {
+                if (canvasState.value == CanvasState.NEW_NOTE) SELECTED_COLOR else Color.Transparent
+            ), onClick = { setCanvasState(CanvasState.NEW_NOTE) }) {
                 Image(
                     painterResource("icons/new_note.svg"), "new note icon", modifier = Modifier.size(24.dp)
                 )
             }
             IconButton(modifier = Modifier.clip(RoundedCornerShape(24.dp)).background(
-                if (toolbarState.value == ToolbarState.NEW_TEXT) SELECTED_COLOR else Color.Transparent
-            ), onClick = { setToolbarState(ToolbarState.NEW_TEXT) }) {
+                if (canvasState.value == CanvasState.NEW_TEXT) SELECTED_COLOR else Color.Transparent
+            ), onClick = { setCanvasState(CanvasState.NEW_TEXT) }) {
                 Image(painterResource("icons/text.svg"), "new text", modifier = Modifier.size(24.dp))
             }
         }

@@ -77,4 +77,21 @@ object NoteRequests {
             null
         }
     }
+
+    suspend fun fetchNote(noteID: Int): NotesDTOOut? {
+        val httpResponse: HttpResponse = client.get(nHttpClient.URL + "/note/${noteID}") {
+            contentType(ContentType.Application.Json)
+            headers.append(HttpHeaders.Authorization, "Bearer ${PrivateJSONToken.token}")
+        }
+        val stringBody: String = httpResponse.receive()
+
+        return try {
+            val note = Json.decodeFromString<NotesDTOOut>(stringBody)
+            print(note)
+            note
+        } catch (t: Throwable) {
+            println("Error: ${t.message}")
+            null
+        }
+    }
 }

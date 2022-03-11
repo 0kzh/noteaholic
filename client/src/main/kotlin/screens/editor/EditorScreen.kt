@@ -156,7 +156,7 @@ fun EditorScreen(
         }
 
         if (alertDialog.value) {
-            ShareNoteDialog(emails, alertDialog)
+            ShareNoteDialog(emails, alertDialog, selectedNote.value!!.id)
         }
 
 
@@ -197,6 +197,7 @@ fun EditorScreen(
 fun ShareNoteDialog(
     emails: MutableState<String>,
     alertDialog: MutableState<Boolean>,
+    selectedNoteId: Int,
 ) {
     val scope = rememberCoroutineScope()
     val bgColors = TextFieldDefaults.outlinedTextFieldColors().backgroundColor(true)
@@ -263,9 +264,11 @@ fun ShareNoteDialog(
             TextButton(
                 onClick = {
                     alertDialog.value = false
+                    println("IN ADD COLLAB")
                     scope.launch {
-                        val res = NoteRequests.addCollaborators(10, emails.value.split(","))
-                        println(res)
+                        println("IN SCOPE ADDCOLLABO")
+                        val res = NoteRequests.addCollaborators(selectedNoteId, emails.value.split(","))
+                        println("ADDCOLLAB $res")
                     }
                 }) {
                 Text("SHARE NOTE", style = MaterialTheme.typography.h6)

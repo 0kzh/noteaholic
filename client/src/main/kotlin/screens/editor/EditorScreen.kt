@@ -263,13 +263,14 @@ fun ShareNoteDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    alertDialog.value = false
+
                     println("IN ADD COLLAB")
                     scope.launch {
                         println(selectedNoteId)
                         println("IN SCOPE ADDCOLLABO")
                         val res = NoteRequests.addCollaborators(selectedNoteId, emails.value.split(","))
                         println("ADDCOLLAB $res")
+                        alertDialog.value = false
                     }
                 }) {
                 Text("SHARE NOTE", style = MaterialTheme.typography.h6)

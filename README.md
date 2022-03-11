@@ -7,6 +7,7 @@
 - Canvas focusing in Jetpack Compose - https://medium.com/google-developer-experts/focus-in-jetpack-compose-6584252257fe
 - Order of focus modifiers - https://stackoverflow.com/questions/70015530/unable-to-focus-anything-other-than-textfield
 - How to create a fat JAR with dependencies - https://stackoverflow.com/questions/41794914/how-to-create-a-fat-jar-with-gradle-kotlin-script
+- Improving performance with keys - https://pankaj-rai.medium.com/jetpack-compose-optimize-list-performance-with-key-1066567339f9
 
 - Dependencies/libraries used:
   - JetBrains Exposed SQL Framework (https://github.com/JetBrains/Exposed)

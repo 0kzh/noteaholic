@@ -42,15 +42,25 @@ data class Config(val url: String)
 
 @Composable
 @Preview
-fun App(authenticated: Boolean, sharedNoteId: Int?) {
+fun App(authenticated: Boolean, sharedNoteId: MutableState<Int>, navController: NavController) {
     println("Got SharedNoteId in App $sharedNoteId")
+//    val sharedNoteId2 = 3
     val screens = Screen.values().toList()
-    val navController by rememberNavController(if (authenticated) Screen.CanvasScreen.name else Screen.LoginScreen.name)
+//    val navController by rememberNavController(
+//        if (authenticated) (
+//                if (sharedNoteId != null) Screen.EditorScreen.name
+//                else Screen.CanvasScreen.name)
+//        else Screen.LoginScreen.name)
     val currentScreen by remember {
         navController.currentScreen
     }
 
-    CanvasContextProvider(content = { Router(navController = navController) }, currentScreen = currentScreen)
+    CanvasContextProvider(
+        content = { Router(navController = navController) },
+        currentScreen = currentScreen,
+        sharedNoteId = sharedNoteId,
+        navController = navController
+    )
 }
 
 // https://stackoverflow.com/questions/42739807/how-to-read-a-text-file-from-resources-in-kotlin
@@ -69,7 +79,7 @@ fun main(args: Array<String>) = application {
     val jwt = PrivateJSONToken.token
 
     var canConnect by remember { mutableStateOf(false) }
-    var sharedNoteId by remember { mutableStateOf<Int?>(null) }
+    var sharedNoteId = remember { mutableStateOf<Int>(-1) }
     val connectivityChecker = connectionMonitor()
     val scope = rememberCoroutineScope()
 
@@ -78,14 +88,22 @@ fun main(args: Array<String>) = application {
                 canConnect = nHttpClient.canConnectToServer()
                 canConnect && Authentication.isJWTValid(jwt)
             }
+
+    val navController by rememberNavController(
+        if (isJWTValid) (
+                if (sharedNoteId.value != -1) Screen.EditorScreen.name
+                else Screen.CanvasScreen.name)
+        else Screen.LoginScreen.name)
     val isSupported = Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_URI)
     if (isSupported) {
         Desktop.getDesktop().setOpenURIHandler { event ->
             println("Got Open URI: " + event.uri)
-            sharedNoteId = getNoteIdFromURI(event.uri)
+//            logURIDetails(event.uri)
+            sharedNoteId.value = getNoteIdFromURI(event.uri) ?: -1
+            navController.navigate(Screen.EditorScreen.name)
         }
     } else if (args.size == 1) {
-        sharedNoteId = getNoteIdFromURI(URI(args[0]))
+        sharedNoteId.value = getNoteIdFromURI(URI(args[0]))  ?: -1
     }
 
     scope.launch {
@@ -100,7 +118,7 @@ fun main(args: Array<String>) = application {
     ) {
         MaterialTheme(typography = CustomTypography) {
             if (canConnect) {
-                App(isJWTValid, sharedNoteId)
+                App(isJWTValid, sharedNoteId, navController)
             } else {
                 ConnectionError()
             }

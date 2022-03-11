@@ -36,10 +36,22 @@ fun EditorScreen(
 ) {
     val updateNote = LocalCanvasContext.current.updateNote
     val selectedNote = LocalCanvasContext.current.selectedNote
+    val sharedNoteId = LocalCanvasContext.current.sharedNoteId
 
-    var text by rememberSaveable { mutableStateOf(selectedNote.value!!.plainTextContent) }
+
+    var text by rememberSaveable { mutableStateOf("") }
+    var createdAt by rememberSaveable { mutableStateOf(sharedNoteId.value.toString()) }
     var isEditingTitle by remember { mutableStateOf(false) }
-    var currentTitle by remember { mutableStateOf(selectedNote.value!!.title) }
+    var currentTitle by remember { mutableStateOf("") }
+
+    LaunchedEffect(selectedNote.value) {
+        if (selectedNote.value != null) {
+            text = selectedNote.value!!.plainTextContent
+            currentTitle = selectedNote.value!!.title
+            createdAt = selectedNote.value!!.createdAt
+        }
+    }
+
     var edittingTitle by remember { mutableStateOf(currentTitle) }
     val focusRequester = remember { FocusRequester() }
     val emails = remember { mutableStateOf("") }
@@ -64,6 +76,7 @@ fun EditorScreen(
                 IconButton(onClick = {
                     navController.navigateBack()
                     selectedNote.value = null
+                    sharedNoteId.value = -1
                 }) {
                     Icon(
                         Icons.Filled.ArrowBack,
@@ -72,7 +85,10 @@ fun EditorScreen(
                 }
             },
             actions = {
-                IconButton(onClick = { alertDialog.value = true }) {
+                IconButton(
+                    onClick = { alertDialog.value = true },
+                    enabled = sharedNoteId.value == -1
+                ) {
                     Icon(
                         Icons.Filled.Share,
                         contentDescription = "Share",
@@ -86,7 +102,8 @@ fun EditorScreen(
                     IconButton(
                         onClick = {
                             isEditingTitle = !isEditingTitle
-                        }
+                        },
+                        enabled = sharedNoteId.value == -1
                     ) {
                         Icon(
                             Icons.Filled.Edit,
@@ -100,7 +117,8 @@ fun EditorScreen(
                         singleLine = true,
                         maxLines = 1,
                         textStyle = MaterialTheme.typography.h4,
-                        modifier = Modifier.focusRequester(focusRequester)
+                        modifier = Modifier.focusRequester(focusRequester),
+                        enabled = sharedNoteId.value == -1
                     )
                     IconButton(onClick = {
                         currentTitle = edittingTitle
@@ -133,7 +151,7 @@ fun EditorScreen(
         Column(Modifier.padding(16.dp, 0.dp)) {
             // TODO: change from hardcoded values
             Text("Created by: ${PrivateJSONToken.getNameOfUser()}")
-            Text("Created at: ${selectedNote.value!!.createdAt}")
+            Text("Created at: ${createdAt}")
             Text("Tags: ")
         }
 
@@ -157,7 +175,8 @@ fun EditorScreen(
             },
             maxLines = Int.MAX_VALUE,
             textStyle = MaterialTheme.typography.h6,
-            visualTransformation = MarkdownTransform(editorController)
+            visualTransformation = MarkdownTransform(editorController),
+            enabled = sharedNoteId.value == -1
         )
 
         Button(
@@ -181,7 +200,7 @@ fun ShareNoteDialog(
 ) {
     val scope = rememberCoroutineScope()
     val bgColors = TextFieldDefaults.outlinedTextFieldColors().backgroundColor(true)
-    val url = "noteaholic://?noteId=1"
+    val url = "noteaholic://?noteId=${LocalCanvasContext.current.selectedNote.value?.id}"
     AlertDialog(
         onDismissRequest = {},
         shape = MaterialTheme.shapes.large,

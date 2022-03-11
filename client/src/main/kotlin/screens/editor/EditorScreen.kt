@@ -266,6 +266,7 @@ fun ShareNoteDialog(
                     alertDialog.value = false
                     println("IN ADD COLLAB")
                     scope.launch {
+                        println(selectedNoteId)
                         println("IN SCOPE ADDCOLLABO")
                         val res = NoteRequests.addCollaborators(selectedNoteId, emails.value.split(","))
                         println("ADDCOLLAB $res")

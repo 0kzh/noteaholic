@@ -19,6 +19,9 @@ import screens.canvas.NoteData
 
 object NoteRequests {
     suspend fun addCollaborators(noteID: Int, emails: List<String>): Boolean {
+        println("IN FUNC addCollaborators")
+        println(noteID)
+        println(emails.toString())
         val httpResponse: HttpResponse = client.post(nHttpClient.URL + "/note/add_collaborator") {
             contentType(ContentType.Application.Json)
             headers.append(HttpHeaders.Authorization, "Bearer ${PrivateJSONToken.token}")
@@ -29,8 +32,12 @@ object NoteRequests {
                         emails.map { JsonPrimitive(it) }
                     )
                 )
+            println(body.toString())
+            println("SENT")
         }
+        println("REACIVIING STRING BODY")
         val stringBody: String = httpResponse.receive()
+        println("REACEIVEDL")
         println(stringBody)
         println(httpResponse.status)
         if (httpResponse.status == HttpStatusCode.OK) {

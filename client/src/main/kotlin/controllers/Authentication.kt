@@ -26,6 +26,10 @@ object Authentication {
 
     private data class PasswordTokenized(val digits: Int, val upperCase: Int, val lowerCase: Int, val special: Int)
 
+    fun logout() {
+        PrivateJSONToken.saveToAppData("")
+    }
+
     suspend fun login(email: String, password: String, setError: (error: String) -> Unit = {}): Boolean {
 
         val httpResponse: HttpResponse = client.post(nHttpClient.URL + "/login") {

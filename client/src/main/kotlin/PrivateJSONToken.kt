@@ -1,7 +1,6 @@
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import java.util.*
 import java.util.prefs.Preferences
 
@@ -18,13 +17,12 @@ object PrivateJSONToken {
         this.token = token
     }
 
-    fun getUser(): String {
+    fun getNameOfUser(): String {
         println(this.token)
         val parts = this.token.split('.')
         val payloadBytes = Base64.getDecoder().decode(parts[1])
         val payload = String(payloadBytes)
-        val jwtData = Json.decodeFromString<ServerJwtData>(result)
-        println(jwtData)
+        val jwtData = Json.decodeFromString<ServerJwtData>(payload)
         return jwtData.name
     }
 

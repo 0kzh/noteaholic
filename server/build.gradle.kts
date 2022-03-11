@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "com.cs398.team106"
-version = "0.0.4"
+version = "0.0.5"
 application {
     mainClass.set("com.cs398.team106.ApplicationKt")
 }

@@ -1,10 +1,7 @@
 package screens.canvas.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -40,7 +37,7 @@ fun Navbar(navController: NavController) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-//        Box(modifier = Modifier.size(0.dp))
+        Box(modifier = Modifier.size(0.dp))
 //        Zoom()
         Text(text = screenName.value, style = MaterialTheme.typography.h4)
 //        Zoom()

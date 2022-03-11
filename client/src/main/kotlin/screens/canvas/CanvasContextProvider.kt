@@ -9,6 +9,7 @@ import androidx.compose.ui.geometry.Offset
 import controllers.NoteRequests
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonPrimitive
+import navcontroller.NavController
 import utils.debounce
 
 enum class CanvasState {
@@ -30,6 +31,7 @@ data class CanvasContext(
     val notes: MutableState<List<NoteData>>,
     val uncreatedNote: MutableState<NoteData?>,
     val selectedNote: MutableState<NoteData?>,
+    val sharedNoteId: MutableState<Int>,
     val updateNote: (UpdateNoteData) -> Unit,
 
     val focusRequester: FocusRequester
@@ -38,7 +40,7 @@ data class CanvasContext(
 val LocalCanvasContext = compositionLocalOf<CanvasContext> { error("No canvas state found!") }
 
 @Composable
-fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: String) {
+fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: String, sharedNoteId: MutableState<Int>, navController: NavController) {
     val screenName = remember { mutableStateOf("School Notes") }
 
     val scale = remember { mutableStateOf(1f) }
@@ -53,6 +55,11 @@ fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: Stri
 
     val didFetchNotes = remember { mutableStateOf(false) }
 
+//    val sharedNoteId = remember { mutableStateOf(sharedNoteIdRaw) }
+
+    val uncreatedNote = remember { mutableStateOf<NoteData?>(null) }
+    val selectedNote = remember { mutableStateOf<NoteData?>(null) }
+
     LaunchedEffect(currentScreen) {
         // Fetch notes once more after logging in
         if (!didFetchNotes.value && currentScreen == Screen.CanvasScreen.name) {
@@ -62,8 +69,23 @@ fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: Stri
         }
     }
 
-    val uncreatedNote = remember { mutableStateOf<NoteData?>(null) }
-    val selectedNote = remember { mutableStateOf<NoteData?>(null) }
+    LaunchedEffect(currentScreen) {
+        println("FETCHCHINGGN")
+        // Fetch note after shared URI
+        if (currentScreen == Screen.EditorScreen.name && sharedNoteId.value != -1) {
+            val res = NoteRequests.fetchNote(sharedNoteId.value)
+            res?.let { selectedNote.value = it }
+        }
+    }
+
+//    LaunchedEffect(sharedNoteId.value) {
+//        println("SWITCHING")
+//        // Switch screens
+//        if (sharedNoteId.value != -1) {
+//            navController.navigate(Screen.EditorScreen.name)
+//        }
+//    }
+
 
     val scope = rememberCoroutineScope()
     val updateNote: (UpdateNoteData) -> Unit = { updatedNote: UpdateNoteData ->
@@ -101,6 +123,7 @@ fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: Stri
             notes,
             uncreatedNote,
             selectedNote,
+            sharedNoteId,
             updateNote,
             focusRequester
         ),

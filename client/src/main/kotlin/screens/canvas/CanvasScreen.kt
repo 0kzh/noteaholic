@@ -34,7 +34,7 @@ fun CanvasScreen(
     navController: NavController
 ) {
     CanvasBackground(navController = navController)
-    Navbar()
+    Navbar(navController)
 
     Box(
         modifier = Modifier.fillMaxSize().offset { IntOffset(0, -50) },

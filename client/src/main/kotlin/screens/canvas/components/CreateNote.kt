@@ -1,5 +1,6 @@
 package screens.canvas.components
 
+import UpdateNoteData
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ fun CreateNote(
     val canvasState = LocalCanvasContext.current.canvasState
     val uncreatedNote = LocalCanvasContext.current.uncreatedNote
     val notes = LocalCanvasContext.current.notes
+    val updateNote = LocalCanvasContext.current.updateNote
 
     val scope = rememberCoroutineScope()
 
@@ -59,8 +61,18 @@ fun CreateNote(
         // Make the request to create note
         scope.launch {
             val res = NoteRequests.createNote(title, position)
-            // TODO: Update note id, owner here
-            println("Request res: ${res}")
+            if (res != null) {
+                // Update the note id after successfully creating the note
+                notes.value = notes.value.map {
+                    if (it.id == newNote.id) {
+                        var createdNote = it.copy()
+                        createdNote.id = res.id
+                        createdNote
+                    } else {
+                        it
+                    }
+                }
+            }
         }
 
         // Reset uncreated note
@@ -94,7 +106,8 @@ fun PreviewNote(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun UncreatedNote(createNote: (String, IntOffset) -> Unit
+fun UncreatedNote(
+    createNote: (String, IntOffset) -> Unit
 ) {
     val scale = LocalCanvasContext.current.scale
     val translate = LocalCanvasContext.current.translate

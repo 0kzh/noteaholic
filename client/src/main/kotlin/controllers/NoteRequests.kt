@@ -39,7 +39,7 @@ object NoteRequests {
         return false
     }
 
-    suspend fun createNote(title: String, position: IntOffset): Boolean {
+    suspend fun createNote(title: String, position: IntOffset): NotesDTOOut? {
         val httpResponse: HttpResponse = client.post(nHttpClient.URL + "/note") {
             contentType(ContentType.Application.Json)
             headers.append(HttpHeaders.Authorization, "Bearer ${PrivateJSONToken.token}")
@@ -54,12 +54,14 @@ object NoteRequests {
         }
         val stringBody: String = httpResponse.receive()
 
-        println(stringBody)
-        println(httpResponse.status)
-        if (httpResponse.status == HttpStatusCode.OK) {
-            return true
+        return try {
+            val note = Json.decodeFromString<NotesDTOOut>(stringBody)
+            print(note)
+            note
+        } catch (t: Throwable) {
+            println("Error: ${t.message}")
+            null
         }
-        return false
     }
 
     suspend fun fetchNotes(): List<NotesDTOOut>? {

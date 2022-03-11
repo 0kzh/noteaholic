@@ -74,7 +74,7 @@ data class UserDTOOut(
 
 @Serializable
 data class NotesDTOOut(
-    val id: Int,
+    var id: Int,
     var title: String,
     var positionX: Int,
     var positionY: Int,

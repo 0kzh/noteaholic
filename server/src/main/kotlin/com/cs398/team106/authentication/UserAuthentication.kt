@@ -16,6 +16,7 @@ object UserAuthentication {
     val jwtTTL = 1.hours.inWholeMilliseconds
     const val emailClaim = "email"
     const val userIdClaim = "userId"
+    const val name = "name"
 
     private data class PasswordTokenized(val digits: Int, val upperCase: Int, val lowerCase: Int, val special: Int)
 
@@ -85,6 +86,7 @@ object UserAuthentication {
                 .withIssuer(issuer)
                 .withClaim(emailClaim, userLogin.email)
                 .withClaim(userIdClaim, dbUser.id.value)
+                .withClaim(name, "${dbUser.firstName} ${dbUser.lastName}")
                 .withExpiresAt(Date(System.currentTimeMillis() + jwtTTL))
                 .sign(Algorithm.HMAC256(secret))
             call.respond(TokenResponse(token))

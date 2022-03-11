@@ -114,7 +114,7 @@ fun EditorScreen(
 
         Column(Modifier.padding(16.dp, 0.dp)) {
             // TODO: change from hardcoded values
-            Text("Created by: Leon Fattakhov")
+            Text("Created by: ${PrivateJSONToken.getUser()}")
             Text("Created at: Jan 26, 2022 11:34")
             Text("Tags: ")
         }

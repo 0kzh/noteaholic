@@ -2,6 +2,7 @@ package controllers
 
 import NotesDTOOut
 import PrivateJSONToken
+import UpdateNoteData
 import androidx.compose.ui.unit.IntOffset
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -78,6 +79,34 @@ object NoteRequests {
         }
     }
 
+    suspend fun updateNote(data: UpdateNoteData): Boolean {
+        val (id, title, positionX, positionY, plainTextContent, formattedContent, ownerID) = data
+
+        val requestBody = mutableMapOf<String, Any>()
+        title?.let { requestBody.put("title", JsonPrimitive(it)) }
+        positionX?.let { requestBody.put("positionX", JsonPrimitive(it)) }
+        positionY?.let { requestBody.put("positionY", JsonPrimitive(it)) }
+        plainTextContent?.let { requestBody.put("plainTextContent", JsonPrimitive(it)) }
+        formattedContent?.let { requestBody.put("formattedContent", JsonPrimitive(it)) }
+        ownerID?.let { requestBody.put("ownerID", JsonPrimitive(it)) }
+
+        println("Request body: ${requestBody}")
+
+        val httpResponse: HttpResponse = client.patch(nHttpClient.URL + "/note/" + id) {
+            contentType(ContentType.Application.Json)
+            headers.append(HttpHeaders.Authorization, "Bearer ${PrivateJSONToken.token}")
+            body = requestBody
+        }
+        val stringBody: String = httpResponse.receive()
+
+        println(stringBody)
+        println(httpResponse.status)
+        if (httpResponse.status == HttpStatusCode.OK) {
+            return true
+        }
+        return false
+    }
+    
     suspend fun fetchNote(noteID: Int): NotesDTOOut? {
         val httpResponse: HttpResponse = client.get(nHttpClient.URL + "/note/${noteID}") {
             contentType(ContentType.Application.Json)

@@ -29,3 +29,12 @@ Meeting 14: https://docs.google.com/document/d/1plUgXGeInPH765JD5-rXE8Lc9a8YlyJN
 Meeting 15: https://docs.google.com/document/d/1htQ4rqy2SdlIvvW834ptmA8WTyburndBBpQ-T3keuWs/edit?usp=sharing
 
 Sprint 1 Retro: https://docs.google.com/document/d/1AsKhkPEzmpLUzVcBJnED9m4jFh5nZlYgFpFw1O6OLMk/edit
+
+Meeting 16: https://docs.google.com/document/d/1Wl7zOkcnJH5Lp9ZRUc9gNRKlzIId6y_85MuCtr4sPY8/edit?usp=sharing
+
+Meeting 17: https://docs.google.com/document/d/11XxIBrVzv0Dk7hJLUS6Artmp2YGg-a6MthspUFEto34/edit?usp=sharing
+
+Meeting 18: https://docs.google.com/document/d/12Qrl3q4HMYfjrXSNV4VB-wvPz877OBoZV5lZSFhqa1c/edit?usp=sharing
+
+Meeting 19: https://docs.google.com/document/d/1EuWqERzltXZsUj1dldH7LTMJZCTzGSHne9WnN1lJ62Q/edit?usp=sharing
+

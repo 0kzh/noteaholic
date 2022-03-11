@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -21,6 +22,8 @@ import controllers.EditorController
 import controllers.NoteRequests
 import kotlinx.coroutines.launch
 import navcontroller.NavController
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -46,7 +49,7 @@ fun EditorScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-       TopAppBar(
+        TopAppBar(
             backgroundColor = Color.White,
             elevation = 0.dp,
             navigationIcon = {
@@ -114,7 +117,7 @@ fun EditorScreen(
 
         Column(Modifier.padding(16.dp, 0.dp)) {
             // TODO: change from hardcoded values
-            Text("Created by: Leon Fattakhov")
+            Text("Created by: ${PrivateJSONToken.getNameOfUser()}")
             Text("Created at: Jan 26, 2022 11:34")
             Text("Tags: ")
         }
@@ -146,13 +149,15 @@ fun EditorScreen(
 }
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ShareNoteDialog(
     emails: MutableState<String>,
     alertDialog: MutableState<Boolean>,
 ) {
     val scope = rememberCoroutineScope()
+    val bgColors = TextFieldDefaults.outlinedTextFieldColors().backgroundColor(true)
+    val url = "noteaholic://?noteId=1"
     AlertDialog(
         onDismissRequest = {},
         shape = MaterialTheme.shapes.large,
@@ -161,6 +166,36 @@ fun ShareNoteDialog(
         },
         text = {
             Column {
+                Row(Modifier.fillMaxWidth()) {
+                    Surface(
+                        onClick = {},
+                        enabled = false,
+                        shape = MaterialTheme.shapes.small,
+                        border = ButtonDefaults.outlinedBorder,
+                        color = bgColors.value,
+                        contentColor = contentColorFor(bgColors.value)
+                    ) {
+                        Row(
+                            modifier = Modifier.defaultMinSize(
+                                minWidth = ButtonDefaults.MinWidth,
+                                minHeight = ButtonDefaults.MinHeight
+                            ).padding(ButtonDefaults.ContentPadding)
+                        ) {
+                            BasicTextField(
+                                url,
+                                {},
+                            )
+                        }
+                    }
+                    OutlinedButton({
+                        Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(url), null)
+                    }, modifier = Modifier.padding(start = 2.dp)) {
+                        Text("Copy")
+                    }
+                }
+
+
+                Spacer(Modifier.height(16.dp))
                 Text(
                     "Enter comma-separated emails for collaborators (must be users in Noteaholic)",
                     Modifier.padding(bottom = 8.dp), style = MaterialTheme.typography.h6

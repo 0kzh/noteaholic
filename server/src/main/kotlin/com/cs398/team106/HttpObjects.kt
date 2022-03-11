@@ -114,7 +114,7 @@ data class NotesDTOOut(
     val formattedContent: String,
     val createdAt: String,
     val modifiedAt: String,
-    val owner: Int,
+    val ownerID: Int,
 )
 
 @Serializable

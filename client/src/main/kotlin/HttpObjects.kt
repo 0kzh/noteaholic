@@ -41,7 +41,10 @@ data class CreateNoteData(
 
 @Serializable
 data class UpdateNoteData(
+    val id: Int,
     val title: String? = null,
+    val positionX: Int? = null,
+    val positionY: Int? = null,
     val plainTextContent: String? = null,
     val formattedContent: String? = null,
     val ownerID: Int? = null,
@@ -72,14 +75,14 @@ data class UserDTOOut(
 @Serializable
 data class NotesDTOOut(
     val id: Int,
-    val title: String,
-    val positionX: Int,
-    val positionY: Int,
-    val plainTextContent: String,
-    val formattedContent: String,
+    var title: String,
+    var positionX: Int,
+    var positionY: Int,
+    var plainTextContent: String,
+    var formattedContent: String,
     val createdAt: String,
     val modifiedAt: String,
-    val owner: Int,
+    var ownerID: Int,
 )
 
 @Serializable

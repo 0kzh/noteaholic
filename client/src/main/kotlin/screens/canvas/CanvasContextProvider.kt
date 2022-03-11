@@ -2,11 +2,14 @@ package screens.canvas
 
 import NotesDTOOut
 import Screen
+import UpdateNoteData
 import androidx.compose.runtime.*
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.IntOffset
 import controllers.NoteRequests
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonPrimitive
+import utils.debounce
 
 enum class CanvasState {
     FOCUS_NOTE, FOCUS_CANVAS, NEW_NOTE, CREATING_NOTE, NEW_TEXT
@@ -26,6 +29,8 @@ data class CanvasContext(
 
     val notes: MutableState<List<NoteData>>,
     val uncreatedNote: MutableState<NoteData?>,
+    val selectedNote: MutableState<NoteData?>,
+    val updateNote: (UpdateNoteData) -> Unit,
 
     val focusRequester: FocusRequester
 )
@@ -58,6 +63,31 @@ fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: Stri
     }
 
     val uncreatedNote = remember { mutableStateOf<NoteData?>(null) }
+    val selectedNote = remember { mutableStateOf<NoteData?>(null) }
+
+    val scope = rememberCoroutineScope()
+    val updateNote: (UpdateNoteData) -> Unit = { updatedNote: UpdateNoteData ->
+        notes.value = notes.value.map {
+            val (id, title, positionX, positionY, plainTextContent, formattedContent, ownerID) = updatedNote
+            if (it.id == id) {
+                var newNote = it.copy()
+                title?.let { newNote.title = it }
+                positionX?.let { newNote.positionX = it }
+                positionY?.let { newNote.positionY = it }
+                plainTextContent?.let { newNote.plainTextContent = it }
+                formattedContent?.let { newNote.formattedContent = it }
+                ownerID?.let { newNote.ownerID = it }
+                newNote
+            } else {
+                it
+            }
+        }
+        // Local state should not sync with server state here bc we need state updates to be synchronous
+        scope.launch {
+            NoteRequests.updateNote(updatedNote)
+        }
+        println("Updated Note: ${updatedNote}")
+    }
 
     val focusRequester = remember { FocusRequester() }
     CompositionLocalProvider(
@@ -70,6 +100,8 @@ fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: Stri
             setCanvasState,
             notes,
             uncreatedNote,
+            selectedNote,
+            updateNote,
             focusRequester
         ),
     ) {

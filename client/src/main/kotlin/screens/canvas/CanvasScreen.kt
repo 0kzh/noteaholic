@@ -8,7 +8,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -20,8 +19,6 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
-import controllers.NoteRequests
-import kotlinx.coroutines.launch
 import navcontroller.NavController
 import screens.canvas.components.*
 import kotlin.math.roundToInt
@@ -69,11 +66,14 @@ fun CanvasBackground(navController: NavController) {
             }
         }
     }
-    println("NOTESS ${notes}")
     for (note in notes.value) {
-        Note(
-            note = note, navController = navController
-        )
+        // Optimize render performance using keys
+        //  Source: https://pankaj-rai.medium.com/jetpack-compose-optimize-list-performance-with-key-1066567339f9
+        key(note.id) {
+            Note(
+                note = note, navController = navController
+            )
+        }
     }
     CreateNote()
 }
@@ -166,7 +166,7 @@ fun Modifier.createNote(): Modifier = composed {
                     formattedContent = "",
                     createdAt = "",
                     modifiedAt = "",
-                    owner = -1
+                    ownerID = -1
                 )
             }
         }
@@ -184,7 +184,6 @@ fun Modifier.keyboardShortcuts(): Modifier = composed {
 
     // Resume focus onto Canvas when possible for keyboard shortcuts to work
     LaunchedEffect(canvasState.value) {
-        println("canvas state: ${canvasState}")
         if (canvasState.value != CanvasState.CREATING_NOTE) {
             println("canvas requested focus")
             focusRequester.requestFocus()

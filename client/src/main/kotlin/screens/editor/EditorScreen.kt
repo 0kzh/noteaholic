@@ -1,5 +1,6 @@
 package screens.editor
 
+import UpdateNoteData
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
@@ -22,6 +23,8 @@ import controllers.EditorController
 import controllers.NoteRequests
 import kotlinx.coroutines.launch
 import navcontroller.NavController
+import screens.canvas.LocalCanvasContext
+import utils.debounce
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 
@@ -31,9 +34,12 @@ fun EditorScreen(
     navController: NavController,
     editorController: EditorController
 ) {
-    var text by rememberSaveable { mutableStateOf("") }
+    val updateNote = LocalCanvasContext.current.updateNote
+    val selectedNote = LocalCanvasContext.current.selectedNote
+
+    var text by rememberSaveable { mutableStateOf(selectedNote.value!!.plainTextContent) }
     var isEditingTitle by remember { mutableStateOf(false) }
-    var currentTitle by remember { mutableStateOf("Untitled") }
+    var currentTitle by remember { mutableStateOf(selectedNote.value!!.title) }
     var edittingTitle by remember { mutableStateOf(currentTitle) }
     val focusRequester = remember { FocusRequester() }
     val emails = remember { mutableStateOf("") }
@@ -45,6 +51,8 @@ fun EditorScreen(
     }
 
     val alertDialog = remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val debouncedUpdateNote = debounce(400L, scope, updateNote)
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -53,7 +61,10 @@ fun EditorScreen(
             backgroundColor = Color.White,
             elevation = 0.dp,
             navigationIcon = {
-                IconButton(onClick = { navController.navigateBack() }) {
+                IconButton(onClick = {
+                    navController.navigateBack()
+                    selectedNote.value = null
+                }) {
                     Icon(
                         Icons.Filled.ArrowBack,
                         contentDescription = "Navigate Back"
@@ -93,6 +104,10 @@ fun EditorScreen(
                     )
                     IconButton(onClick = {
                         currentTitle = edittingTitle
+                        debouncedUpdateNote(UpdateNoteData(
+                            id = selectedNote.value!!.id,
+                            title = edittingTitle
+                        ))
                         isEditingTitle = false
                         focusRequester.freeFocus()
                     }) {
@@ -118,7 +133,7 @@ fun EditorScreen(
         Column(Modifier.padding(16.dp, 0.dp)) {
             // TODO: change from hardcoded values
             Text("Created by: ${PrivateJSONToken.getNameOfUser()}")
-            Text("Created at: Jan 26, 2022 11:34")
+            Text("Created at: ${selectedNote.value!!.createdAt}")
             Text("Tags: ")
         }
 
@@ -130,7 +145,16 @@ fun EditorScreen(
         BasicTextField(
             modifier = Modifier.padding(16.dp, 1.dp).fillMaxWidth().fillMaxHeight(),
             value = text,
-            onValueChange = { text = it },
+            onValueChange = {
+                text = it
+                if (selectedNote.value != null) {
+                    debouncedUpdateNote(UpdateNoteData(
+                        id = selectedNote.value!!.id,
+                        formattedContent = it,
+                        plainTextContent = it,
+                    ))
+                }
+            },
             maxLines = Int.MAX_VALUE,
             textStyle = MaterialTheme.typography.h6,
             visualTransformation = MarkdownTransform(editorController)

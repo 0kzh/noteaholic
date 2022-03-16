@@ -1,6 +1,7 @@
 package com.cs398.team106.repository
 
 import com.cs398.team106.*
+import com.cs398.team106.Notes.colour
 import com.cs398.team106.Notes.formattedContent
 import com.cs398.team106.Notes.plainTextContent
 import com.cs398.team106.Notes.title
@@ -36,7 +37,7 @@ object NoteRepository {
     fun createNote(
         data: CreateNoteData, ownerID: Int
     ): DBNote {
-        val (title, positionX, positionY, plainTextContent, formattedContent) = data
+        val (title, positionX, positionY, plainTextContent, formattedContent, colour) = data
         return transaction {
             return@transaction DBNote.new {
                 this.title = title
@@ -44,6 +45,7 @@ object NoteRepository {
                 this.positionY = positionY
                 this.plainTextContent = plainTextContent
                 this.formattedContent = formattedContent
+                this.colour = colour
                 this.createdAt = Clock.System.now().toLocalDateTime(TimeZone.UTC)
                 this.modifiedAt = Clock.System.now().toLocalDateTime(TimeZone.UTC)
                 this.owner = ownerID
@@ -99,7 +101,7 @@ object NoteRepository {
         id: Int,
         data: UpdateNoteData,
     ): DBNote? {
-        val (title, positionX, positionY, plainTextContent, formattedContent, ownerID) = data
+        val (title, positionX, positionY, plainTextContent, formattedContent, colour, ownerID) = data
         return transaction {
             val note = DBNote.findById(id) ?: return@transaction null
             title?.let { note.title = it }
@@ -107,6 +109,7 @@ object NoteRepository {
             positionY?.let { note.positionY = it }
             plainTextContent?.let { note.plainTextContent = it }
             formattedContent?.let { note.formattedContent = it }
+            colour?.let{ note.colour = it }
             ownerID?.let { note.owner = it }
             note.modifiedAt = Clock.System.now().toLocalDateTime(TimeZone.UTC)
             return@transaction note

@@ -1,5 +1,6 @@
 package com.cs398.team106
 
+import com.cs398.team106.Notes.formattedContent
 import com.cs398.team106.repository.NOTE_ACCESS_LEVEL
 import com.cs398.team106.repository.NoteRepository
 import com.cs398.team106.repository.UserRepository
@@ -48,18 +49,20 @@ class NoteOperationsTest {
                     "positionX" to JsonPrimitive(2),
                     "positionY" to JsonPrimitive(3),
                     "plainTextContent" to JsonPrimitive("plaintext"),
-                    "formattedContent" to JsonPrimitive("formatted")
+                    "formattedContent" to JsonPrimitive("formatted"),
+                    "colour" to JsonPrimitive("#FFFFED")
                 )
             )
             val expectedJson = JsonObject(
                 mapOf(
                     "id" to JsonPrimitive(1),
-                    "owner" to JsonPrimitive(1),
+                    "ownerID" to JsonPrimitive(1),
                     "title" to JsonPrimitive("title"),
                     "positionX" to JsonPrimitive(2),
                     "positionY" to JsonPrimitive(3),
                     "plainTextContent" to JsonPrimitive("plaintext"),
-                    "formattedContent" to JsonPrimitive("formatted")
+                    "formattedContent" to JsonPrimitive("formatted"),
+                    "colour" to JsonPrimitive("#FFFFED")
                 )
             )
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
@@ -73,6 +76,8 @@ class NoteOperationsTest {
                 assertEquals(HttpStatusCode.Created, response.status())
                 val actualResponse: JsonObject? = response.content?.let { Json.decodeFromString(it) }
                 if (actualResponse != null) {
+                    println(actualResponse.entries)
+                    println(expectedJson.entries)
                     assertTrue(actualResponse.entries.containsAll(expectedJson.entries))
                 } else {
                     fail("Null response received")
@@ -90,7 +95,8 @@ class NoteOperationsTest {
                     "positionX" to JsonPrimitive(2),
                     "positionY" to JsonPrimitive(3),
                     "plainTextContent" to JsonPrimitive("plaintext"),
-                    "formattedContent" to JsonPrimitive("formatted")
+                    "formattedContent" to JsonPrimitive("formatted"),
+                    "colour" to JsonPrimitive("#FFFFED")
                 )
             )
             val expectedJson = JsonObject(
@@ -120,7 +126,7 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 1)
             with(handleRequest(HttpMethod.Get, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
@@ -143,7 +149,7 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 2)
             with(handleRequest(HttpMethod.Get, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
@@ -160,7 +166,7 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 2)
             NoteRepository.addSharedNotes(1, mutableListOf(1))
             with(handleRequest(HttpMethod.Get, "/note/1") {
@@ -213,17 +219,20 @@ class NoteOperationsTest {
         val expectedJson = JsonObject(
             mapOf(
                 "id" to JsonPrimitive(1),
-                "owner" to JsonPrimitive(1),
+                "ownerID" to JsonPrimitive(1),
+                "positionX" to JsonPrimitive(1),
+                "positionY" to JsonPrimitive(2),
                 "title" to JsonPrimitive("title"),
                 "plainTextContent" to JsonPrimitive("new-plaintext"),
-                "formattedContent" to JsonPrimitive("formatted")
+                "formattedContent" to JsonPrimitive("formatted"),
+                "colour" to JsonPrimitive("#FFFFED")
             )
         )
         withApplication(testEnv) {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 1)
             with(handleRequest(HttpMethod.Patch, "/note/1") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -252,7 +261,7 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 2)
 
             val userToken = TestUtil.getJWT("email@test.com", 1)
@@ -277,7 +286,7 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 2)
             NoteRepository.addSharedNotes(1, mutableListOf(1))
 
@@ -331,7 +340,7 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 1)
             with(handleRequest(HttpMethod.Delete, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
@@ -350,7 +359,7 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 2)
             with(handleRequest(HttpMethod.Delete, "/note/1") {
                 addHeader(HttpHeaders.Authorization, "Bearer $userToken")
@@ -367,7 +376,7 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 2)
             NoteRepository.addSharedNotes(1, mutableListOf(1))
             with(handleRequest(HttpMethod.Delete, "/note/1") {
@@ -440,7 +449,7 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 1)
             with(handleRequest(HttpMethod.Post, "/note/add_collaborator") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -499,7 +508,7 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 1)
             // Here, we create the duplicate collaborator row, but we do not expect errors from this
             NoteRepository.addSharedNotes(1, mutableListOf(2))
@@ -542,7 +551,7 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 1)
             with(handleRequest(HttpMethod.Post, "/note/add_collaborator") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -572,7 +581,7 @@ class NoteOperationsTest {
             UserRepository.createNewUser("fn", "ln", "email2@test.com", "password")
             val userToken = TestUtil.getJWT("email@test.com", 1)
             NoteRepository.createNote(
-                CreateNoteData("title", 1, 2, "plain", "formatted"),
+                CreateNoteData("title", 1, 2, "plain", "formatted", "#FFFFED"),
                 1)
             with(handleRequest(HttpMethod.Post, "/note/add_collaborator") {
                 addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())

@@ -1,24 +1,35 @@
 package screens.editor
 
+import PrivateJSONToken
 import UpdateNoteData
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import components.Border
 import components.OutlinedTextFieldWithError
+import components.border
 import controllers.EditorController
 import controllers.NoteRequests
 import kotlinx.coroutines.launch
@@ -52,7 +63,6 @@ fun EditorScreen(
         }
     }
 
-    var edittingTitle by remember { mutableStateOf(currentTitle) }
     val focusRequester = remember { FocusRequester() }
     val emails = remember { mutableStateOf("") }
 
@@ -67,7 +77,7 @@ fun EditorScreen(
     val debouncedUpdateNote = debounce(400L, scope, updateNote)
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().border(bottom = Border(1.dp, Color.Gray.copy(alpha = 0.5f)))
     ) {
         TopAppBar(
             backgroundColor = Color.White,
@@ -96,88 +106,91 @@ fun EditorScreen(
                     )
                 }
             },
-            title = {
-                if (!isEditingTitle) {
-                    Text(text = currentTitle, style = MaterialTheme.typography.h4)
-                    IconButton(
-                        onClick = {
-                            isEditingTitle = !isEditingTitle
-                        },
-                        enabled = sharedNoteId.value == -1
-                    ) {
-                        Icon(
-                            Icons.Filled.Edit,
-                            contentDescription = "Edit Title"
-                        )
-                    }
-                } else {
+            title = { Text("") }
+        )
+
+        Column(
+            modifier = Modifier.fillMaxWidth().background(Color.White),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Column(
+                // white background
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .widthIn(0.dp, 600.dp)
+            ) {
+                Spacer(Modifier.height(2.dp))
+
+                Column(Modifier.padding(16.dp, 0.dp)) {
+                    // TODO: change from hardcoded values
                     BasicTextField(
-                        edittingTitle,
-                        { edittingTitle = it },
+                        currentTitle,
+                        {
+                            currentTitle = it
+                            debouncedUpdateNote(
+                                UpdateNoteData(
+                                    id = selectedNote.value!!.id,
+                                    title = currentTitle
+                                )
+                            )
+                        },
                         singleLine = true,
                         maxLines = 1,
-                        textStyle = MaterialTheme.typography.h4,
+                        textStyle = TextStyle(
+                            fontSize = 46.sp,
+                            fontWeight = FontWeight.Bold,
+                        ),
                         modifier = Modifier.focusRequester(focusRequester),
                         enabled = sharedNoteId.value == -1
                     )
-                    IconButton(onClick = {
-                        currentTitle = edittingTitle
-                        debouncedUpdateNote(UpdateNoteData(
-                            id = selectedNote.value!!.id,
-                            title = edittingTitle
-                        ))
-                        isEditingTitle = false
-                        focusRequester.freeFocus()
-                    }) {
-                        Icon(
-                            Icons.Filled.Done,
-                            contentDescription = "Accept"
-                        )
+
+                    val tableData = listOf(
+                        listOf("Last Modified", selectedNote.value!!.modifiedAt.toString()),
+                        listOf("Created by", PrivateJSONToken.getNameOfUser()),
+                        listOf("Created at", createdAt)
+                    )
+
+                    // table of metadata
+                    LazyColumn(Modifier.fillMaxWidth()) {
+                        items(tableData) {
+                            val (title, value) = it
+                            Row(Modifier.fillMaxWidth()) {
+                                TableCell(text = title, weight = .25f, color = Color.Gray)
+                                TableCell(text = value, weight = .75f)
+                            }
+                        }
                     }
-                    IconButton(onClick = {
-                        isEditingTitle = false
-                    }) {
-                        Icon(
-                            Icons.Filled.Close,
-                            contentDescription = "Discard"
-                        )
-                    }
-
+//                    Text("Tags: ")
                 }
-            })
-        Spacer(Modifier.height(2.dp))
 
-
-        Column(Modifier.padding(16.dp, 0.dp)) {
-            // TODO: change from hardcoded values
-            Text("Created by: ${PrivateJSONToken.getNameOfUser()}")
-            Text("Created at: ${createdAt}")
-            Text("Tags: ")
-        }
-
-        if (alertDialog.value) {
-            ShareNoteDialog(emails, alertDialog, selectedNote.value!!.id)
-        }
-
-
-        BasicTextField(
-            modifier = Modifier.padding(16.dp, 1.dp).fillMaxWidth().fillMaxHeight(),
-            value = text,
-            onValueChange = {
-                text = it
-                if (selectedNote.value != null) {
-                    debouncedUpdateNote(UpdateNoteData(
-                        id = selectedNote.value!!.id,
-                        formattedContent = it,
-                        plainTextContent = it,
-                    ))
+                if (alertDialog.value) {
+                    ShareNoteDialog(emails, alertDialog, selectedNote.value!!.id)
                 }
-            },
-            maxLines = Int.MAX_VALUE,
-            textStyle = MaterialTheme.typography.h6,
-            visualTransformation = MarkdownTransform(editorController),
-            enabled = sharedNoteId.value == -1
-        )
+
+                Divider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.padding(16.dp))
+
+                BasicTextField(
+                    modifier = Modifier.padding(16.dp, 1.dp).fillMaxWidth().fillMaxHeight(),
+                    value = text,
+                    onValueChange = {
+                        text = it
+                        if (selectedNote.value != null) {
+                            debouncedUpdateNote(
+                                UpdateNoteData(
+                                    id = selectedNote.value!!.id,
+                                    formattedContent = it,
+                                    plainTextContent = it,
+                                )
+                            )
+                        }
+                    },
+                    maxLines = Int.MAX_VALUE,
+                    textStyle = MaterialTheme.typography.h6,
+                    visualTransformation = MarkdownTransform(editorController),
+                    enabled = sharedNoteId.value == -1
+                )
+            }
+        }
 
         Button(
             onClick = {
@@ -276,6 +289,19 @@ fun ShareNoteDialog(
                 Text("SHARE NOTE", style = MaterialTheme.typography.h6)
             }
         }
+    )
+}
+
+@Composable
+fun RowScope.TableCell(
+    text: String,
+    weight: Float,
+    color: Color = Color.Black,
+) {
+    Text(
+        text = text,
+        Modifier.weight(weight).padding(top = 4.dp, bottom = 4.dp),
+        color = color
     )
 }
 

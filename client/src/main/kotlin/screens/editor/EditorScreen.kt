@@ -27,6 +27,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import components.Avatar
 import components.Border
 import components.OutlinedTextFieldWithError
 import components.border
@@ -36,8 +37,11 @@ import kotlinx.coroutines.launch
 import navcontroller.NavController
 import screens.canvas.LocalCanvasContext
 import utils.debounce
+import utils.formatDateTime
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
+
+typealias ComposableFun = @Composable (m: Modifier) -> Unit
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -75,6 +79,25 @@ fun EditorScreen(
     val alertDialog = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val debouncedUpdateNote = debounce(400L, scope, updateNote)
+
+    val tableData = listOf<Pair<String, ComposableFun>>(
+        Pair(
+            "Last Modified"
+        ) { Text(formatDateTime(selectedNote.value!!.modifiedAt), it) },
+        Pair("Created by") {
+            Row(it, horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+                Avatar(
+                    id = selectedNote.value!!.ownerID.toString(),
+                    firstName = PrivateJSONToken.getNameOfUser().split(" ")[0],
+                    lastName = PrivateJSONToken.getNameOfUser().split(" ")[1],
+                    size = 24.dp
+                )
+                Text(PrivateJSONToken.getNameOfUser())
+            }
+        },
+        Pair("Created at") { Text(formatDateTime(createdAt), it) }
+    )
 
     Column(
         modifier = Modifier.fillMaxSize().border(bottom = Border(1.dp, Color.Gray.copy(alpha = 0.5f)))
@@ -144,19 +167,15 @@ fun EditorScreen(
                         enabled = sharedNoteId.value == -1
                     )
 
-                    val tableData = listOf(
-                        listOf("Last Modified", selectedNote.value!!.modifiedAt.toString()),
-                        listOf("Created by", PrivateJSONToken.getNameOfUser()),
-                        listOf("Created at", createdAt)
-                    )
-
                     // table of metadata
                     LazyColumn(Modifier.fillMaxWidth()) {
                         items(tableData) {
-                            val (title, value) = it
-                            Row(Modifier.fillMaxWidth()) {
-                                TableCell(text = title, weight = .25f, color = Color.Gray)
-                                TableCell(text = value, weight = .75f)
+                            val (title, component) = it
+                            Row(Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = title, Modifier.weight(.25f), color = Color.Gray)
+                                component(Modifier.weight(.75f))
+//                                Text("asdf", Modifier.weight(.75f))
                             }
                         }
                     }
@@ -292,18 +311,19 @@ fun ShareNoteDialog(
     )
 }
 
-@Composable
-fun RowScope.TableCell(
-    text: String,
-    weight: Float,
-    color: Color = Color.Black,
-) {
-    Text(
-        text = text,
-        Modifier.weight(weight).padding(top = 4.dp, bottom = 4.dp),
-        color = color
-    )
-}
+//@Composable
+//fun RowScope.TableCell(
+//    text: Composable,
+//    weight: Float,
+//    color: Color = Color.Black,
+//) {
+//    text
+////    Text(
+////        text = text,
+////        Modifier.weight(weight).padding(top = 4.dp, bottom = 4.dp),
+////        color = color
+////    )
+//}
 
 class MarkdownTransform(private val editorController: EditorController) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {

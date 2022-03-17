@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.vendors.currentDialect
 import java.sql.DriverManager
 
 object DatabaseInit {
@@ -35,6 +36,9 @@ object DatabaseInit {
             SchemaUtils.drop(Titles)
             SchemaUtils.drop(SharedNotes)
             SchemaUtils.drop(CanvasObjects)
+            if (currentDialect.name == "postgresql") {
+                exec("DROP FUNCTION updatesearchindextrigger()")
+            }
         }
         createTablesIfNotExist()
     }
@@ -47,6 +51,19 @@ object DatabaseInit {
             SchemaUtils.create(Titles)
             SchemaUtils.create(SharedNotes)
             SchemaUtils.create(CanvasObjects)
+            if (currentDialect.name == "postgresql") {
+                exec(
+                    """CREATE OR REPLACE FUNCTION updateSearchIndexTrigger() RETURNS TRIGGER AS $$
+                    begin
+                        new.search_tokenized := setweight(to_tsvector('pg_catalog.english', new.title), 'A') ||
+                            setweight(to_tsvector('pg_catalog.english', new.plaintext_content), 'B');
+                        return new;
+                    end
+                    $$ LANGUAGE plpgsql;
+                """.trimIndent()
+                )
+                exec("CREATE OR REPLACE TRIGGER update_search_tokenized BEFORE INSERT OR UPDATE ON Notes FOR EACH ROW EXECUTE PROCEDURE updateSearchIndexTrigger()")
+            }
         }
     }
 }

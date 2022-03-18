@@ -76,8 +76,6 @@ class NoteOperationsTest {
                 assertEquals(HttpStatusCode.Created, response.status())
                 val actualResponse: JsonObject? = response.content?.let { Json.decodeFromString(it) }
                 if (actualResponse != null) {
-                    println(actualResponse.entries)
-                    println(expectedJson.entries)
                     assertTrue(actualResponse.entries.containsAll(expectedJson.entries))
                 } else {
                     fail("Null response received")

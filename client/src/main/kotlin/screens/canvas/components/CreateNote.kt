@@ -1,5 +1,6 @@
 package screens.canvas.components
 
+import CreateNoteData
 import UpdateNoteData
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -26,6 +27,8 @@ import screens.canvas.CanvasState
 import screens.canvas.NoteData
 import kotlin.math.roundToInt
 
+const val DEFAULT_COLOUR = "FFFCE183"
+
 @Composable
 fun CreateNote(
 ) {
@@ -51,7 +54,7 @@ fun CreateNote(
             positionY = position.y,
             plainTextContent = "",
             formattedContent = "",
-            colour = "FFFCE183",
+            colour = DEFAULT_COLOUR,
             createdAt = "",
             modifiedAt = "",
             ownerID = -1
@@ -61,7 +64,7 @@ fun CreateNote(
 
         // Make the request to create note
         scope.launch {
-            val res = NoteRequests.createNote(title, position)
+            val res = NoteRequests.createNote(CreateNoteData(title, position.x, position.y, "", "", DEFAULT_COLOUR))
             if (res != null) {
                 // Update the note id after successfully creating the note
                 notes.value = notes.value.map {

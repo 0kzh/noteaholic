@@ -23,6 +23,11 @@ import controllers.EditorController
 import controllers.NoteRequests
 import kotlinx.coroutines.launch
 import navcontroller.NavController
+import org.intellij.markdown.MarkdownElementTypes
+import org.intellij.markdown.ast.ASTNode
+import org.intellij.markdown.ast.CompositeASTNode
+import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
+import org.intellij.markdown.parser.MarkdownParser
 import screens.canvas.LocalCanvasContext
 import utils.debounce
 import java.awt.Toolkit
@@ -46,7 +51,7 @@ fun EditorScreen(
 
     LaunchedEffect(selectedNote.value) {
         if (selectedNote.value != null) {
-            text = selectedNote.value!!.plainTextContent
+            text = selectedNote.value!!.formattedContent
             currentTitle = selectedNote.value!!.title
             createdAt = selectedNote.value!!.createdAt
         }
@@ -149,7 +154,6 @@ fun EditorScreen(
 
 
         Column(Modifier.padding(16.dp, 0.dp)) {
-            // TODO: change from hardcoded values
             Text("Created by: ${PrivateJSONToken.getNameOfUser()}")
             Text("Created at: ${createdAt}")
             Text("Tags: ")
@@ -169,7 +173,7 @@ fun EditorScreen(
                     debouncedUpdateNote(UpdateNoteData(
                         id = selectedNote.value!!.id,
                         formattedContent = it,
-                        plainTextContent = it,
+                        plainTextContent = performTransformForText(it),
                     ))
                 }
             },
@@ -189,6 +193,10 @@ fun EditorScreen(
             )
         }
     }
+}
+
+fun performTransformForText(text: String): String {
+    return text.filter { it.isLetterOrDigit() || it.isWhitespace() }
 }
 
 

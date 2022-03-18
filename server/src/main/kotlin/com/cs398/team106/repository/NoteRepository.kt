@@ -70,6 +70,14 @@ object NoteRepository {
         }
     }
 
+    fun searchInNotes(query: String, ownerId: Int, limit: Int?): List<DBNote> {
+        val sqlExpression = (Notes.owner eq ownerId) and (Notes.noteSearchTokenized tsVector query)
+        return transaction {
+            val res = DBNote.find { sqlExpression }
+            (if (limit != null) res.limit(limit) else res).toList()
+        }
+    }
+
     fun addSharedNotes(noteID: Int, userIDs: List<Int>): MutableList<DBSharedNote>? {
         return transaction {
             val sharedDbNotesOutput = mutableListOf<DBSharedNote>()

@@ -98,6 +98,7 @@ fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: Stri
                 positionY?.let { newNote.positionY = it }
                 plainTextContent?.let { newNote.plainTextContent = it }
                 formattedContent?.let { newNote.formattedContent = it }
+                colour?.let { newNote.colour = it }
                 ownerID?.let { newNote.ownerID = it }
                 newNote
             } else {

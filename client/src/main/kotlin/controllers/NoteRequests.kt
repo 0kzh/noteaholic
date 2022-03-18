@@ -57,6 +57,7 @@ object NoteRequests {
                     "positionY" to JsonPrimitive(position.y),
                     "plainTextContent" to JsonPrimitive(""),
                     "formattedContent" to JsonPrimitive(""),
+                    "colour" to JsonPrimitive(""),
                 )
         }
         val stringBody: String = httpResponse.receive()
@@ -89,7 +90,7 @@ object NoteRequests {
     }
 
     suspend fun updateNote(data: UpdateNoteData): Boolean {
-        val (id, title, positionX, positionY, plainTextContent, formattedContent, ownerID) = data
+        val (id, title, positionX, positionY, plainTextContent, formattedContent, colour, ownerID) = data
 
         val requestBody = mutableMapOf<String, Any>()
         title?.let { requestBody.put("title", JsonPrimitive(it)) }
@@ -97,6 +98,7 @@ object NoteRequests {
         positionY?.let { requestBody.put("positionY", JsonPrimitive(it)) }
         plainTextContent?.let { requestBody.put("plainTextContent", JsonPrimitive(it)) }
         formattedContent?.let { requestBody.put("formattedContent", JsonPrimitive(it)) }
+        colour?.let { requestBody.put("colour", JsonPrimitive(it)) }
         ownerID?.let { requestBody.put("ownerID", JsonPrimitive(it)) }
 
         println("Request body: ${requestBody}")

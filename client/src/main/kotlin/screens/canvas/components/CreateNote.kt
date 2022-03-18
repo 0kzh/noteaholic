@@ -51,6 +51,7 @@ fun CreateNote(
             positionY = position.y,
             plainTextContent = "",
             formattedContent = "",
+            colour = "FFFCE183",
             createdAt = "",
             modifiedAt = "",
             ownerID = -1

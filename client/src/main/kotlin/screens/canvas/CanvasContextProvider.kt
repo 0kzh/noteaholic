@@ -90,7 +90,7 @@ fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: Stri
     val scope = rememberCoroutineScope()
     val updateNote: (UpdateNoteData) -> Unit = { updatedNote: UpdateNoteData ->
         notes.value = notes.value.map {
-            val (id, title, positionX, positionY, plainTextContent, formattedContent, ownerID) = updatedNote
+            val (id, title, positionX, positionY, plainTextContent, formattedContent, colour, ownerID) = updatedNote
             if (it.id == id) {
                 var newNote = it.copy()
                 title?.let { newNote.title = it }
@@ -98,6 +98,7 @@ fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: Stri
                 positionY?.let { newNote.positionY = it }
                 plainTextContent?.let { newNote.plainTextContent = it }
                 formattedContent?.let { newNote.formattedContent = it }
+                colour?.let { newNote.colour = it }
                 ownerID?.let { newNote.ownerID = it }
                 newNote
             } else {

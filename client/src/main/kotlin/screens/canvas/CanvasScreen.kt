@@ -164,6 +164,7 @@ fun Modifier.createNote(): Modifier = composed {
                     positionY = previewNotePosition.y,
                     plainTextContent = "",
                     formattedContent = "",
+                    colour = "FFFCE183",
                     createdAt = "",
                     modifiedAt = "",
                     ownerID = -1

@@ -39,6 +39,7 @@ data class CreateNoteData(
     val positionY: Int,
     val plainTextContent: String,
     val formattedContent: String,
+    val colour: String
 ) {
     fun isValid(): Boolean {
         return title.isNotBlank()
@@ -79,6 +80,7 @@ data class UpdateNoteData(
     val positionY: Int? = null,
     val plainTextContent: String? = null,
     val formattedContent: String? = null,
+    val colour: String? = null,
     val ownerID: Int? = null,
 ) {}
 
@@ -112,6 +114,7 @@ data class NotesDTOOut(
     val positionY: Int,
     val plainTextContent: String,
     val formattedContent: String,
+    val colour: String,
     val createdAt: String,
     val modifiedAt: String,
     val ownerID: Int,

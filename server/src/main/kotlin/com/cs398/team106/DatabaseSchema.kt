@@ -49,6 +49,7 @@ fun Table.tsVector(name: String): Column<Any> = registerColumn(name, TSVector)
 object DatabaseFieldLimits {
     const val nameLength = 128
     const val titleLength = 255
+    const val colourLength = 128
     const val emailLength = 255
     const val passwordLength = 60
 
@@ -85,6 +86,7 @@ object Notes : IntIdTable() {
     val positionY = integer("position_y")
     val plainTextContent = text("plaintext_content")
     val formattedContent = text("formatted_content")
+    val colour = varchar("colour", DatabaseFieldLimits.colourLength)
     val createdAt = datetime("created_at")
     val modifiedAt = datetime("modified_at")
     val owner = integer("owner").references(Users.id)
@@ -101,6 +103,7 @@ class DBNote(id: EntityID<Int>) : IntEntity(id) {
     var positionY by Notes.positionY
     var plainTextContent by Notes.plainTextContent
     var formattedContent by Notes.formattedContent
+    var colour by Notes.colour
     var createdAt by Notes.createdAt
     var modifiedAt by Notes.modifiedAt
     var owner by Notes.owner
@@ -113,6 +116,7 @@ class DBNote(id: EntityID<Int>) : IntEntity(id) {
             positionY,
             plainTextContent,
             formattedContent,
+            colour,
             createdAt.toString(),
             modifiedAt.toString(),
             owner

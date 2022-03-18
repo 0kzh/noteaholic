@@ -1,5 +1,6 @@
 package controllers
 
+import CreateNoteData
 import NotesDTOOut
 import PrivateJSONToken
 import UpdateNoteData
@@ -46,17 +47,18 @@ object NoteRequests {
         return false
     }
 
-    suspend fun createNote(title: String, position: IntOffset): NotesDTOOut? {
+    suspend fun createNote(note: CreateNoteData): NotesDTOOut? {
         val httpResponse: HttpResponse = client.post(nHttpClient.URL + "/note") {
             contentType(ContentType.Application.Json)
             headers.append(HttpHeaders.Authorization, "Bearer ${PrivateJSONToken.token}")
             body =
                 mapOf(
-                    "title" to JsonPrimitive(title),
-                    "positionX" to JsonPrimitive(position.x),
-                    "positionY" to JsonPrimitive(position.y),
-                    "plainTextContent" to JsonPrimitive(""),
-                    "formattedContent" to JsonPrimitive(""),
+                    "title" to JsonPrimitive(note.title),
+                    "positionX" to JsonPrimitive(note.positionX),
+                    "positionY" to JsonPrimitive(note.positionY),
+                    "plainTextContent" to JsonPrimitive(note.plainTextContent),
+                    "formattedContent" to JsonPrimitive(note.formattedContent),
+                    "colour" to JsonPrimitive(note.colour),
                 )
         }
         val stringBody: String = httpResponse.receive()
@@ -89,7 +91,7 @@ object NoteRequests {
     }
 
     suspend fun updateNote(data: UpdateNoteData): Boolean {
-        val (id, title, positionX, positionY, plainTextContent, formattedContent, ownerID) = data
+        val (id, title, positionX, positionY, plainTextContent, formattedContent, colour, ownerID) = data
 
         val requestBody = mutableMapOf<String, Any>()
         title?.let { requestBody.put("title", JsonPrimitive(it)) }
@@ -97,6 +99,7 @@ object NoteRequests {
         positionY?.let { requestBody.put("positionY", JsonPrimitive(it)) }
         plainTextContent?.let { requestBody.put("plainTextContent", JsonPrimitive(it)) }
         formattedContent?.let { requestBody.put("formattedContent", JsonPrimitive(it)) }
+        colour?.let { requestBody.put("colour", JsonPrimitive(it)) }
         ownerID?.let { requestBody.put("ownerID", JsonPrimitive(it)) }
 
         println("Request body: ${requestBody}")

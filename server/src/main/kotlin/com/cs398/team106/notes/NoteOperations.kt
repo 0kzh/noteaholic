@@ -11,6 +11,7 @@ import io.ktor.auth.*
 import io.ktor.auth.jwt.*
 import io.ktor.http.*
 import io.ktor.response.*
+import io.ktor.util.*
 
 
 object NoteOperations {
@@ -199,5 +200,20 @@ object NoteOperations {
             return
         }
         call.respond(HttpStatusCode.OK)
+    }
+
+    suspend fun searchNote(call: ApplicationCall) {
+        val searchQuery = call.request.queryParameters.getOrFail<String>("query")
+        val limitString = call.request.queryParameters.get("limit")
+        val ownerId = getJWTUserID(call)
+        val res = NoteRepository.searchInNotes(
+            searchQuery,
+            ownerId,
+            if (!limitString.isNullOrBlank()) limitString.toInt() else null
+        )
+        call.respond(
+            res.map { it.toModel() }
+        )
+
     }
 }

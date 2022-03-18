@@ -1,10 +1,6 @@
 package com.cs398.team106.repository
 
 import com.cs398.team106.*
-import com.cs398.team106.Notes.formattedContent
-import com.cs398.team106.Notes.plainTextContent
-import com.cs398.team106.Notes.title
-import io.ktor.utils.io.concurrent.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -65,6 +61,14 @@ object NoteRepository {
                     return@transaction NOTE_ACCESS_LEVEL.NONE
                 }
             }
+        }
+    }
+
+    fun searchInNotes(query: String, ownerId: Int, limit: Int?): List<DBNote> {
+        val sqlExpression = (Notes.owner eq ownerId) and (Notes.noteSearchTokenized tsVector query)
+        return transaction {
+            val res = DBNote.find { sqlExpression }
+            (if (limit != null) res.limit(limit) else res).toList()
         }
     }
 

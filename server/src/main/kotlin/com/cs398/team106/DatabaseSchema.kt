@@ -4,7 +4,47 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.wrap
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import org.jetbrains.exposed.sql.vendors.currentDialect
+
+
+object TSVector : ColumnType() {
+    override fun sqlType(): String {
+        return when (currentDialect.name.lowercase()) {
+            "postgresql" -> {
+                "tsvector"
+            }
+            else -> {
+                "text"
+            }
+        }
+    }
+}
+
+infix fun <T> ExpressionWithColumnType<T>.tsVector(t: T): Op<Boolean> = TsVectorOp(this, wrap(t))
+
+class TsVectorOp(
+    val expr1: Expression<*>,
+    val expr2: Expression<*>,
+    val tsQueryFunction: String = "websearch_to_tsquery"
+) : Op<Boolean>(), ComplexExpression {
+    override fun toQueryBuilder(queryBuilder: QueryBuilder): Unit = queryBuilder {
+        if (expr1 is ComplexExpression) {
+            append("(", expr1, ")")
+        } else {
+            append(expr1)
+        }
+        append(
+            " @@ $tsQueryFunction("
+        )
+        append(expr2)
+        append(")")
+    }
+}
+
+fun Table.tsVector(name: String): Column<Any> = registerColumn(name, TSVector)
 
 object DatabaseFieldLimits {
     const val nameLength = 128
@@ -48,6 +88,9 @@ object Notes : IntIdTable() {
     val createdAt = datetime("created_at")
     val modifiedAt = datetime("modified_at")
     val owner = integer("owner").references(Users.id)
+    val noteSearchTokenized = tsVector("search_tokenized").nullable()
+
+
 }
 
 class DBNote(id: EntityID<Int>) : IntEntity(id) {
@@ -63,7 +106,17 @@ class DBNote(id: EntityID<Int>) : IntEntity(id) {
     var owner by Notes.owner
 
     fun toModel(): NotesDTOOut {
-        return NotesDTOOut(id.value, title, positionX, positionY, plainTextContent, formattedContent, createdAt.toString(), modifiedAt.toString(), owner)
+        return NotesDTOOut(
+            id.value,
+            title,
+            positionX,
+            positionY,
+            plainTextContent,
+            formattedContent,
+            createdAt.toString(),
+            modifiedAt.toString(),
+            owner
+        )
     }
 }
 

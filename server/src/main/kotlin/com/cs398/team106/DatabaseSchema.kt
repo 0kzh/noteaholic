@@ -9,6 +9,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 object DatabaseFieldLimits {
     const val nameLength = 128
     const val titleLength = 255
+    const val colourLength = 128
     const val emailLength = 255
     const val passwordLength = 60
 
@@ -45,7 +46,7 @@ object Notes : IntIdTable() {
     val positionY = integer("position_y")
     val plainTextContent = text("plaintext_content")
     val formattedContent = text("formatted_content")
-    val colour = text("colour")
+    val colour = varchar("colour", DatabaseFieldLimits.colourLength)
     val createdAt = datetime("created_at")
     val modifiedAt = datetime("modified_at")
     val owner = integer("owner").references(Users.id)

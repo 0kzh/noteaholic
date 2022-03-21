@@ -6,7 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -25,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import components.Avatar
@@ -53,6 +56,7 @@ fun EditorScreen(
     val selectedNote = LocalCanvasContext.current.selectedNote
     val sharedNoteId = LocalCanvasContext.current.sharedNoteId
 
+    val verticalScrollState = rememberScrollState(0);
 
     var text by rememberSaveable { mutableStateOf("") }
     var createdAt by rememberSaveable { mutableStateOf(sharedNoteId.value.toString()) }
@@ -85,8 +89,10 @@ fun EditorScreen(
             "Last Modified"
         ) { Text(formatDateTime(selectedNote.value!!.modifiedAt), it) },
         Pair("Created by") {
-            Row(it, horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                it, horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Avatar(
                     id = selectedNote.value!!.ownerID.toString(),
                     firstName = PrivateJSONToken.getNameOfUser().split(" ")[0],
@@ -99,11 +105,11 @@ fun EditorScreen(
         Pair("Created at") { Text(formatDateTime(createdAt), it) }
     )
 
-    Column(
-        modifier = Modifier.fillMaxSize().border(bottom = Border(1.dp, Color.Gray.copy(alpha = 0.5f)))
+    Box(
+        modifier = Modifier.fillMaxWidth().background(Color.White)
     ) {
         TopAppBar(
-            backgroundColor = Color.White,
+            backgroundColor = Color.Transparent,
             elevation = 0.dp,
             navigationIcon = {
                 IconButton(onClick = {
@@ -131,20 +137,19 @@ fun EditorScreen(
             },
             title = { Text("") }
         )
-
         Column(
-            modifier = Modifier.fillMaxWidth().background(Color.White),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(
-                // white background
                 modifier = Modifier
                     .fillMaxHeight()
+                    .verticalScroll(verticalScrollState)
                     .widthIn(0.dp, 600.dp)
             ) {
-                Spacer(Modifier.height(2.dp))
+                Column {
+                    Spacer(modifier = Modifier.height(80.dp))
 
-                Column(Modifier.padding(16.dp, 0.dp)) {
                     // TODO: change from hardcoded values
                     BasicTextField(
                         currentTitle,
@@ -163,16 +168,18 @@ fun EditorScreen(
                             fontSize = 46.sp,
                             fontWeight = FontWeight.Bold,
                         ),
-                        modifier = Modifier.focusRequester(focusRequester),
+                        modifier = Modifier.focusRequester(focusRequester).heightIn(1.dp, Dp.Infinity),
                         enabled = sharedNoteId.value == -1
                     )
 
                     // table of metadata
-                    LazyColumn(Modifier.fillMaxWidth()) {
+                    LazyColumn(Modifier.fillMaxWidth().height(88.dp)) {
                         items(tableData) {
                             val (title, component) = it
-                            Row(Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(text = title, Modifier.weight(.25f), color = Color.Gray)
                                 component(Modifier.weight(.75f))
 //                                Text("asdf", Modifier.weight(.75f))
@@ -208,17 +215,9 @@ fun EditorScreen(
                     visualTransformation = MarkdownTransform(editorController),
                     enabled = sharedNoteId.value == -1
                 )
-            }
-        }
 
-        Button(
-            onClick = {
-                navController.navigateBack()
+                Spacer(Modifier.height(100.dp))
             }
-        ) {
-            Text(
-                text = "Close note"
-            )
         }
     }
 }

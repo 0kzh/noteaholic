@@ -121,6 +121,9 @@ data class NotesDTOOut(
 )
 
 @Serializable
+data class SearchNoteDTOOut(val note: NotesDTOOut, val matchingBody: String)
+
+@Serializable
 data class SharedNotesDTOOut(
     val id: Int,
     val noteID: Int,

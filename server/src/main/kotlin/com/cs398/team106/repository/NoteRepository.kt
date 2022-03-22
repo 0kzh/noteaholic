@@ -9,8 +9,8 @@ import io.ktor.utils.io.concurrent.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object NOTE_ACCESS_LEVEL {
@@ -70,11 +70,50 @@ object NoteRepository {
         }
     }
 
-    fun searchInNotes(query: String, ownerId: Int, limit: Int?): List<DBNote> {
-        val sqlExpression = (Notes.owner eq ownerId) and (Notes.noteSearchTokenized tsVector query)
+    fun searchInNotes(query: String, ownerId: Int, limit: Int?): List<SearchNoteDTOOut> {
+        if (query.isBlank()) {
+            return emptyList()
+        }
+        val tsQuery = if (query.count { it.isWhitespace() } < 1) {
+            TsQuery("$query:*", "to_tsquery")
+        } else {
+            TsQuery(query)
+        }
+
+        val sqlExpression = (Notes.owner eq ownerId) and (Notes.noteSearchTokenized tsVector tsQuery)
+
+        val tsHeadlineQuery = tsHeadline(Notes.plainTextContent, tsQuery)
+
         return transaction {
-            val res = DBNote.find { sqlExpression }
-            (if (limit != null) res.limit(limit) else res).toList()
+            val res = Notes.slice(
+                Notes.id,
+                Notes.title,
+                Notes.positionX,
+                Notes.positionY,
+                Notes.plainTextContent,
+                Notes.formattedContent,
+                Notes.createdAt,
+                Notes.modifiedAt,
+                Notes.owner,
+                tsHeadlineQuery
+            ).select(sqlExpression)
+
+            (if (limit != null) res.limit(limit) else res).map {
+                SearchNoteDTOOut(
+                    NotesDTOOut(
+                        it[Notes.id].value,
+                        it[Notes.title],
+                        it[Notes.positionX],
+                        it[Notes.positionY],
+                        it[Notes.plainTextContent],
+                        it[Notes.formattedContent],
+                        it[Notes.createdAt].toString(),
+                        it[Notes.modifiedAt].toString(),
+                        it[Notes.owner]
+                    ),
+                    it[tsHeadlineQuery]
+                )
+            }
         }
     }
 

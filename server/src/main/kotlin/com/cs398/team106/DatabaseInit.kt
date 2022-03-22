@@ -63,6 +63,7 @@ object DatabaseInit {
                 """.trimIndent()
                 )
                 exec("CREATE OR REPLACE TRIGGER update_search_tokenized BEFORE INSERT OR UPDATE ON Notes FOR EACH ROW EXECUTE PROCEDURE updateSearchIndexTrigger()")
+                exec("CREATE INDEX IF NOT EXISTS search_tokenized_index ON Notes USING GIN(search_tokenized);")
             }
         }
     }

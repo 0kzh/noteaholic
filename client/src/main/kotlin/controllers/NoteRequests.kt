@@ -3,6 +3,7 @@ package controllers
 import CreateNoteData
 import NotesDTOOut
 import PrivateJSONToken
+import SearchNoteDTOOut
 import UpdateNoteData
 import androidx.compose.ui.unit.IntOffset
 import io.ktor.client.call.*
@@ -12,11 +13,9 @@ import io.ktor.http.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import nHttpClient
 import nHttpClient.client
-import screens.canvas.NoteData
 
 object NoteRequests {
     suspend fun addCollaborators(noteID: Int, emails: List<String>): Boolean {
@@ -134,5 +133,15 @@ object NoteRequests {
             println("Error: ${t.message}")
             null
         }
+    }
+
+    suspend fun search(searchQuery: String): List<SearchNoteDTOOut> {
+        val httpResponse: HttpResponse = client.get("${nHttpClient.URL}/search") {
+            parameter("query", searchQuery)
+            contentType(ContentType.Application.Json)
+            headers.append(HttpHeaders.Authorization, "Bearer ${PrivateJSONToken.token}")
+        }
+        val stringBody: String = httpResponse.receive()
+        return Json.decodeFromString(stringBody)
     }
 }

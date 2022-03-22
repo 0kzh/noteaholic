@@ -1,17 +1,23 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Typography
 import androidx.compose.runtime.*
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.platform.Font
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import components.ConnectionError
+import screens.SearchPalette
 import controllers.Authentication
 import controllers.EditorController
 import kotlinx.coroutines.delay
@@ -33,30 +39,42 @@ import screens.editor.EditorScreen
 import screens.login.LoginScreen
 import screens.login.SignUpScreen
 import java.awt.Desktop
-import java.io.File
 import java.net.URI
 import kotlin.time.Duration.Companion.seconds
 
 @Serializable
 data class Config(val url: String)
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 @Preview
-fun App(authenticated: Boolean, sharedNoteId: MutableState<Int>, navController: NavController) {
+fun App(authenticated: Boolean, sharedNoteId: MutableState<Int>, showPalette: MutableState<Boolean>) {
     println("Got SharedNoteId in App $sharedNoteId")
-//    val sharedNoteId2 = 3
     val screens = Screen.values().toList()
-//    val navController by rememberNavController(
-//        if (authenticated) (
-//                if (sharedNoteId != null) Screen.EditorScreen.name
-//                else Screen.CanvasScreen.name)
-//        else Screen.LoginScreen.name)
+    val navController by rememberNavController(
+        if (authenticated) (
+                if (sharedNoteId.value != -1) Screen.EditorScreen.name
+                else Screen.CanvasScreen.name)
+        else Screen.LoginScreen.name
+    )
+
     val currentScreen by remember {
         navController.currentScreen
     }
 
     CanvasContextProvider(
-        content = { Router(navController = navController) },
+        content = {
+            if (showPalette.value && navController.currentScreen.value in listOf(
+                    Screen.EditorScreen.name,
+                    Screen.CanvasScreen.name
+                )
+            ) {
+                SearchPalette({ showPalette.value = false }, navController)
+            }
+            Box(modifier = Modifier.blur(if (showPalette.value) 7.dp else 0.dp)) {
+                Router(navController = navController)
+            }
+        },
         currentScreen = currentScreen,
         sharedNoteId = sharedNoteId,
         navController = navController
@@ -71,6 +89,7 @@ fun getNoteIdFromURI(uri: URI): Int? =
     uri.query.split('&')
         .associate { it.split('=').let { splitData -> Pair(splitData[0], splitData[1]) } }["noteId"]?.toInt()
 
+@OptIn(ExperimentalComposeUiApi::class)
 fun main(args: Array<String>) = application {
     val result = getResourceAsText("/config/config.json")
     nHttpClient.URL = if (result != null) Json.decodeFromString<Config>(result).url else "http://localhost:8080"
@@ -79,7 +98,9 @@ fun main(args: Array<String>) = application {
     val jwt = PrivateJSONToken.token
 
     var canConnect by remember { mutableStateOf(false) }
-    var sharedNoteId = remember { mutableStateOf<Int>(-1) }
+    val showPalette = remember { mutableStateOf(false) }
+
+    val sharedNoteId = remember { mutableStateOf(-1) }
     val connectivityChecker = connectionMonitor()
     val scope = rememberCoroutineScope()
 
@@ -89,21 +110,14 @@ fun main(args: Array<String>) = application {
                 canConnect && Authentication.isJWTValid(jwt)
             }
 
-    val navController by rememberNavController(
-        if (isJWTValid) (
-                if (sharedNoteId.value != -1) Screen.EditorScreen.name
-                else Screen.CanvasScreen.name)
-        else Screen.LoginScreen.name)
+
     val isSupported = Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_URI)
     if (isSupported) {
         Desktop.getDesktop().setOpenURIHandler { event ->
-            println("Got Open URI: " + event.uri)
-//            logURIDetails(event.uri)
             sharedNoteId.value = getNoteIdFromURI(event.uri) ?: -1
-            navController.navigate(Screen.EditorScreen.name)
         }
     } else if (args.size == 1) {
-        sharedNoteId.value = getNoteIdFromURI(URI(args[0]))  ?: -1
+        sharedNoteId.value = getNoteIdFromURI(URI(args[0])) ?: -1
     }
 
     scope.launch {
@@ -114,11 +128,20 @@ fun main(args: Array<String>) = application {
 
     Window(
         title = ResString.appName,
-        onCloseRequest = ::exitApplication
+        onCloseRequest = ::exitApplication,
+        onKeyEvent = {
+            if (it.isCtrlPressed && it.key == Key.P) {
+                showPalette.value = !showPalette.value
+                true
+            } else {
+                false
+            }
+        }
     ) {
         MaterialTheme(typography = CustomTypography) {
+
             if (canConnect) {
-                App(isJWTValid, sharedNoteId, navController)
+                App(isJWTValid, sharedNoteId, showPalette)
             } else {
                 ConnectionError()
             }

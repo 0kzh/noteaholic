@@ -5,6 +5,7 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Function
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.wrap
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.vendors.currentDialect
@@ -23,12 +24,39 @@ object TSVector : ColumnType() {
     }
 }
 
-infix fun <T> ExpressionWithColumnType<T>.tsVector(t: T): Op<Boolean> = TsVectorOp(this, wrap(t))
+infix fun <T> ExpressionWithColumnType<T>.tsVector(t: TsQuery): Op<Boolean> = TsVectorOp(this, t)
+
+
+class tsHeadline(
+    val expr: Expression<*>,
+    val tsQuery: TsQuery
+) : Function<String>(TextColumnType()) {
+    override fun toQueryBuilder(queryBuilder: QueryBuilder): Unit = queryBuilder {
+        append("ts_headline(")
+        append(expr)
+        append(", ")
+        append(tsQuery)
+        append(")")
+    }
+}
+
+
+class TsQuery(
+    val expr1: String,
+    val tsQueryFunction: String = "websearch_to_tsquery"
+) : Function<String>(TextColumnType()) {
+    override fun toQueryBuilder(queryBuilder: QueryBuilder): Unit = queryBuilder {
+        append(
+            "$tsQueryFunction("
+        )
+        append("'$expr1'")
+        append(")")
+    }
+}
 
 class TsVectorOp(
     val expr1: Expression<*>,
-    val expr2: Expression<*>,
-    val tsQueryFunction: String = "websearch_to_tsquery"
+    val expr2: TsQuery
 ) : Op<Boolean>(), ComplexExpression {
     override fun toQueryBuilder(queryBuilder: QueryBuilder): Unit = queryBuilder {
         if (expr1 is ComplexExpression) {
@@ -37,10 +65,9 @@ class TsVectorOp(
             append(expr1)
         }
         append(
-            " @@ $tsQueryFunction("
+            " @@ "
         )
         append(expr2)
-        append(")")
     }
 }
 
@@ -91,11 +118,9 @@ object Notes : IntIdTable() {
     val modifiedAt = datetime("modified_at")
     val owner = integer("owner").references(Users.id)
     val noteSearchTokenized = tsVector("search_tokenized").nullable()
-
-
 }
 
-class DBNote(id: EntityID<Int>) : IntEntity(id) {
+open class DBNote(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<DBNote>(Notes)
 
     var title by Notes.title
@@ -108,7 +133,7 @@ class DBNote(id: EntityID<Int>) : IntEntity(id) {
     var modifiedAt by Notes.modifiedAt
     var owner by Notes.owner
 
-    fun toModel(): NotesDTOOut {
+    open fun toModel(): NotesDTOOut {
         return NotesDTOOut(
             id.value,
             title,

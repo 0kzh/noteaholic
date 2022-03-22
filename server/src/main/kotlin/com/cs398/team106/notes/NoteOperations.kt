@@ -211,9 +211,6 @@ object NoteOperations {
             ownerId,
             if (!limitString.isNullOrBlank()) limitString.toInt() else null
         )
-        call.respond(
-            res.map { it.toModel() }
-        )
-
+        call.respond(res)
     }
 }

@@ -2,9 +2,7 @@ package controllers
 
 import CreateNoteData
 import NotesDTOOut
-import PrivateJSONToken
 import UpdateNoteData
-import androidx.compose.ui.unit.IntOffset
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -12,11 +10,9 @@ import io.ktor.http.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import nHttpClient
 import nHttpClient.client
-import screens.canvas.NoteData
 
 object NoteRequests {
     suspend fun addCollaborators(noteID: Int, emails: List<String>): Boolean {
@@ -25,7 +21,6 @@ object NoteRequests {
         println(emails.toString())
         val httpResponse: HttpResponse = client.post(nHttpClient.URL + "/note/add_collaborator") {
             contentType(ContentType.Application.Json)
-            headers.append(HttpHeaders.Authorization, "Bearer ${PrivateJSONToken.token}")
             body =
                 mapOf(
                     "noteID" to JsonPrimitive(noteID),
@@ -50,7 +45,6 @@ object NoteRequests {
     suspend fun createNote(note: CreateNoteData): NotesDTOOut? {
         val httpResponse: HttpResponse = client.post(nHttpClient.URL + "/note") {
             contentType(ContentType.Application.Json)
-            headers.append(HttpHeaders.Authorization, "Bearer ${PrivateJSONToken.token}")
             body =
                 mapOf(
                     "title" to JsonPrimitive(note.title),
@@ -76,7 +70,6 @@ object NoteRequests {
     suspend fun fetchNotes(): List<NotesDTOOut>? {
         val httpResponse: HttpResponse = client.get(nHttpClient.URL + "/notes") {
             contentType(ContentType.Application.Json)
-            headers.append(HttpHeaders.Authorization, "Bearer ${PrivateJSONToken.token}")
         }
         val stringBody: String = httpResponse.receive()
 
@@ -106,7 +99,6 @@ object NoteRequests {
 
         val httpResponse: HttpResponse = client.patch(nHttpClient.URL + "/note/" + id) {
             contentType(ContentType.Application.Json)
-            headers.append(HttpHeaders.Authorization, "Bearer ${PrivateJSONToken.token}")
             body = requestBody
         }
         val stringBody: String = httpResponse.receive()
@@ -118,11 +110,10 @@ object NoteRequests {
         }
         return false
     }
-    
+
     suspend fun fetchNote(noteID: Int): NotesDTOOut? {
         val httpResponse: HttpResponse = client.get(nHttpClient.URL + "/note/${noteID}") {
             contentType(ContentType.Application.Json)
-            headers.append(HttpHeaders.Authorization, "Bearer ${PrivateJSONToken.token}")
         }
         val stringBody: String = httpResponse.receive()
 

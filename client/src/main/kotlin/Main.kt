@@ -1,14 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Typography
 import androidx.compose.runtime.*
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.platform.Font
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import components.ConnectionError
@@ -33,7 +26,6 @@ import screens.editor.EditorScreen
 import screens.login.LoginScreen
 import screens.login.SignUpScreen
 import java.awt.Desktop
-import java.io.File
 import java.net.URI
 import kotlin.time.Duration.Companion.seconds
 
@@ -86,14 +78,21 @@ fun main(args: Array<String>) = application {
     val isJWTValid = jwt.isNotBlank() &&
             runBlocking {
                 canConnect = nHttpClient.canConnectToServer()
-                canConnect && Authentication.isJWTValid(jwt)
+                canConnect && Authentication.isJWTValid()
             }
 
     val navController by rememberNavController(
         if (isJWTValid) (
                 if (sharedNoteId.value != -1) Screen.EditorScreen.name
                 else Screen.CanvasScreen.name)
-        else Screen.LoginScreen.name)
+        else Screen.LoginScreen.name
+    )
+
+    nHttpClient.onAuthFailure = {
+        println("Called on authFailure")
+        navController.navigate(Screen.LoginScreen.name)
+    }
+
     val isSupported = Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_URI)
     if (isSupported) {
         Desktop.getDesktop().setOpenURIHandler { event ->
@@ -103,7 +102,7 @@ fun main(args: Array<String>) = application {
             navController.navigate(Screen.EditorScreen.name)
         }
     } else if (args.size == 1) {
-        sharedNoteId.value = getNoteIdFromURI(URI(args[0]))  ?: -1
+        sharedNoteId.value = getNoteIdFromURI(URI(args[0])) ?: -1
     }
 
     scope.launch {

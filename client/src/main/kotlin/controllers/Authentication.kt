@@ -116,10 +116,8 @@ object Authentication {
         }
     }
 
-    suspend fun isJWTValid(jwt: String): Boolean {
-        val httpResponse: HttpResponse = client.get(nHttpClient.URL + "/me") {
-            headers.append(HttpHeaders.Authorization, "Bearer $jwt")
-        }
+    suspend fun isJWTValid(): Boolean {
+        val httpResponse: HttpResponse = client.get(nHttpClient.URL + "/me")
         return httpResponse.status == HttpStatusCode.OK
     }
 }

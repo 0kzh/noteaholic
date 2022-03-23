@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
-val SELECTED_COLOR = Color(0xFFFCE183)
+val SELECTED_COLOR = Color(COLOR_DEFAULT)
 
 @Composable
 fun Toolbar(
@@ -37,24 +37,24 @@ fun Toolbar(
         ) {
             IconButton(modifier = Modifier.clip(RoundedCornerShape(24.dp)).background(
                 if (canvasState.value == CanvasState.FOCUS_NOTE) SELECTED_COLOR else Color.Transparent
-            ), onClick = { setCanvasState(CanvasState.FOCUS_NOTE) }) {
+            ), onClick = { canvasState.value = CanvasState.FOCUS_NOTE }) {
                 Image(painterResource("icons/cursor.svg"), "cursor icon", modifier = Modifier.size(24.dp))
             }
             IconButton(modifier = Modifier.clip(RoundedCornerShape(24.dp)).background(
                 if (canvasState.value == CanvasState.FOCUS_CANVAS) SELECTED_COLOR else Color.Transparent
-            ), onClick = { setCanvasState(CanvasState.FOCUS_CANVAS) }) {
+            ), onClick = { canvasState.value = CanvasState.FOCUS_CANVAS }) {
                 Image(painterResource("icons/hand.svg"), "hand icon", modifier = Modifier.size(24.dp))
             }
             IconButton(modifier = Modifier.clip(RoundedCornerShape(24.dp)).background(
                 if (canvasState.value == CanvasState.NEW_NOTE) SELECTED_COLOR else Color.Transparent
-            ), onClick = { setCanvasState(CanvasState.NEW_NOTE) }) {
+            ), onClick = { canvasState.value = CanvasState.NEW_NOTE }) {
                 Image(
                     painterResource("icons/new_note.svg"), "new note icon", modifier = Modifier.size(24.dp)
                 )
             }
             IconButton(modifier = Modifier.clip(RoundedCornerShape(24.dp)).background(
                 if (canvasState.value == CanvasState.NEW_TEXT) SELECTED_COLOR else Color.Transparent
-            ), onClick = { setCanvasState(CanvasState.NEW_TEXT) }) {
+            ), onClick = { canvasState.value = CanvasState.NEW_TEXT }) {
                 Image(painterResource("icons/text.svg"), "new text", modifier = Modifier.size(24.dp))
             }
         }

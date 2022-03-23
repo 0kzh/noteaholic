@@ -189,6 +189,7 @@ fun Modifier.keyboardShortcuts(): Modifier = composed {
     val setFocusedNoteId = LocalCanvasContext.current.setFocusedNoteId
     val debouncedResetCanvasState = LocalCanvasContext.current.debouncedResetCanvasState
     val colorIdx = LocalCanvasContext.current.colorIdx
+    val resetColor = LocalCanvasContext.current.resetColor
 
     val changeColor = {
         colorIdx.value += 1
@@ -197,9 +198,6 @@ fun Modifier.keyboardShortcuts(): Modifier = composed {
         }
     }
 
-    val resetColor = {
-        colorIdx.value = 0
-    }
     // Resume focus onto Canvas when possible for keyboard shortcuts to work
     LaunchedEffect(canvasState.value) {
         if (canvasState.value != CanvasState.CREATING_NOTE && canvasState.value != CanvasState.FOCUS_NOTE) {
@@ -217,10 +215,7 @@ fun Modifier.keyboardShortcuts(): Modifier = composed {
             KeyDown -> {
                 when (it.key) {
                     Key.C -> {
-                        if (canvasState.value != CanvasState.CHANGE_COLOR) {
-                            setCanvasState(CanvasState.CHANGE_COLOR)
-                            resetColor()
-                        }
+                        setCanvasState(CanvasState.CHANGE_COLOR)
                         changeColor()
                     }
                     Key.E -> {

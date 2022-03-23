@@ -50,6 +50,7 @@ data class CanvasContext(
     val focusRequester: FocusRequester,
 
     val colorIdx: MutableState<Int>,
+    val resetColor: () -> Unit,
 )
 
 val LocalCanvasContext = compositionLocalOf<CanvasContext> { error("No canvas state found!") }
@@ -143,6 +144,12 @@ fun CanvasContextProvider(
     val focusRequester = remember { FocusRequester() }
 
     val colorIdx = remember { mutableStateOf(0) }
+    val resetColor = { colorIdx.value = 0 }
+
+    // Reset the color when a new note gets focus
+    LaunchedEffect(focusedNoteId.value) {
+        resetColor()
+    }
 
     CompositionLocalProvider(
         LocalCanvasContext provides CanvasContext(
@@ -169,6 +176,7 @@ fun CanvasContextProvider(
             focusRequester,
 
             colorIdx,
+            resetColor,
         ),
     ) {
         content()

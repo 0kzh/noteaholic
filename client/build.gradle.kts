@@ -25,6 +25,8 @@ dependencies {
     implementation("io.ktor:ktor-client-jetty:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("io.ktor:ktor-client-serialization:$ktor_version")
+    implementation ("com.godaddy.android.colorpicker:compose-color-picker:0.4.2")
+    implementation("com.godaddy.android.colorpicker:compose-color-picker-jvm:0.4.2")
 }
 
 tasks.withType<KotlinCompile> {

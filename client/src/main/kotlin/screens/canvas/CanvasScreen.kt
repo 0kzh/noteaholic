@@ -1,9 +1,16 @@
 package screens.canvas
 
-import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -11,8 +18,11 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.onPointerEvent
@@ -20,8 +30,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import navcontroller.NavController
-import screens.canvas.components.*
-import utils.debounce
+import screens.canvas.components.CreateNote
+import screens.canvas.components.DEFAULT_NOTE_SIZE
+import screens.canvas.components.Navbar
+import screens.canvas.components.Note
 import kotlin.math.roundToInt
 
 val CELL_SIZE = 50f
@@ -78,30 +90,6 @@ fun CanvasBackground(navController: NavController) {
     CreateNote()
 }
 
-///**
-// * Scales all canvas contents
-// */
-//fun Modifier.scale(): Modifier = composed {
-//    val scale = LocalCanvasContext.current.scale
-//    val setCanvasState = LocalCanvasContext.current.setCanvasState
-//    val setFocusedNoteId = LocalCanvasContext.current.setFocusedNoteId
-//
-//    this.scrollable(orientation = Orientation.Horizontal, state = rememberScrollableState { delta ->
-//        // Delta is negative when scrolling up
-//        if (delta > 0 && scale.value < 2.0f) {
-//            scale.value = Math.min(scale.value + delta * SCROLL_SENSITIVITY, 2.0f)
-//        }
-//        if (delta < 0 && scale.value > 0.8) {
-//            scale.value = Math.max(scale.value + delta * SCROLL_SENSITIVITY, 0.8f)
-//        }
-//
-//        println("Scroll")
-//        setCanvasState(CanvasState.FOCUS_CANVAS)
-//        setFocusedNoteId(null)
-//
-//        delta
-//    })
-//}
 
 /**
  * Translates all canvas contents
@@ -188,15 +176,6 @@ fun Modifier.keyboardShortcuts(): Modifier = composed {
     val focusRequester = LocalCanvasContext.current.focusRequester
     val setFocusedNoteId = LocalCanvasContext.current.setFocusedNoteId
     val debouncedResetCanvasState = LocalCanvasContext.current.debouncedResetCanvasState
-    val colorIdx = LocalCanvasContext.current.colorIdx
-    val resetColor = LocalCanvasContext.current.resetColor
-
-    val changeColor = {
-        colorIdx.value += 1
-        if (colorIdx.value >= NOTE_COLORS.size) {
-            colorIdx.value = 0
-        }
-    }
 
     // Resume focus onto Canvas when possible for keyboard shortcuts to work
     LaunchedEffect(canvasState.value) {
@@ -206,18 +185,12 @@ fun Modifier.keyboardShortcuts(): Modifier = composed {
         }
     }
 
-    println("Color: ${colorIdx.value}")
-
     // Order matters here for onPreviewKeyEvent -> focusRequester() -> focusable()
     //  source: https://stackoverflow.com/questions/70015530/unable-to-focus-anything-other-than-textfield
     this.onKeyEvent {
         when (it.type) {
             KeyDown -> {
                 when (it.key) {
-                    Key.C -> {
-                        setCanvasState(CanvasState.CHANGE_COLOR)
-                        changeColor()
-                    }
                     Key.E -> {
                         setCanvasState(CanvasState.EDITING_NOTE)
                     }

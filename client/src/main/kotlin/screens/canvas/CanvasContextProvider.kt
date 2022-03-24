@@ -8,21 +8,16 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
 import controllers.NoteRequests
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.JsonPrimitive
 import navcontroller.NavController
 import utils.debounce
 
 enum class CanvasState {
-    DEFAULT, FOCUS_NOTE, FOCUS_CANVAS, NEW_NOTE, CREATING_NOTE, EDITING_NOTE, CHANGE_COLOR, NEW_TEXT, EDITOR_SCREEN
+    DEFAULT, FOCUS_NOTE, FOCUS_CANVAS, NEW_NOTE, CREATING_NOTE, EDITING_NOTE, NEW_TEXT, EDITOR_SCREEN
 }
 
-val COLOR_DEFAULT = 0xFFFCE183
-val COLOR_RED = 0xFFFF0000
-val COLOR_BLUE = 0xFF00FF00
-val COLOR_GREEN = 0xFF0000FF
-val COLOR_PREVIEW = 0xFFFEF6D9
+const val COLOR_DEFAULT = 0xFFFCE183
+const val COLOR_PREVIEW = 0xFFFEF6D9
 
-val NOTE_COLORS = arrayOf(COLOR_DEFAULT, COLOR_RED, COLOR_BLUE, COLOR_GREEN)
 
 typealias NoteData = NotesDTOOut
 
@@ -48,9 +43,6 @@ data class CanvasContext(
     val updateNote: (UpdateNoteData) -> Unit,
 
     val focusRequester: FocusRequester,
-
-    val colorIdx: MutableState<Int>,
-    val resetColor: () -> Unit,
 )
 
 val LocalCanvasContext = compositionLocalOf<CanvasContext> { error("No canvas state found!") }
@@ -173,10 +165,7 @@ fun CanvasContextProvider(
             sharedNoteId,
             updateNote,
 
-            focusRequester,
-
-            colorIdx,
-            resetColor,
+            focusRequester
         ),
     ) {
         content()

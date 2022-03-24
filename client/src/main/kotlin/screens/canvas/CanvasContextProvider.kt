@@ -13,8 +13,16 @@ import navcontroller.NavController
 import utils.debounce
 
 enum class CanvasState {
-    FOCUS_NOTE, FOCUS_CANVAS, NEW_NOTE, CREATING_NOTE, NEW_TEXT
+    DEFAULT, FOCUS_NOTE, FOCUS_CANVAS, NEW_NOTE, CREATING_NOTE, EDITING_NOTE, CHANGE_COLOR, NEW_TEXT, EDITOR_SCREEN
 }
+
+val COLOR_DEFAULT = 0xFFFCE183
+val COLOR_RED = 0xFFFF0000
+val COLOR_BLUE = 0xFF00FF00
+val COLOR_GREEN = 0xFF0000FF
+val COLOR_PREVIEW = 0xFFFEF6D9
+
+val NOTE_COLORS = arrayOf(COLOR_DEFAULT, COLOR_RED, COLOR_BLUE, COLOR_GREEN)
 
 typealias NoteData = NotesDTOOut
 
@@ -27,29 +35,47 @@ data class CanvasContext(
 
     val canvasState: MutableState<CanvasState>,
     val setCanvasState: (CanvasState) -> Unit,
+    val debouncedResetCanvasState: (CanvasState) -> Unit,
 
     val notes: MutableState<List<NoteData>>,
     val uncreatedNote: MutableState<NoteData?>,
     val selectedNote: MutableState<NoteData?>,
+
+    val focusedNoteId: MutableState<Number?>,
+    val setFocusedNoteId: (Number?) -> Unit,
+
     val sharedNoteId: MutableState<Int>,
     val updateNote: (UpdateNoteData) -> Unit,
 
-    val focusRequester: FocusRequester
+    val focusRequester: FocusRequester,
+
+    val colorIdx: MutableState<Int>,
+    val resetColor: () -> Unit,
 )
 
 val LocalCanvasContext = compositionLocalOf<CanvasContext> { error("No canvas state found!") }
 
 @Composable
-fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: String, sharedNoteId: MutableState<Int>, navController: NavController) {
+fun CanvasContextProvider(
+    content: @Composable() () -> Unit,
+    currentScreen: String,
+    sharedNoteId: MutableState<Int>,
+    navController: NavController
+) {
     val screenName = remember { mutableStateOf("School Notes") }
 
     val scale = remember { mutableStateOf(1f) }
     val cursor = remember { mutableStateOf(Offset.Zero) }
     val translate = remember { mutableStateOf(Offset.Zero) }
 
-    val canvasState = remember { mutableStateOf(CanvasState.FOCUS_NOTE) }
+    val canvasState = remember { mutableStateOf(CanvasState.DEFAULT) }
     val setCanvasState =
         { newState: CanvasState -> if (canvasState.value != newState) canvasState.value = newState }
+
+    val canvasStateScope = rememberCoroutineScope()
+    // Unused arg to satisfy type constraint
+    val debouncedResetCanvasState =
+        debounce(500L, canvasStateScope) { _: CanvasState -> setCanvasState(CanvasState.DEFAULT) }
 
     val notes = remember { mutableStateOf<List<NoteData>>(listOf()) }
 
@@ -59,6 +85,10 @@ fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: Stri
 
     val uncreatedNote = remember { mutableStateOf<NoteData?>(null) }
     val selectedNote = remember { mutableStateOf<NoteData?>(null) }
+
+    val focusedNoteId = remember { mutableStateOf<Number?>(null) }
+    val setFocusedNoteId =
+        { id: Number? -> if (focusedNoteId.value != id) focusedNoteId.value = id }
 
     LaunchedEffect(currentScreen) {
         // Fetch notes once more after logging in
@@ -70,7 +100,6 @@ fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: Stri
     }
 
     LaunchedEffect(currentScreen) {
-        println("FETCHCHINGGN")
         // Fetch note after shared URI
         if (currentScreen == Screen.EditorScreen.name && sharedNoteId.value != -1) {
             val res = NoteRequests.fetchNote(sharedNoteId.value)
@@ -87,7 +116,7 @@ fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: Stri
 //    }
 
 
-    val scope = rememberCoroutineScope()
+    val updateNoteScope = rememberCoroutineScope()
     val updateNote: (UpdateNoteData) -> Unit = { updatedNote: UpdateNoteData ->
         notes.value = notes.value.map {
             val (id, title, positionX, positionY, plainTextContent, formattedContent, colour, ownerID) = updatedNote
@@ -106,27 +135,48 @@ fun CanvasContextProvider(content: @Composable() () -> Unit, currentScreen: Stri
             }
         }
         // Local state should not sync with server state here bc we need state updates to be synchronous
-        scope.launch {
+        updateNoteScope.launch {
             NoteRequests.updateNote(updatedNote)
         }
         println("Updated Note: ${updatedNote}")
     }
 
     val focusRequester = remember { FocusRequester() }
+
+    val colorIdx = remember { mutableStateOf(0) }
+    val resetColor = { colorIdx.value = 0 }
+
+    // Reset the color when a new note gets focus
+    LaunchedEffect(focusedNoteId.value) {
+        resetColor()
+    }
+
     CompositionLocalProvider(
         LocalCanvasContext provides CanvasContext(
             screenName,
+
             scale,
             cursor,
             translate,
+
             canvasState,
             setCanvasState,
+            debouncedResetCanvasState,
+
             notes,
             uncreatedNote,
             selectedNote,
+
+            focusedNoteId,
+            setFocusedNoteId,
+
             sharedNoteId,
             updateNote,
-            focusRequester
+
+            focusRequester,
+
+            colorIdx,
+            resetColor,
         ),
     ) {
         content()

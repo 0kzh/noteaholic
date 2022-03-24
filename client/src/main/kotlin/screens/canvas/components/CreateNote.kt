@@ -22,20 +22,17 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import controllers.NoteRequests
 import kotlinx.coroutines.launch
-import screens.canvas.LocalCanvasContext
-import screens.canvas.CanvasState
-import screens.canvas.NoteData
+import screens.canvas.*
 import kotlin.math.roundToInt
-
-const val DEFAULT_COLOUR = "FFFCE183"
 
 @Composable
 fun CreateNote(
 ) {
     val canvasState = LocalCanvasContext.current.canvasState
+    val setCanvasState = LocalCanvasContext.current.setCanvasState
     val uncreatedNote = LocalCanvasContext.current.uncreatedNote
     val notes = LocalCanvasContext.current.notes
-    val updateNote = LocalCanvasContext.current.updateNote
+    val setFocusedNoteId = LocalCanvasContext.current.setFocusedNoteId
 
     val scope = rememberCoroutineScope()
 
@@ -54,7 +51,7 @@ fun CreateNote(
             positionY = position.y,
             plainTextContent = "",
             formattedContent = "",
-            colour = DEFAULT_COLOUR,
+            colour = COLOR_DEFAULT.toString(),
             createdAt = "",
             modifiedAt = "",
             ownerID = -1
@@ -64,7 +61,8 @@ fun CreateNote(
 
         // Make the request to create note
         scope.launch {
-            val res = NoteRequests.createNote(CreateNoteData(title, position.x, position.y, "", "", DEFAULT_COLOUR))
+            val res =
+                NoteRequests.createNote(CreateNoteData(title, position.x, position.y, "", "", COLOR_DEFAULT.toString()))
             if (res != null) {
                 // Update the note id after successfully creating the note
                 notes.value = notes.value.map {
@@ -76,6 +74,8 @@ fun CreateNote(
                         it
                     }
                 }
+                setCanvasState(CanvasState.FOCUS_NOTE)
+                setFocusedNoteId(res.id)
             }
         }
 
@@ -105,7 +105,7 @@ fun PreviewNote(
     val previewNotePosition = IntOffset(x = positionX.roundToInt(), y = positionY.roundToInt())
 
     @OptIn(ExperimentalFoundationApi::class) Box(Modifier.offset { previewNotePosition }
-        .background(Color(DEFAULT_PREVIEW_COLOR)).size(size).padding(24.dp))
+        .background(Color(COLOR_PREVIEW)).size(size).padding(24.dp))
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -140,7 +140,7 @@ fun UncreatedNote(
                 positionX + translateX,
                 positionY + translateY
             )
-        }.background(Color(DEFAULT_COLOR)).size(size).padding(24.dp)
+        }.background(Color(COLOR_DEFAULT)).size(size).padding(24.dp)
     ) {
         BasicTextField(
             title.value,

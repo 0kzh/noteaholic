@@ -107,6 +107,7 @@ object NoteRepository {
                         it[Notes.positionY],
                         it[Notes.plainTextContent],
                         it[Notes.formattedContent],
+                        it[Notes.colour],
                         it[Notes.createdAt].toString(),
                         it[Notes.modifiedAt].toString(),
                         it[Notes.owner]
@@ -156,7 +157,7 @@ object NoteRepository {
             positionY?.let { note.positionY = it }
             plainTextContent?.let { note.plainTextContent = it }
             formattedContent?.let { note.formattedContent = it }
-            colour?.let{ note.colour = it }
+            colour?.let { note.colour = it }
             ownerID?.let { note.owner = it }
             note.modifiedAt = Clock.System.now().toLocalDateTime(TimeZone.UTC)
             return@transaction note

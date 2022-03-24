@@ -16,3 +16,5 @@
   - Mindrot JBCrypt (https://www.mindrot.org/projects/jBCrypt/)
   - JetBrains Compose Desktop - https://github.com/JetBrains/compose-jb
   - Androidx Jetpack Compose - https://github.com/androidx/androidx
+  - SendGrid (for sending emails) - https://docs.sendgrid.com/for-developers/sending-email/v3-java-code-example
+

@@ -119,7 +119,7 @@ object NoteOperations {
                 // Note: referenced SendGrid API documentation for the following snippet (converted Java to Kotlin)
                 // https://docs.sendgrid.com/for-developers/sending-email/v3-java-code-example
                 val from = Email("advait@maybhate.com")
-                val subject = "A new note has been shared with you"
+                val subject = "Noteaholic: A new note has been shared with you"
                 val to = Email(userEmail)
                 val content = Content("text/html", EmailTemplate.emailTemplate.replace(
                     "REPLACE_NOTE_ID", createSharedNoteData.noteID.toString()))

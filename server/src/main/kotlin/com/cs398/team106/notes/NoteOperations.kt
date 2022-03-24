@@ -3,15 +3,18 @@ package com.cs398.team106.notes
 import com.cs398.team106.*
 import com.cs398.team106.applicationcall.receiveOrBadRequest
 import com.cs398.team106.authentication.UserAuthentication
+import com.cs398.team106.notes.NoteOperations.getJWTUserID
 import com.cs398.team106.repository.NOTE_ACCESS_LEVEL
 import com.cs398.team106.repository.NoteRepository
 import com.cs398.team106.repository.UserRepository
+import com.sendgrid.*
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.auth.jwt.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.util.*
+import java.io.IOException
 
 
 object NoteOperations {
@@ -78,7 +81,7 @@ object NoteOperations {
         call.respond(HttpStatusCode.OK, retrievedNotes.map { it.toModel() })
     }
 
-    suspend fun addSharedNotes(call: ApplicationCall) {
+    suspend fun addSharedNotes(call: ApplicationCall, apiKey: String) {
         val userAuthID = getJWTUserID(call)
         call.receiveOrBadRequest<CreateSharedNoteData>()?.let { createSharedNoteData ->
             val accessLevel = NoteRepository.getNoteAccessLevel(createSharedNoteData.noteID, userAuthID)
@@ -112,6 +115,31 @@ object NoteOperations {
                     )
                     return
                 }
+
+                // Note: referenced SendGrid API documentation for the following snippet (converted Java to Kotlin)
+                // https://docs.sendgrid.com/for-developers/sending-email/v3-java-code-example
+                val from = Email("advait@maybhate.com")
+                val subject = "A new note has been shared with you"
+                val to = Email(userEmail)
+                val content = Content("text/html", EmailTemplate.emailTemplate.replace(
+                    "REPLACE_NOTE_ID", createSharedNoteData.noteID.toString()))
+                val mail = Mail(from, subject, to, content)
+
+
+                val sg = SendGrid(apiKey)
+                val request = Request()
+                try {
+                    request.method = Method.POST
+                    request.endpoint = "mail/send"
+                    request.body = mail.build()
+                    val response = sg.api(request)
+                    println(response.statusCode)
+                    println(response.body)
+                    println(response.headers)
+                } catch (ex: IOException) {
+                    println("Encountered exception: " + ex.stackTrace.toString())
+                }
+
                 allUsers.add(user)
             }
             val allUserIDs = allUsers.map { it.id.value }
@@ -119,6 +147,7 @@ object NoteOperations {
                 createSharedNoteData.noteID,
                 allUserIDs
             )
+
             if (sharedNotes == null) {
                 call.respond(
                     HttpStatusCode.BadRequest, ErrorResponse(

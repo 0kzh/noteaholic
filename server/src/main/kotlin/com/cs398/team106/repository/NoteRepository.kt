@@ -107,6 +107,7 @@ object NoteRepository {
                         it[Notes.positionY],
                         it[Notes.plainTextContent],
                         it[Notes.formattedContent],
+                        it[Notes.colour],
                         it[Notes.createdAt].toString(),
                         it[Notes.modifiedAt].toString(),
                         it[Notes.owner]

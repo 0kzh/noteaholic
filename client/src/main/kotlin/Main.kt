@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
@@ -139,7 +140,7 @@ fun main(args: Array<String>) = application {
             }
         }
     ) {
-        MaterialTheme(typography = CustomTypography) {
+        MaterialTheme(typography = CustomTypography, colors = MaterialTheme.colors.copy(primary = Color(0xFF7FCCE7))) {
 
             if (canConnect) {
                 App(navController, sharedNoteId, showPalette)

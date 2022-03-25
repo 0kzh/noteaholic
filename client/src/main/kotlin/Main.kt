@@ -108,18 +108,21 @@ fun main(args: Array<String>) = application {
         else Screen.LoginScreen.name
     )
 
-    nHttpClient.onAuthFailure = {
-        println("Called on authFailure")
-        navController.navigate(Screen.LoginScreen.name)
-    }
 
     val isSupported = Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_URI)
     if (isSupported) {
+        println("IN SUPPORTED")
         Desktop.getDesktop().setOpenURIHandler { event ->
             sharedNoteId.value = getNoteIdFromURI(event.uri) ?: -1
+            navController.navigate(Screen.EditorScreen.name)
         }
     } else if (args.size == 1) {
         sharedNoteId.value = getNoteIdFromURI(URI(args[0])) ?: -1
+    }
+
+    nHttpClient.onAuthFailure = {
+        println("Called on authFailure")
+        navController.navigate(Screen.LoginScreen.name)
     }
 
     scope.launch {

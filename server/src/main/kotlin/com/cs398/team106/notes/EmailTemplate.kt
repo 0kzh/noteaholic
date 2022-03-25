@@ -46,7 +46,7 @@ object EmailTemplate {
                 <tbody>
                   <tr>
                     <td style="width: 500px;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;">
-                      <img height="auto" src="https://i.imgur.com/YifIvjz.png" style="border: 0;display: block;outline: none;text-decoration: none;height: auto;width: 100%;font-size: 13px;line-height: 100%;-ms-interpolation-mode: bicubic;" title="" width="500">
+                      <img height="auto" src="https://i.imgur.com/j6joOqE.png" style="border: 0;display: block;outline: none;text-decoration: none;height: auto;width: 100%;font-size: 13px;line-height: 100%;-ms-interpolation-mode: bicubic;" title="" width="500">
                     </td>
                   </tr>
                 </tbody>

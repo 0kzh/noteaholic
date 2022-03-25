@@ -28,14 +28,14 @@ object UserRepository {
                 this.lastName = lastName
                 this.email = email
                 this.password = hashedPassword
-                this.lastSignInDate = Clock.System.now().toLocalDateTime(TimeZone.UTC)
+                this.lastSignInDate = Clock.System.now().toLocalDateTime(TimeZone.of("UTC-4"))
             }
         }
     }
 
     fun login(dbUser: DBUser) {
         transaction {
-            dbUser.lastSignInDate = Clock.System.now().toLocalDateTime(TimeZone.UTC)
+            dbUser.lastSignInDate = Clock.System.now().toLocalDateTime(TimeZone.of("UTC-4"))
         }
     }
 }

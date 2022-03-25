@@ -46,8 +46,8 @@ object NoteRepository {
                 this.plainTextContent = plainTextContent
                 this.formattedContent = formattedContent
                 this.colour = colour
-                this.createdAt = Clock.System.now().toLocalDateTime(TimeZone.UTC)
-                this.modifiedAt = Clock.System.now().toLocalDateTime(TimeZone.UTC)
+                this.createdAt = Clock.System.now().toLocalDateTime(TimeZone.of("UTC-4"))
+                this.modifiedAt = Clock.System.now().toLocalDateTime(TimeZone.of("UTC-4"))
                 this.owner = ownerID
             }
         }
@@ -160,7 +160,7 @@ object NoteRepository {
             formattedContent?.let { note.formattedContent = it }
             colour?.let { note.colour = it }
             ownerID?.let { note.owner = it }
-            note.modifiedAt = Clock.System.now().toLocalDateTime(TimeZone.UTC)
+            note.modifiedAt = Clock.System.now().toLocalDateTime(TimeZone.of("UTC-4"))
             return@transaction note
         }
     }

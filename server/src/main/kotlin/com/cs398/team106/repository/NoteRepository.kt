@@ -92,6 +92,7 @@ object NoteRepository {
                 Notes.positionY,
                 Notes.plainTextContent,
                 Notes.formattedContent,
+                Notes.colour,
                 Notes.createdAt,
                 Notes.modifiedAt,
                 Notes.owner,

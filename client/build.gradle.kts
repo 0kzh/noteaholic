@@ -58,6 +58,7 @@ compose.desktop {
             packageName = "client"
             packageVersion = "1.0.0"
             macOS {
+                iconFile.set(File("src/main/resources/img/icon.icns"))
                 bundleID = group.toString()
                 infoPlist {
                     extraKeysRawXml = macExtraPlistKeys

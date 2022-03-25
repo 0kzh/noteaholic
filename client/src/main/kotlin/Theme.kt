@@ -24,6 +24,7 @@ val InterFontFamily = FontFamily(
     ),
 )
 
+
 val CustomTypography = Typography(
     h1 = TextStyle(
         fontFamily = InterFontFamily,

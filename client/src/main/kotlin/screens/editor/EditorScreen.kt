@@ -18,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -58,7 +59,6 @@ fun EditorScreen(
 
     var text by rememberSaveable { mutableStateOf("") }
     var createdAt by rememberSaveable { mutableStateOf(sharedNoteId.value.toString()) }
-    var isEditingTitle by remember { mutableStateOf(false) }
     var currentTitle by remember { mutableStateOf("") }
 
     LaunchedEffect(selectedNote.value) {
@@ -72,10 +72,8 @@ fun EditorScreen(
     val focusRequester = remember { FocusRequester() }
     val emails = remember { mutableStateOf("") }
 
-    LaunchedEffect(isEditingTitle) {
-        if (isEditingTitle) {
-            focusRequester.requestFocus()
-        }
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 
     val alertDialog = remember { mutableStateOf(false) }
@@ -85,7 +83,12 @@ fun EditorScreen(
     val tableData = listOf<Pair<String, ComposableFun>>(
         Pair(
             "Last Modified"
-        ) { if (selectedNote.value != null) Text(formatDateTime(selectedNote.value!!.modifiedAt), it) else Text("", it) },
+        ) {
+            if (selectedNote.value != null) Text(formatDateTime(selectedNote.value!!.modifiedAt), it) else Text(
+                "",
+                it
+            )
+        },
         Pair("Created by") {
             Row(
                 it, horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -104,7 +107,7 @@ fun EditorScreen(
     )
 
     Box(
-        modifier = Modifier.fillMaxWidth().background(Color.White)
+        modifier = Modifier.fillMaxWidth().background(Color.White).blur(if (alertDialog.value) 7.dp else 0.dp)
     ) {
         TopAppBar(
             backgroundColor = Color.Transparent,
@@ -180,11 +183,9 @@ fun EditorScreen(
                             ) {
                                 Text(text = title, Modifier.weight(.25f), color = Color.Gray)
                                 component(Modifier.weight(.75f))
-//                                Text("asdf", Modifier.weight(.75f))
                             }
                         }
                     }
-//                    Text("Tags: ")
                 }
 
                 if (alertDialog.value) {
@@ -194,7 +195,8 @@ fun EditorScreen(
                 Divider(color = Color.LightGray, thickness = 1.dp)
 
                 BasicTextField(
-                    modifier = Modifier.padding(0.dp, 36.dp).fillMaxWidth().fillMaxHeight(),
+                    modifier = Modifier.padding(0.dp, 36.dp).fillMaxWidth().fillMaxHeight()
+                        .focusRequester(focusRequester),
                     value = text,
                     onValueChange = {
                         text = it

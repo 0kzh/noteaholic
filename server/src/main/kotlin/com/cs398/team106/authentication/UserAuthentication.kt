@@ -13,7 +13,7 @@ import java.util.*
 import kotlin.time.Duration.Companion.hours
 
 object UserAuthentication {
-    val jwtTTL = 1.hours.inWholeMilliseconds
+    val jwtTTL = 24.hours.inWholeMilliseconds
     const val emailClaim = "email"
     const val userIdClaim = "userId"
     const val name = "name"

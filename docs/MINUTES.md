@@ -38,3 +38,10 @@ Meeting 18: https://docs.google.com/document/d/12Qrl3q4HMYfjrXSNV4VB-wvPz877OBoZ
 
 Meeting 19: https://docs.google.com/document/d/1EuWqERzltXZsUj1dldH7LTMJZCTzGSHne9WnN1lJ62Q/edit?usp=sharing
 
+Meeting 20: https://docs.google.com/document/d/13OCFSToeSSj80Dpoxw43BjU0kTZQWEfm6otOTlsV2vc/edit?usp=sharing
+
+Meeting 21: https://docs.google.com/document/d/1owrRFi-HHbF7gtYw-AX3SXCb0LB92Ql1D2QTVPlKM1I/edit?usp=sharing
+
+Meeting 22: https://docs.google.com/document/d/1HSn89udhN1-0l4-SSXX16cRGOb9QzejynRuB5CKIf4U/edit?usp=sharing
+
+Meeting 23: https://docs.google.com/document/d/1N7z1WNdVEwgJ7g3n7MH_Sxrf6bVkL91PxQxPDlab5xM/edit?usp=sharing

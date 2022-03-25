@@ -8,6 +8,7 @@
 - Order of focus modifiers - https://stackoverflow.com/questions/70015530/unable-to-focus-anything-other-than-textfield
 - How to create a fat JAR with dependencies - https://stackoverflow.com/questions/41794914/how-to-create-a-fat-jar-with-gradle-kotlin-script
 - Improving performance with keys - https://pankaj-rai.medium.com/jetpack-compose-optimize-list-performance-with-key-1066567339f9
+- Parsing Bold HTML Tags in a clean way - https://stackoverflow.com/questions/66494838/android-compose-how-to-use-html-tags-in-a-text-view
 
 - Dependencies/libraries used:
   - JetBrains Exposed SQL Framework (https://github.com/JetBrains/Exposed)
@@ -16,3 +17,5 @@
   - Mindrot JBCrypt (https://www.mindrot.org/projects/jBCrypt/)
   - JetBrains Compose Desktop - https://github.com/JetBrains/compose-jb
   - Androidx Jetpack Compose - https://github.com/androidx/androidx
+  - SendGrid (for sending emails) - https://docs.sendgrid.com/for-developers/sending-email/v3-java-code-example
+

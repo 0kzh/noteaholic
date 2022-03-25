@@ -1,9 +1,16 @@
 package screens.canvas
 
-import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -11,8 +18,11 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType.Companion.KeyDown
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.onPointerEvent
@@ -20,11 +30,13 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import navcontroller.NavController
-import screens.canvas.components.*
+import screens.canvas.components.CreateNote
+import screens.canvas.components.DEFAULT_NOTE_SIZE
+import screens.canvas.components.Navbar
+import screens.canvas.components.Note
 import kotlin.math.roundToInt
 
 val CELL_SIZE = 50f
-val SCROLL_SENSITIVITY = 0.0005f
 
 @Composable
 fun CanvasScreen(
@@ -47,7 +59,7 @@ fun CanvasBackground(navController: NavController) {
     val notes = LocalCanvasContext.current.notes
 
     Canvas(
-        modifier = Modifier.fillMaxSize().background(Color.White).createNote().scale().translate().updateCursor()
+        modifier = Modifier.fillMaxSize().background(Color.White).createNote().translate().updateCursor()
             .keyboardShortcuts(),
     ) {
         val canvasWidth = size.width
@@ -78,45 +90,25 @@ fun CanvasBackground(navController: NavController) {
     CreateNote()
 }
 
-/**
- * Scales all canvas contents
- */
-fun Modifier.scale(): Modifier = composed {
-    val scale = LocalCanvasContext.current.scale
-    val setCanvasState = LocalCanvasContext.current.setCanvasState
-
-    this.scrollable(orientation = Orientation.Vertical, state = rememberScrollableState { delta ->
-        // Delta is negative when scrolling up
-        if (delta > 0 && scale.value < 2.0f) {
-            scale.value = Math.min(scale.value + delta * SCROLL_SENSITIVITY, 2.0f)
-        }
-        if (delta < 0 && scale.value > 0.8) {
-            scale.value = Math.max(scale.value + delta * SCROLL_SENSITIVITY, 0.8f)
-        }
-        setCanvasState(CanvasState.FOCUS_CANVAS)
-
-        delta
-    })
-}
 
 /**
  * Translates all canvas contents
  */
 fun Modifier.translate(): Modifier = composed {
     val translate = LocalCanvasContext.current.translate
-    val setCanvasState = LocalCanvasContext.current.setCanvasState
+    val canvasState = LocalCanvasContext.current.canvasState
 
     this.pointerInput(Unit) {
         detectDragGestures { change, dragAmount ->
-            change.consumeAllChanges()
+            if (canvasState.value == CanvasState.FOCUS_CANVAS) {
+                change.consumeAllChanges()
 
-            val newTranslateX = translate.value.x + dragAmount.x
-            val newTranslateY = translate.value.y + dragAmount.y
-            translate.value = Offset(newTranslateX, newTranslateY)
+                val newTranslateX = translate.value.x + dragAmount.x
+                val newTranslateY = translate.value.y + dragAmount.y
+                translate.value = Offset(newTranslateX, newTranslateY)
 
-            println("Translate")
-
-            setCanvasState(CanvasState.FOCUS_CANVAS)
+                println("Translate")
+            }
         }
     }
 }
@@ -164,7 +156,7 @@ fun Modifier.createNote(): Modifier = composed {
                     positionY = previewNotePosition.y,
                     plainTextContent = "",
                     formattedContent = "",
-                    colour = "FFFCE183",
+                    colour = COLOR_DEFAULT.toString(),
                     createdAt = "",
                     modifiedAt = "",
                     ownerID = -1
@@ -182,10 +174,12 @@ fun Modifier.keyboardShortcuts(): Modifier = composed {
     val canvasState = LocalCanvasContext.current.canvasState
     val setCanvasState = LocalCanvasContext.current.setCanvasState
     val focusRequester = LocalCanvasContext.current.focusRequester
+    val setFocusedNoteId = LocalCanvasContext.current.setFocusedNoteId
+    val debouncedResetCanvasState = LocalCanvasContext.current.debouncedResetCanvasState
 
     // Resume focus onto Canvas when possible for keyboard shortcuts to work
     LaunchedEffect(canvasState.value) {
-        if (canvasState.value != CanvasState.CREATING_NOTE) {
+        if (canvasState.value != CanvasState.CREATING_NOTE && canvasState.value != CanvasState.FOCUS_NOTE) {
             println("canvas requested focus")
             focusRequester.requestFocus()
         }
@@ -197,11 +191,23 @@ fun Modifier.keyboardShortcuts(): Modifier = composed {
         when (it.type) {
             KeyDown -> {
                 when (it.key) {
+                    Key.E -> {
+                        setCanvasState(CanvasState.EDITING_NOTE)
+                    }
                     Key.N -> {
                         setCanvasState(CanvasState.NEW_NOTE)
                     }
                     Key.T -> {
                         setCanvasState(CanvasState.NEW_TEXT)
+                    }
+                    Key.Spacebar -> {
+                        setCanvasState(CanvasState.FOCUS_CANVAS)
+                        setFocusedNoteId(null)
+                        debouncedResetCanvasState(CanvasState.DEFAULT)
+                    }
+                    Key.Escape -> {
+                        setCanvasState(CanvasState.DEFAULT)
+                        setFocusedNoteId(null)
                     }
                 }
             }

@@ -13,6 +13,8 @@ fun Application.configureRouting() {
     val secret = environment.config.property("jwt.secret").getString()
     val issuer = environment.config.property("jwt.issuer").getString()
 
+    val apiKey = environment.config.property("sendgrid.key").getString()
+
     routing {
         get("/") {
             call.respondText("Hello World!")
@@ -52,7 +54,7 @@ fun Application.configureRouting() {
             }
 
             post("/note/add_collaborator") {
-                NoteOperations.addSharedNotes(call)
+                NoteOperations.addSharedNotes(call, apiKey)
             }
 
             get("/note/{id}") {

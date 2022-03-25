@@ -1,8 +1,5 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
@@ -17,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import components.ConnectionError
-import screens.SearchPalette
 import controllers.Authentication
 import controllers.EditorController
 import kotlinx.coroutines.delay
@@ -33,6 +29,7 @@ import navcontroller.NavController
 import navcontroller.NavigationHost
 import navcontroller.composable
 import navcontroller.rememberNavController
+import screens.SearchPalette
 import screens.canvas.CanvasContextProvider
 import screens.canvas.CanvasScreen
 import screens.editor.EditorScreen
@@ -48,16 +45,9 @@ data class Config(val url: String)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 @Preview
-fun App(authenticated: Boolean, sharedNoteId: MutableState<Int>, showPalette: MutableState<Boolean>) {
+fun App(navController: NavController, sharedNoteId: MutableState<Int>, showPalette: MutableState<Boolean>) {
     println("Got SharedNoteId in App $sharedNoteId")
     val screens = Screen.values().toList()
-    val navController by rememberNavController(
-        if (authenticated) (
-                if (sharedNoteId.value != -1) Screen.EditorScreen.name
-                else Screen.CanvasScreen.name)
-        else Screen.LoginScreen.name
-    )
-
     val currentScreen by remember {
         navController.currentScreen
     }
@@ -107,9 +97,20 @@ fun main(args: Array<String>) = application {
     val isJWTValid = jwt.isNotBlank() &&
             runBlocking {
                 canConnect = nHttpClient.canConnectToServer()
-                canConnect && Authentication.isJWTValid(jwt)
+                canConnect && Authentication.isJWTValid()
             }
 
+    val navController by rememberNavController(
+        if (isJWTValid) (
+                if (sharedNoteId.value != -1) Screen.EditorScreen.name
+                else Screen.CanvasScreen.name)
+        else Screen.LoginScreen.name
+    )
+
+    nHttpClient.onAuthFailure = {
+        println("Called on authFailure")
+        navController.navigate(Screen.LoginScreen.name)
+    }
 
     val isSupported = Desktop.getDesktop().isSupported(Desktop.Action.APP_OPEN_URI)
     if (isSupported) {
@@ -141,7 +142,7 @@ fun main(args: Array<String>) = application {
         MaterialTheme(typography = CustomTypography) {
 
             if (canConnect) {
-                App(isJWTValid, sharedNoteId, showPalette)
+                App(navController, sharedNoteId, showPalette)
             } else {
                 ConnectionError()
             }

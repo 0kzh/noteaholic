@@ -22,7 +22,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import controllers.NoteRequests
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import screens.canvas.*
+import java.util.*
 import kotlin.math.roundToInt
 
 @Composable
@@ -52,8 +56,8 @@ fun CreateNote(
             plainTextContent = "",
             formattedContent = "",
             colour = COLOR_DEFAULT.toString(),
-            createdAt = "",
-            modifiedAt = "",
+            createdAt = Clock.System.now().toLocalDateTime(TimeZone.of("UTC-4")).toString(),
+            modifiedAt = Clock.System.now().toLocalDateTime(TimeZone.of("UTC-4")).toString(),
             ownerID = -1
         )
         newList.add(newNote)

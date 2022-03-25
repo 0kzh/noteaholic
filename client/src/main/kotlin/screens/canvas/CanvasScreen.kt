@@ -30,6 +30,9 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import navcontroller.NavController
 import screens.canvas.components.CreateNote
 import screens.canvas.components.DEFAULT_NOTE_SIZE
@@ -159,8 +162,8 @@ fun Modifier.createNote(): Modifier = composed {
                     plainTextContent = "",
                     formattedContent = "",
                     colour = COLOR_DEFAULT.toString(),
-                    createdAt = "",
-                    modifiedAt = "",
+                    createdAt = Clock.System.now().toLocalDateTime(TimeZone.of("UTC-4")).toString(),
+                    modifiedAt = Clock.System.now().toLocalDateTime(TimeZone.of("UTC-4")).toString(),
                     ownerID = -1
                 )
             }

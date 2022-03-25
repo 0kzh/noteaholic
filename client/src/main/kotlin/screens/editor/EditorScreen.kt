@@ -31,18 +31,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import components.Avatar
-import components.Border
 import components.OutlinedTextFieldWithError
-import components.border
 import controllers.EditorController
 import controllers.NoteRequests
 import kotlinx.coroutines.launch
 import navcontroller.NavController
-import org.intellij.markdown.MarkdownElementTypes
-import org.intellij.markdown.ast.ASTNode
-import org.intellij.markdown.ast.CompositeASTNode
-import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
-import org.intellij.markdown.parser.MarkdownParser
 import screens.canvas.LocalCanvasContext
 import utils.debounce
 import utils.formatDateTime
@@ -92,14 +85,14 @@ fun EditorScreen(
     val tableData = listOf<Pair<String, ComposableFun>>(
         Pair(
             "Last Modified"
-        ) { Text(formatDateTime(selectedNote.value!!.modifiedAt), it) },
+        ) { if (selectedNote.value != null) Text(formatDateTime(selectedNote.value!!.modifiedAt), it) else Text("", it) },
         Pair("Created by") {
             Row(
                 it, horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Avatar(
-                    id = selectedNote.value!!.ownerID.toString(),
+                    id = if (selectedNote.value != null) selectedNote.value!!.ownerID.toString() else "",
                     firstName = PrivateJSONToken.getNameOfUser().split(" ")[0],
                     lastName = PrivateJSONToken.getNameOfUser().split(" ")[1],
                     size = 24.dp
@@ -198,10 +191,10 @@ fun EditorScreen(
                     ShareNoteDialog(emails, alertDialog, selectedNote.value!!.id)
                 }
 
-                Divider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.padding(16.dp))
+                Divider(color = Color.LightGray, thickness = 1.dp)
 
                 BasicTextField(
-                    modifier = Modifier.padding(16.dp, 1.dp).fillMaxWidth().fillMaxHeight(),
+                    modifier = Modifier.padding(0.dp, 36.dp).fillMaxWidth().fillMaxHeight(),
                     value = text,
                     onValueChange = {
                         text = it

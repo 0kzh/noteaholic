@@ -40,7 +40,7 @@ fun Navbar(navController: NavController, showPalette: MutableState<Boolean>) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Box(modifier = Modifier.size(0.dp))
+        Box(modifier = Modifier.width(100.dp))
 //        Zoom()
         Text(text = screenName.value, style = MaterialTheme.typography.h4)
 //        Zoom()

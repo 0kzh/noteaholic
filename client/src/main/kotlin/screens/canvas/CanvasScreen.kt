@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -40,10 +41,11 @@ val CELL_SIZE = 50f
 
 @Composable
 fun CanvasScreen(
-    navController: NavController
+    navController: NavController,
+    showPalette: MutableState<Boolean>
 ) {
     CanvasBackground(navController = navController)
-    Navbar(navController)
+    Navbar(navController, showPalette)
 
     Box(
         modifier = Modifier.fillMaxSize().offset { IntOffset(0, -50) },

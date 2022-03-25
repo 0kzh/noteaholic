@@ -62,7 +62,7 @@ fun App(navController: NavController, sharedNoteId: MutableState<Int>, showPalet
                 SearchPalette({ showPalette.value = false }, navController)
             }
             Box(modifier = Modifier.blur(if (showPalette.value) 7.dp else 0.dp)) {
-                Router(navController = navController)
+                Router(navController = navController, showPalette = showPalette)
             }
         },
         currentScreen = currentScreen,
@@ -169,7 +169,8 @@ enum class Screen() {
 
 @Composable
 fun Router(
-    navController: NavController
+    navController: NavController,
+    showPalette: MutableState<Boolean>
 ) {
     NavigationHost(navController) {
         composable(Screen.LoginScreen.name) {
@@ -181,7 +182,7 @@ fun Router(
         }
 
         composable(Screen.CanvasScreen.name) {
-            CanvasScreen(navController)
+            CanvasScreen(navController, showPalette)
         }
 
         composable(Screen.SignUpScreen.name) {

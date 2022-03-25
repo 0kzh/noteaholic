@@ -8,7 +8,10 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,7 +31,7 @@ fun Zoom(
 }
 
 @Composable
-fun Navbar(navController: NavController) {
+fun Navbar(navController: NavController, showPalette: MutableState<Boolean>) {
     val screenName = LocalCanvasContext.current.screenName
 
     Row(
@@ -41,9 +44,14 @@ fun Navbar(navController: NavController) {
 //        Zoom()
         Text(text = screenName.value, style = MaterialTheme.typography.h4)
 //        Zoom()
-        IconButton({
-            Authentication.logout()
-            navController.navigate(Screen.LoginScreen.name)
-        }) { Icon(Icons.Filled.ExitToApp, "Log out") }
+        Row {
+            IconButton({
+                showPalette.value = true
+            }) { Icon(Icons.Filled.Search, "Search notes") }
+            IconButton({
+                Authentication.logout()
+                navController.navigate(Screen.LoginScreen.name)
+            }) { Icon(Icons.Filled.ExitToApp, "Log out") }
+        }
     }
 }

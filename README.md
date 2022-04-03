@@ -12,6 +12,9 @@
 ## Table of Contents
 [[_TOC_]]
 
+## About the Project
+
+
 
 ## Quick Start Guide
 
@@ -20,6 +23,8 @@
 </div>
 <br />
 <br />
+
+Currently the application is built for `macOS` to install the application first download the latest distribution of our application here. 
 
 Additional information is included in our [wiki](https://git.uwaterloo.ca/lfattakh/cs398project/-/wikis/home)
 
@@ -37,6 +42,12 @@ This project is broken into two separate portions:
 
 Each of these have their own `README.md` files to help setup the development environment.
 However the server should be launched before the client in order to speed up development. As the client will switch empty waiting for server state until it detects that the server is running.
+
+Both projects have been developed using JetBrains IntelliJ IDEA and as a result have configurations for this IDE in the `.idea` folders. However you can use any code editor or tool that you wish to use. The build system used for both these projects is Gradle with the Kotlin DSL. As a result commonly used gradle tasks are available in both projects. Some common Gradle tasks used in development are:
+* `gradlew build` - builds the project
+* `gradlew test` - runs the unit tests for the project
+* `gradlew run` - runs the project
+
 
 ## The Team
 
@@ -78,7 +89,7 @@ However the server should be launched before the client in order to speed up dev
 - Improving performance with keys - https://pankaj-rai.medium.com/jetpack-compose-optimize-list-performance-with-key-1066567339f9
 - Parsing Bold HTML Tags in a clean way - https://stackoverflow.com/questions/66494838/android-compose-how-to-use-html-tags-in-a-text-view
 
-### Libraries:
+### Libraries
   - JetBrains Exposed SQL Framework - https://github.com/JetBrains/Exposed
   - Ktor Server and Client - https://github.com/ktorio/ktor
   - Xerial SQLite - https://github.com/xerial/sqlite-jdbc

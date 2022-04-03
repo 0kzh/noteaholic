@@ -1,12 +1,12 @@
 <br />
-<p align="center">
+<div align="center">
   <a href="https://git.uwaterloo.ca/lfattakh/cs398project">
     <img src="client/src/main/resources/img/noteaholic.svg" alt="Logo" width="400" height="100">
   </a>
 
   <h3 align="center">A Canvas Based Note Taking Application</h3>
   <h4 align="center">Leon Fattakhov, Advait Maybhate, Steven Xu, Kelvin Zhang</h3>
-</p>
+</div>
 
 
 ## Table of Contents

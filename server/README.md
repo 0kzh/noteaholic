@@ -1,3 +1,5 @@
+[[_TOC_]]
+
 ## About
 
 In order for our note taking application to function, an API is required. This server provides an API for note

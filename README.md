@@ -77,6 +77,7 @@ Both projects have been developed using JetBrains IntelliJ IDEA and as a result 
 
 ## License
 
+This project uses the GNU General Public License v3.0. The full details can be found in our [`LICENSE`](./LICENSE) file.
 
 ## Third Party Libraries & Code
 

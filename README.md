@@ -14,6 +14,7 @@
 
 ## About the Project
 
+Noteaholic is a free-form, spatial note-taking desktop application. It supports cloud-based storage of notes, with a custom user accounts system. We aim to emulate the organization of notes on a physical desk, with our unique approach of being able to move sticky notes on an infinite canvas.
 
 
 ## Quick Start Guide
@@ -24,7 +25,7 @@
 <br />
 <br />
 
-Currently the application is built for `macOS` to install the application first download the latest distribution of our application here. 
+Currently the application is built for `macOS` to install the application first download the latest distribution of our application [here](https://git.uwaterloo.ca/lfattakh/cs398project/-/raw/master/client/client-1.0.0.dmg?inline=false). 
 
 Additional information is included in our [wiki](https://git.uwaterloo.ca/lfattakh/cs398project/-/wikis/home)
 
@@ -41,7 +42,7 @@ This project is broken into two separate portions:
 * [The Client](https://git.uwaterloo.ca/lfattakh/cs398project/-/tree/master/client)
 
 Each of these have their own `README.md` files to help setup the development environment.
-However the server should be launched before the client in order to speed up development. As the client will switch empty waiting for server state until it detects that the server is running.
+However the server should be launched before the client in order to speed up development. As the client will switch to an empty state waiting until it detects that the server is running.
 
 Both projects have been developed using JetBrains IntelliJ IDEA and as a result have configurations for this IDE in the `.idea` folders. However you can use any code editor or tool that you wish to use. The build system used for both these projects is Gradle with the Kotlin DSL. As a result commonly used gradle tasks are available in both projects. Some common Gradle tasks used in development are:
 * `gradlew build` - builds the project

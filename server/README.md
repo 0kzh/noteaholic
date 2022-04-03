@@ -4,7 +4,7 @@
 
 In order for our note taking application to function, an API is required. This server provides an API for note
 management, searching, authentication and access control. It is built using Ktor using the coroutine-based IO
-Engine ([CIO](https://ktor.io/docs/engines.html)). The server implements the REST protocol.
+engine ([CIO](https://ktor.io/docs/engines.html)). The server implements the REST protocol.
 
 ## Getting Started
 
@@ -77,7 +77,6 @@ The possible errors are:
 | `ERR_ACCESS`    | `400`         | Access not resource is restricted |
 | `ERR_PASSWORD`  | `400`         | Password constraints violated     |
 
-And one of the following errors can be returnedthe following errors
 
 ### Authentication
 

@@ -40,13 +40,13 @@ Engine ([CIO](https://ktor.io/docs/engines.html)). The server implements the RES
 3. Create a `sendgrid.conf` file in `server/src/main/resources` and add configurations into the file. Below is an
    example of a configuration for such a file:
 
-```shell
-$ cat /server/src/main/resources/sendgrid.conf
+    ```shell
+    $ cat /server/src/main/resources/sendgrid.conf
 
-sendgrid {
-  key = "xx.xx.xx"
-}
-```
+    sendgrid {
+      key = "xx.xx.xx"
+    }
+    ```
 
 4. Run the server with your IDE or with `gradlew run`
 

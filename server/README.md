@@ -85,7 +85,7 @@ POST http://localhost/login
 
 **Response:**
 
-```json5
+```json
 {
   // token redacted
   "token": "xxxx.xxxxx.xxxx"
@@ -159,7 +159,7 @@ POST http://localhost/note
 
 **Request:**
 
-```json5
+```json
 {
   "title": "Title",
   "plainTextContent": "Content",
@@ -246,7 +246,7 @@ This endpoint supports partial note updates so only provide fields that should b
 
 **Request:**
 
-```json5
+```json
 {
   // optional
   "title": "New Title",

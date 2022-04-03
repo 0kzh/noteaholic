@@ -15,7 +15,9 @@
 
 ## Quick Start Guide
 
-<img align="center" src="docs/AppScreenShot.png" height="400">
+<div align="center">
+<img src="docs/AppScreenShot.png" height="400">
+</div>
 <br />
 <br />
 
@@ -38,26 +40,28 @@ However the server should be launched before the client in order to speed up dev
 
 ## The Team
 
-<table align="center">
-<tr>
-  <td align="center">
-    <img src="https://avatars.githubusercontent.com/coolcom200" title="Leon Fattakhov" width="120" height="120"> 
-    <h4>Leon Fattakhov</h4>
-  </td>
-  <td align="center">
-    <img src="https://ca.slack-edge.com/T025KUF9Y-UGNHHES3B-240900ed5074-512" title="Advait Maybhate" width="120" height="120"> 
-    <h4>Advait Maybhate</h4>
-  </td>
-  <td align="center">
-    <img src="https://ca.slack-edge.com/T025KUF9Y-UUXC7TP9R-374ac6303780-72" title="Steven Xu" width="120" height="120"> 
-    <h4>Steven Xu</h4>
-  </td>
-  <td align="center">
-    <img src="https://ca.slack-edge.com/T025KUF9Y-U01T5FQ1J77-b91b6953a1c6-512" title="Kelvin Zhang" width="120" height="120"> 
-    <h4>Kelvin Zhang</h4>
-  </td>
-</tr>
-</table>
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="https://avatars.githubusercontent.com/coolcom200" title="Leon Fattakhov" width="120" height="120"> 
+        <p>Leon Fattakhov</p>
+      </td>
+      <td align="center">
+        <img src="https://ca.slack-edge.com/T025KUF9Y-UGNHHES3B-240900ed5074-512" title="Advait Maybhate" width="120" height="120"> 
+        <p>Advait Maybhate</p>
+      </td>
+      <td align="center">
+        <img src="https://ca.slack-edge.com/T025KUF9Y-UUXC7TP9R-374ac6303780-72" title="Steven Xu" width="120" height="120"> 
+        <p>Steven Xu</p>
+      </td>
+      <td align="center">
+        <img src="https://ca.slack-edge.com/T025KUF9Y-U01T5FQ1J77-b91b6953a1c6-512" title="Kelvin Zhang" width="120" height="120"> 
+        <p>Kelvin Zhang</p>
+      </td>
+    </tr>
+  </table>
+</div>
 
 ## License
 

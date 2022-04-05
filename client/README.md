@@ -1,7 +1,10 @@
 # Client Configuration
 
-Configuration of the server is possible by modifiying the
-`resources/config/config.json` (create it if it doesn't exist)
+The client determines which server to connect to based on the configuration in the
+`resources/config/config.json`
+
+As a result this file needs to be created it if it doesn't exist and populated with a url. The following is an example
+configuration that can be used for testing.
 
 ```json
 {
@@ -9,3 +12,4 @@ Configuration of the server is possible by modifiying the
 }
 ```
 
+After setting up the configuration file the client can be started with `gradlew run`

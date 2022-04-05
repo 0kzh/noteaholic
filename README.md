@@ -16,6 +16,17 @@
 
 Noteaholic is a free-form, spatial note-taking desktop application. It supports cloud-based storage of notes, with a custom user accounts system. We aim to emulate the organization of notes on a physical desk, with our unique approach of being able to move sticky notes on an infinite canvas.
 
+## Client/Server READMEs
+
+Check out our client/server specific READMEs below:
+
+- [Client README](https://git.uwaterloo.ca/lfattakh/cs398project/-/blob/master/client/README.md)
+- [Server README](https://git.uwaterloo.ca/lfattakh/cs398project/-/tree/master/server)
+
+
+## Features/Requirements
+
+Check out [Features/Requirements](https://git.uwaterloo.ca/lfattakh/cs398project/-/wikis/Features-&-Requirements) for our Features/Requirements.
 
 ## Quick Start Guide
 

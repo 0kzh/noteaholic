@@ -40,8 +40,10 @@ val macExtraPlistKeys: String
       <key>CFBundleURLTypes</key>
       <array>
         <dict>
+          <key>CFBundleTypeRole</key>
+          <string>Viewer</string>
           <key>CFBundleURLName</key>
-          <string>Example deep link</string>
+          <string>com.cs398.team106</string>
           <key>CFBundleURLSchemes</key>
           <array>
             <string>noteaholic</string>

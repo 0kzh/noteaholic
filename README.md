@@ -25,7 +25,7 @@ Noteaholic is a free-form, spatial note-taking desktop application. It supports 
 <br />
 <br />
 
-Currently the application is built for `macOS` to install the application first download the latest distribution of our application [here](https://git.uwaterloo.ca/lfattakh/cs398project/-/raw/master/client/client-1.0.0.dmg?inline=false). 
+Currently the application is built for `macOS` to install the application first download the latest distribution of our application [here](https://git.uwaterloo.ca/lfattakh/cs398project/-/raw/master/client/client-1.0.0.dmg?inline=false). Please see our Wiki Home page if you run into "client.app is damaged" issues when opening the application - this is an error caused by Apple's security restrictions (our Wiki page outlines how to bypass it).
 
 Additional information is included in our [wiki](https://git.uwaterloo.ca/lfattakh/cs398project/-/wikis/home)
 
